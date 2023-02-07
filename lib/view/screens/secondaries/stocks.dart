@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
+import 'package:pay_match/utils/colors.dart';
+import 'package:pay_match/utils/styles/text_styles.dart';
+import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 
 import '../../../model/data_models/portfolio/Asset.dart';
@@ -27,6 +30,7 @@ class _StocksViewState extends State<StocksView> {
     StocksModel model = context.watch<StocksModel>();
     NetworkState networkState = model.allState;
     return Scaffold(
+
       appBar: AppBar(
         centerTitle: true,
         title: const Text("stocks"),
@@ -40,37 +44,83 @@ class _StocksViewState extends State<StocksView> {
           ? const LoadingScreen()
           : (networkState == NetworkState.ERROR)
               ? const ErrorScreen()
-              : ListView.builder(
-                  itemCount: model.allAssets.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () {
-                        //will be implemented
-                      },
-                      child: buildCard(model.allAssets[index]),
-                    );
-                  }),
+              : Container(
+                color: lightColorScheme.onSecondary,
+                child: ListView.separated(
+
+                    itemCount: model.allAssets.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+
+                        onTap: () {
+                          //will be implemented
+                        },
+                        child: //AssetItem(asset: model.allAssets[index],),
+                        buildCard(model.allAssets[index]),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return  Divider(
+                        indent: 50.0,
+                        endIndent: 50.0,
+                        color: lightColorScheme.primaryContainer,
+                        height: 1.0,
+                        thickness: 0,
+                      );
+                    },
+                  ),
+              ),
     );
   }
 
   Widget buildCard(Asset asset) => Card(
+        margin: EdgeInsets.all(0.0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
+        color: lightColorScheme.onSecondary,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Expanded(child: Text(asset.symbol)),
-              Expanded(child: Text(asset.sector)),
               Expanded(
+                child: ClipOval(
+                  child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
+                width: 60.0,
+                height: 60.0,
+                fit: BoxFit.fill,
+                ),
+              ),
+                flex: 1,
+              ),
+              SizedBox(width: 16.0,),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(asset.fullName,
+                    style: kSymbolNameTextStyle),
+                    SizedBox(height: 8.0,),
+                    Text(asset.symbol,
+                    style: kSymbolTextStyle,),
+
+                  ],
+                ),
+                flex: 3,
+              ),
+              Expanded(flex: 1,
+                child: Text(asset.sector), ),
+              /*Expanded(
+                flex: 1,
                 child: Text(
                   asset.percChange.toString(),
                   style: TextStyle(
                       color:
                           (asset.percChange > 0) ? Colors.green : Colors.red),
                 ),
-              ),
-              Expanded(child: Text(asset.ask.toString())),
-              Expanded(child: Text(asset.bid.toString())),
-              Expanded(
+              ),*/
+              /*Expanded(flex:1,
+                  child: Text(asset.bid.toString())),*/
+              Expanded(flex: 1,
                   child: _FavButton(
                 asset: asset,
               ))
@@ -119,6 +169,6 @@ class _FavButtonState extends State<_FavButton> {
             _networkState = NetworkState.DONE;
           });
         },
-        icon: (isFav) ? const Icon(Icons.check) : const Icon(Icons.add));
+        icon: (isFav) ? const Icon(Icons.favorite) : const Icon(Icons.favorite_outline_sharp));
   }
 }
