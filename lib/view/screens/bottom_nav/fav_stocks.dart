@@ -10,7 +10,6 @@ class FavsView extends StatelessWidget {
   const FavsView({Key? key}) : super(key: key);
 
   void _goToStocks(BuildContext context){
-    Provider.of<StocksModel>(context, listen: false).fetchAllAssets();
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => const StocksView()));
   }
 

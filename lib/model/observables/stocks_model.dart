@@ -11,7 +11,6 @@ class StocksModel with ChangeNotifier{
   List<Asset> _allAssets=[];//all the assets
 
   StocksModel(){
-    fetchFavAssets();
     fetchAllAssets();
   }
   //setters
@@ -47,8 +46,7 @@ class StocksModel with ChangeNotifier{
     return _allAssets[index];
   }
 
-  //networking
-  Future<void> fetchFavAssets() async{
+  void setFavAssets() async{
     //impl can change
     try{
       for(Asset asset in allAssets){
@@ -60,10 +58,14 @@ class StocksModel with ChangeNotifier{
     }
   }
 
+  //networking
+
   Future<void> fetchAllAssets() async{
     try{
       allAssets=await StocksNetwork.fetchAllStocks();
       allState=NetworkState.DONE;
+      //now favAssets are set here but who knows where in future
+      setFavAssets();
     }catch(e){
       allState=NetworkState.ERROR;
     }

@@ -11,8 +11,7 @@ class StocksNetwork{
       assets.add(Asset("symbol $i","fullname","", "sector $i", i.toDouble(), i.toDouble(),
           i % 2.toDouble(), i.toDouble(), i.toDouble(),(i%2==0),i));
     }
-    assets=await Future.delayed(const Duration(seconds: 2),()=>assets);
-    return assets;
+    return Future.delayed(const Duration(seconds: 2),()=>assets);
   }
 
   //returns just the assets followed by user(for home page)
