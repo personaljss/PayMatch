@@ -59,15 +59,15 @@ class _ParentPageState extends State<ParentPage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Sayfam',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.business),
-            label: 'Fundings',
+            label: 'Fonlamalar',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.school),
-            label: 'Portfolio',
+            label: 'Portföy',
           ),
         ],
         currentIndex: _selectedIndex,

@@ -8,7 +8,7 @@ class StocksNetwork{
     //fake impl.
     List<Asset> assets=[];
     for (int i = 0; i < 20; i++) {
-      assets.add(Asset("symbol $i", "sector $i", i.toDouble(), i.toDouble(),
+      assets.add(Asset("symbol $i","fullname","", "sector $i", i.toDouble(), i.toDouble(),
           i % 2.toDouble(), i.toDouble(), i.toDouble(),(i%2==0),i));
     }
     assets=await Future.delayed(const Duration(seconds: 2),()=>assets);
