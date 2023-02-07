@@ -42,12 +42,36 @@ class _AddButton extends StatelessWidget {
 }
 
 class AssetItem extends StatelessWidget {
-  const AssetItem({Key? key}) : super(key: key);
+  final Asset asset;
+  const AssetItem({Key? key, required this.asset}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     StocksModel stocksModel=context.watch<StocksModel>();
-    return const Card(
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        child: Row(
+          children: <Widget>[
+            Expanded(child: Text(asset.symbol)),
+            Expanded(child: Text(asset.sector)),
+            Expanded(
+              child: Text(
+                asset.percChange.toString(),
+                style: TextStyle(
+                    color:
+                    (asset.percChange > 0) ? Colors.green : Colors.red),
+              ),
+            ),
+            Expanded(child: Text(asset.ask.toString())),
+            Expanded(child: Text(asset.bid.toString())),
+            /*Expanded(
+                child: _AddButton(
+                  asset: asset,
+                )),*/
+          ],
+        ),
+      ),
 
     );
   }

@@ -8,11 +8,10 @@ class StocksNetwork{
     //fake impl.
     List<Asset> assets=[];
     for (int i = 0; i < 20; i++) {
-      assets.add(Asset("symbol $i","fullname","", "sector $i", i.toDouble(), i.toDouble(),
-          i % 2.toDouble(), i.toDouble(), i.toDouble(),(i%2==0),i));
+      assets.add(Asset("symbol $i","A1 Capital Menkul Yatırım A.Ş","", "sector $i", i.toDouble(), i.toDouble(),
+          i % 2.toDouble(), 356.37, 356.37,(i%2==0),i));
     }
-    assets=await Future.delayed(const Duration(seconds: 2),()=>assets);
-    return assets;
+    return Future.delayed(const Duration(seconds: 2),()=>assets);
   }
 
   //returns just the assets followed by user(for home page)
