@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
-import 'package:pay_match/view/screens/bottom_nav/fav_stocks.dart';
+import 'package:pay_match/view/screens/bottom_nav/home/home.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/portfolio.dart';
 import 'package:provider/provider.dart';
 
 
 void main() => runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context)=>StocksModel())
+      ChangeNotifierProvider(create: (context)=>StocksModel()),
+      ChangeNotifierProxyProvider<StocksModel,UserModel>(
+          create: (context)=>UserModel(),
+          update: (_, stocksModel, userModel){
+            userModel!.syncWithStocks(stocksModel);
+          return userModel;
+          }
+      )
     ],
     child: const MyApp()
   )
@@ -17,11 +25,12 @@ void main() => runApp(MultiProvider(
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  static const String _title = 'Flutter Code Sample';
+  static const String _title = 'PayMatch';
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: _title,
       home: ParentPage(),
     );
@@ -38,7 +47,7 @@ class ParentPage extends StatefulWidget {
 class _ParentPageState extends State<ParentPage> {
   int _selectedIndex = 0;
   final List<Widget> screens=[
-    const FavsView(),
+    HomeView(),
     const FundingsView(),
     const PortfolioView()
   ];
@@ -66,7 +75,7 @@ class _ParentPageState extends State<ParentPage> {
             label: 'Fonlamalar',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.school),
+            icon: Icon(Icons.wallet),
             label: 'Portföy',
           ),
         ],

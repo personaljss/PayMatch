@@ -1,6 +1,6 @@
-import 'package:pay_match/model/data_models/portfolio/Asset.dart';
+import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
-import 'package:pay_match/model/observables/Portfolio.dart';
+import 'package:pay_match/model/observables/portfolio_model.dart';
 
 class PortfolioNetwork{
   static Future<Portfolio> fetchPortfolio() async {

@@ -3,8 +3,6 @@ import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:provider/provider.dart';
 
-import '../../../model/data_models/portfolio/Asset.dart';
-import '../../ui_tools/loading_screen.dart';
 
 class StocksView extends StatefulWidget {
   const StocksView({Key? key}) : super(key: key);
@@ -26,7 +24,7 @@ class _StocksViewState extends State<StocksView> {
   Widget build(BuildContext context) {
     StocksModel model = context.watch<StocksModel>();
     NetworkState networkState = model.allState;
-    return Scaffold(
+    return Container(); /*Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: const Text("stocks"),
@@ -51,8 +49,12 @@ class _StocksViewState extends State<StocksView> {
                     );
                   }),
     );
-  }
 
+   */
+  }
+}
+
+  /*
   Widget buildCard(Asset asset) => Card(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -122,3 +124,6 @@ class _FavButtonState extends State<_FavButton> {
         icon: (isFav) ? const Icon(Icons.check) : const Icon(Icons.add));
   }
 }
+
+
+ */

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:pay_match/model/web_services/potfolio_network.dart';
-import '../data_models/portfolio/Asset.dart';
+import '../data_models/base/Asset.dart';
 
 class Portfolio with ChangeNotifier{
   late List<Asset> _assets;
@@ -35,6 +35,7 @@ class Portfolio with ChangeNotifier{
     equity=portfolio.equity;
   }
 
+  /*
   double getProfit(){
     double sum=0;
     for(Asset asset in assets){
@@ -42,6 +43,8 @@ class Portfolio with ChangeNotifier{
     }
     return sum;
   }
+
+   */
 
   void addAsset(Asset asset){
     _assets.add(asset);
