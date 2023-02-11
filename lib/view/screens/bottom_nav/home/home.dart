@@ -57,7 +57,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
-    print("callled");
     _tabs=context.select<UserModel, List<String>>((value) => value.lists.keys.toList());
     _assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(_tabs[_tabController.index]));
 
@@ -86,9 +85,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
                     actions: [
                       (_tabs.length>1 && _tabController.index>0)?IconButton(
                           onPressed: (){
-                            /*
-                            _tabController.index=_tabController.index-1;
-                            _tabs.removeAt(_tabController.index);*/
                             Provider.of<UserModel>(context, listen: false).deleteShareGroup(_tabs[_tabController.index]);
                             _tabController.index=_tabController.index-1;
                           }, icon: const Icon(Icons.delete)):
