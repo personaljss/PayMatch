@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pay_match/utils/colors.dart';
 
 import '../screens/drawer_nav/about_us.dart';
 import '../screens/drawer_nav/notifications.dart';
@@ -29,7 +30,7 @@ class MyDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
+           DrawerHeader(
             decoration: BoxDecoration(
               color: Colors.blue,
             ),

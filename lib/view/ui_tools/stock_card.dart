@@ -44,17 +44,35 @@ class WaitingOrderCard extends StatelessWidget {
   }
 }
 
-Widget buildWaitingOrderCard(BuildContext context,TradeResult result, String listName) => Card(
+
+class WalletCard extends StatelessWidget {
+  TradeResult result;
+  String listName;
+  void setCompanyName(){
+
+  }
+
+  WalletCard({Key? key,required this.result,required this.listName}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return buildWalletCard(context, result, listName);
+  }
+}
+
+
+Widget buildWalletCard(BuildContext context,TradeResult result, String listName) => Card(
   margin: EdgeInsets.all(0.0),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
-  color: lightColorScheme.onSecondary,
+  color: lightColorScheme.onPrimary,
   child: Padding(
     padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Expanded(
-          flex: 1,
+          flex: 2,
           child: ClipOval(
             child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
               width: 60.0,
@@ -65,23 +83,26 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, String lis
         ),
         const SizedBox(width: 16.0,),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(result.fullName,
+              Text(result.symbol,
                   style: kSymbolNameTextStyle),
               const SizedBox(height: 8.0,),
-              Text(result.symbol,
+              Text((result.fullName).length < 20 ? result.fullName : "${result.fullName.substring(0,20)}...",
                 style: kSymbolTextStyle,),
             ],
           ),
         ),
+
         Expanded(
-          flex: 1,
+          flex: 2,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Pay Miktarı",
+              Text("Payım",
                 style: kSymbolNameTextStyle,
               ),
               const SizedBox(height: 8.0,),
@@ -90,8 +111,91 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, String lis
           ),
         ),
         Expanded(
-          flex: 1,
+          flex: 2,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("Kar/Zarar",
+                style: kSymbolNameTextStyle,
+              ),
+              const SizedBox(height: 8.0,),
+              Text("${((result.volume * result.price) - (result.volume * result.ask))}"),
+            ],
+          ),
+        ),
+      ],
+    ),
+  ),
+);
+
+Widget buildWaitingOrderCard(BuildContext context,TradeResult result, String listName) => Card(
+  margin: EdgeInsets.all(0.0),
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
+  color: lightColorScheme.onSecondary,
+  child: Padding(
+    padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          flex: 2,
+          child: ClipOval(
+            child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
+              width: 60.0,
+              height: 60.0,
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+        const SizedBox(width: 16.0,),
+        Expanded(
+          flex: 4,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(result.symbol,
+                  style: kSymbolNameTextStyle),
+              const SizedBox(height: 8.0,),
+              Text((result.fullName).length < 20 ? result.fullName : "${result.fullName.substring(0,20)}...",
+                style: kSymbolTextStyle,),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Fiyat",
+                style: kSymbolNameTextStyle,
+              ),
+              const SizedBox(height: 8.0,),
+              Text("${(result.price)}"),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Pay ",
+                style: kSymbolNameTextStyle,
+              ),
+              const SizedBox(height: 8.0,),
+              Text("${(result.volume)}"),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text("Toplam",
                 style: kSymbolNameTextStyle,
@@ -104,7 +208,6 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, String lis
       ],
     ),
   ),
-
 );
 
 
@@ -134,10 +237,10 @@ Widget buildFavCard(BuildContext context,Asset asset, String listName) => Card(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(asset.fullName,
+              Text(asset.symbol,
                   style: kSymbolNameTextStyle),
               const SizedBox(height: 8.0,),
-              Text(asset.symbol,
+              Text((asset.fullName).length < 20 ? asset.fullName : "${asset.fullName.substring(0,20)}...",
                 style: kSymbolTextStyle,),
 
             ],
@@ -193,10 +296,10 @@ Widget buildCard(BuildContext context,Asset asset,String listName) => Card(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(asset.fullName,
+              Text(asset.symbol,
                   style: kSymbolNameTextStyle),
               SizedBox(height: 8.0,),
-              Text(asset.symbol,
+              Text((asset.fullName).length < 20 ? asset.fullName : "${asset.fullName.substring(0,20)}...",
                 style: kSymbolTextStyle,),
             ],
           ),
@@ -208,25 +311,26 @@ Widget buildCard(BuildContext context,Asset asset,String listName) => Card(
                 ?
             Text(
               "+${(asset.percChange.toString())}%",
-              style: const TextStyle(
-                color: Colors.green,
-                letterSpacing: 1.3,
-              ),
+              style: kChangeGreenTextStyle
             )
                 :
             Text(
               "-${(asset.percChange.toString())}%",
-              style: TextStyle(
-                color: Colors.red,
-                letterSpacing: 1.3,
-              ),
+              style: kChangeRedTextStyle
             )
         ),
+        SizedBox(height: 8.0,),
 
         Expanded(flex:1,
           child: Text("₺ ${(asset.bid.toString())}",
             style: kPriceTextStyle,
           ),
+        ),
+        Expanded(flex: 1,
+            child: _FavButton(
+              symbol: asset.symbol,
+              listName: listName,
+            ),
         ),
       ],
     ),

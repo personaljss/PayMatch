@@ -168,7 +168,7 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
       SliverOverlapInjector(
           handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
       SliverPadding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(0),
         sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               return Container(
@@ -179,7 +179,7 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
                       onTap: () => gotoTradeView(context),
                       child: StockCard(asset: assets[index], listName: listName,),
                     ),
-                    Divider(height: 0.1,
+                    Divider(height: 1,
                       indent: 50.0,
                       endIndent: 50.0,
                       color: lightColorScheme.primaryContainer,

@@ -25,6 +25,15 @@ class _PortfolioViewState extends State<PortfolioView> {
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     
   ];
+  List<TradeResult> results2 = [
+    TradeResult("AMZN", "Amazon Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
+    TradeResult("EXXN", "Exxon Mobile Oil Company Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
+    TradeResult("TMNT", "Teenage Mutant Ninja Turtles Incorporated.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
+    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
+    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
+    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
+
+  ];
   String listName = "FakeName";
   
   
@@ -72,15 +81,50 @@ class _PortfolioViewState extends State<PortfolioView> {
                 ],
             body: TabBarView(
               children: [
-                buildPage("cüzdan"),
+                buildWalletPage(results2, listName),
                 buildOrdersPage(results, listName),
-                buildPage("işlemler")
+                buildOrdersPage(results2, listName),
               ],
             )),
       ),
     );
   }
-
+  Widget buildWalletPage(List<TradeResult> results, String listName) => SafeArea(
+    top: false,
+    bottom: false,
+    child: Builder(
+      builder: (context) => CustomScrollView(
+        slivers: [
+          SliverOverlapInjector(
+              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
+          SliverPadding(
+            padding: const EdgeInsets.all(0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Container(
+                  //margin: const EdgeInsets.only(bottom: 12),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        //onTap: () => gotoTradeView(context),
+                        child: WalletCard(result: results[index], listName: listName,),
+                      ),
+                      Divider(height: 1,
+                        indent: 50.0,
+                        endIndent: 50.0,
+                        color: lightColorScheme.primaryContainer,
+                      ),
+                    ],
+                  ),
+                );
+              }, childCount: results.length
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget buildOrdersPage(List<TradeResult> results, String listName) => SafeArea(
     top: false,
@@ -91,7 +135,7 @@ class _PortfolioViewState extends State<PortfolioView> {
             SliverOverlapInjector(
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
             SliverPadding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(0),
               sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     return Container(
@@ -102,7 +146,7 @@ class _PortfolioViewState extends State<PortfolioView> {
                             //onTap: () => gotoTradeView(context),
                             child: WaitingOrderCard(result: results[index], listName: listName,),
                           ),
-                          Divider(height: 0.1,
+                          Divider(height: 0.5,
                             indent: 50.0,
                             endIndent: 50.0,
                             color: lightColorScheme.primaryContainer,

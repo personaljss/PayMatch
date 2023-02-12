@@ -12,7 +12,7 @@ final kHeadingTextStyle = TextStyle(
 final kSymbolNameTextStyle = TextStyle(
   color: lightColorScheme.onPrimaryContainer,
   fontFamily: "Montserrat",
-  fontWeight: FontWeight.w300,
+  fontWeight: FontWeight.w400,
   letterSpacing: -0.5,
 );
 
@@ -28,6 +28,20 @@ final kPriceTextStyle = TextStyle(
   fontFamily: "Montserrat",
   fontWeight: FontWeight.w400,
   letterSpacing: -0.7,
+);
+
+final kChangeGreenTextStyle = TextStyle(
+  color: Colors.green,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  letterSpacing: -0.5,
+);
+
+final kChangeRedTextStyle = TextStyle(
+  color: Colors.red,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  letterSpacing: -0.5,
 );
 
 final kButtonLightTextStyle = TextStyle(
