@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/user/user.dart';
 import 'package:pay_match/model/observables/user_model.dart';
+import 'package:pay_match/view/screens/bottom_nav/home/search_delegate.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 
@@ -19,14 +20,18 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
   late List<Asset> _assets;
   late List<String> _tabs=[UserModel.defaultList,];
 
+  bool isSearchClicked=false;
+  Icon _searchIcon = Icon(
+    Icons.search,
+  );
+  final TextEditingController _filter = new TextEditingController();
+
+
   @override
   void initState(){
     super.initState();
     _tabController=TabController(length: _tabs.length, vsync: this);
   }
-
-  Tab _buildTab(String name) => Tab(text: name,);
-  TabBarView _buildPage(String listName, List<Asset> assets) => _buildPage(listName, assets);
 
   void _createList(String listname){
     _tabs.add(listname);
@@ -38,21 +43,27 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
     setState(() {});
   }
 
-  List<Widget> _createTabViews(BuildContext context) {
-    List<Widget> views=[CreateListDialog(update: _createList,)];
-    //
-    views.addAll(List.generate(_tabs.length, (index) => buildFavPage(context.select<UserModel, List<Asset>>((value) => value.getAssetsInList(_tabs[index])))));
-    return views;
+  /*
+  void _searchPressed() {
+    setState(() {
+      if (this._searchIcon.icon == Icons.search) {
+        this._searchIcon = Icon(
+          Icons.close,
+        );
+        isSearchClicked = true;
+      } else {
+        this._searchIcon = Icon(
+          Icons.search,
+
+        );
+        isSearchClicked = false;
+        _filter.clear();
+      }
+    });
   }
 
-  List<Tab> _createTabs(BuildContext context){
-    List<Tab> views=[const Tab(
-      icon: Icon(Icons.add),
-    )];
-    views.addAll(List.generate(_tabs.length, (index) => Tab(text: _tabs[index])));
 
-    return views;
-  }
+   */
 
 
   @override
@@ -80,15 +91,28 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
                     pinned: true,
                     floating: true,
                     snap: true,
-                    title: const Text("sayfam"),
+                    title: isSearchClicked? Container(
+                      padding: const EdgeInsets.only(bottom: 2),
+                      constraints: const BoxConstraints(minHeight: 40, maxHeight: 40),
+                      width: 220,
+                      child: TextField(
+                        controller: _filter,
+                        keyboardType: TextInputType.text,
+                      ),
+                    ): const Text("sayfam"),
                     centerTitle: true,
                     actions: [
+                      IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,)
+                      //IconButton(onPressed: ()=>_searchPressed(), icon:_searchIcon,),
+                      /*
                       (_tabs.length>1 && _tabController.index>0)?IconButton(
                           onPressed: (){
                             Provider.of<UserModel>(context, listen: false).deleteShareGroup(_tabs[_tabController.index]);
                             _tabController.index=_tabController.index-1;
                           }, icon: const Icon(Icons.delete)):
                       const SizedBox(width: 0, height: 0,),
+
+                       */
                     ],
                     bottom: TabBar(
                       controller: _tabController,
@@ -110,6 +134,8 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
       ),
     );
   }
+
+
 }
 
 class CreateListDialog extends StatelessWidget {
