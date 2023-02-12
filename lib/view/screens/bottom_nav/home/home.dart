@@ -5,6 +5,7 @@ import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/search_delegate.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
+import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 
@@ -61,6 +62,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
       setState(() {});
     }
     return(networkState==NetworkState.DONE)? Scaffold(
+      drawer: const MyDrawer(),
       body: NestedScrollView(
             floatHeaderSlivers: true,
             headerSliverBuilder: (context, isScrolled) => [
@@ -117,7 +119,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
     ) :
     (networkState==NetworkState.LOADING)? const LoadingScreen() : const ErrorScreen();
   }
-
 
 }
 

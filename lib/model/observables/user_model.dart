@@ -13,7 +13,6 @@ enum LoginStatus {
   unverifiedAccount,
   systemError,
   loading,
-
 }
 
 class UserModel with ChangeNotifier {
@@ -86,6 +85,7 @@ class UserModel with ChangeNotifier {
   //login
   Future<void> logIn(String phone, String password) async {
     try{
+      //Uri url=Uri.https("https://29fd-212-12-142-150.eu.ngrok.io","/market/login.php");
       Uri url=Uri.parse(ApiAdress.server+ApiAdress.login);
       status=LoginStatus.loading;
       final response=await http.post(url,body: {
@@ -185,9 +185,12 @@ class UserModel with ChangeNotifier {
     if (status == 0) {
       if (lists.containsKey(groupName)) {
         lists[groupName]!.remove(symbol);
+        /*
         if (lists[groupName]!.isEmpty) {
           lists.remove(groupName);
         }
+
+         */
       }
       notifyListeners();
     } else if (status == 1) {
