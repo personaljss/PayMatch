@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import '../data_models/base/Asset.dart';
 
-
-///This is the view-model class of home page and the stocks page
 class StocksModel with ChangeNotifier{
   NetworkState _allState=NetworkState.LOADING;
   List<Asset> _allAssets=[];//all the assets
+
 
   StocksModel(){
     updateAssets();
@@ -35,24 +34,39 @@ class StocksModel with ChangeNotifier{
     return _allAssets[index];
   }
 
+
   //networking
 
   Future<void> fetchAllAssets() async{
     try{
-      //allAssets=await StocksNetwork.fetchAllStocks();
-      List<Asset> l=[];
-      for(int i=0; i<20; i++){
-        l.add(Asset(symbol: "symbol $i", sector: "N", amount: i.toDouble(), ask: i.toDouble(), bid: i.toDouble()));
-      }
-      allAssets=l;
-      allState=NetworkState.DONE;
+      //post values and url should change bedirrahman celebi will create a new page
+      Uri url=Uri.parse(ApiAdress.server+ApiAdress.portfolio);
+        final response = await http.post(url,
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: {
+            'usercode': "1",
+            'key': "1",
+            'value': "1",
+            'size': "4",
+          },
+        );
+
+        if (response.statusCode == 200) {
+          allAssets=Asset.parseAssets(response.body);
+          allState=NetworkState.DONE;
+        } else {
+          throw Exception('Failed to fetch assets');
+        }
+
+      //now favAssets are set here but who knows where in future
     }catch(e){
+      print(e);
       allState=NetworkState.ERROR;
     }
   }
 
   Future<void> updateAssets() async{
-    Timer.periodic(const Duration(milliseconds: 500),(Timer t)=>fetchAllAssets());
+    Timer.periodic(const Duration(milliseconds: 2000),(Timer t)=>fetchAllAssets());
   }
 
   Future<List<Asset>> parseJson(String jsonString) async {

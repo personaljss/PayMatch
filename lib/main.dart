@@ -22,6 +22,8 @@ void main() => runApp(MultiProvider(
   )
 );
 
+
+//change home if logged in maybe?
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
