@@ -175,9 +175,9 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
                 //margin: const EdgeInsets.only(bottom: 12),
                 child: Column(
                   children: [
-                    StockCard(asset: assets[index], listName: listName, goToTradeView: () {
-                      gotoTradeView(context);
-                      },
+                    GestureDetector(
+                      onTap: () => gotoTradeView(context),
+                      child: StockCard(asset: assets[index], listName: listName,),
                     ),
                     Divider(height: 0.1,
                       indent: 50.0,
