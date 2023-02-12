@@ -159,7 +159,8 @@ class _FavButton extends StatelessWidget {
   final String listName;
   @override
   Widget build(BuildContext context) {
-    bool isFav = context.select<UserModel,bool>((model)=>model.lists[listName]!.contains(symbol));
+    bool isFav=Provider.of<UserModel>(context,listen: false).lists[listName]!.contains(symbol);
+    //bool isFav = context.select<UserModel,bool>((model)=>model.lists[listName]!.contains(symbol));
     return IconButton(
         onPressed: () {
           if (isFav) {
