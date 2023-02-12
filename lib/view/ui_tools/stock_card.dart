@@ -6,12 +6,15 @@ import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
 
 class StockCard extends StatelessWidget {
-  StockCard({Key? key,required this.asset,required this.listName}) : super(key: key);
+  StockCard({Key? key,required this.asset,required this.listName, required this.goToTradeView}) : super(key: key);
   Asset asset;
   String listName;
+  final void Function() goToTradeView;
   @override
   Widget build(BuildContext context) {
-    return buildCard(context, asset, listName);
+    return GestureDetector(
+        onTap: goToTradeView,
+        child: buildCard(context, asset, listName));
   }
 }
 

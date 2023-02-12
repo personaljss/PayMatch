@@ -3,8 +3,11 @@ import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/user/user.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
+import 'package:pay_match/utils/colors.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/search_delegate.dart';
+import 'package:pay_match/view/screens/secondaries/trade.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
+import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 
@@ -61,6 +64,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
       setState(() {});
     }
     return(networkState==NetworkState.DONE)? Scaffold(
+      drawer: const MyDrawer(),
       body: NestedScrollView(
             floatHeaderSlivers: true,
             headerSliverBuilder: (context, isScrolled) => [
@@ -118,7 +122,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
     (networkState==NetworkState.LOADING)? const LoadingScreen() : const ErrorScreen();
   }
 
-
 }
 
 class CreateListDialog extends StatelessWidget {
@@ -126,6 +129,9 @@ class CreateListDialog extends StatelessWidget {
   final ValueChanged<String> update;
 
   final TextEditingController _controller=TextEditingController();
+  
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +172,20 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
         sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: FavStockCard(asset: assets[index], listName: listName),
+                //margin: const EdgeInsets.only(bottom: 12),
+                child: Column(
+                  children: [
+                    StockCard(asset: assets[index], listName: listName, goToTradeView: () {
+                      gotoTradeView(context);
+                      },
+                    ),
+                    Divider(height: 0.1,
+                      indent: 50.0,
+                      endIndent: 50.0,
+                      color: lightColorScheme.primaryContainer,
+                    ),
+                  ],
+                ),
               );
             }, childCount: assets.length)),
       )
@@ -175,3 +193,7 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
   ),
 );
 
+
+void gotoTradeView(BuildContext context) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TradeView()));
+}

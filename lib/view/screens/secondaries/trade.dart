@@ -1,4 +1,4 @@
-
+import 'package:flutter_spinbox/material.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/utils/styles/text_styles.dart';
@@ -13,10 +13,10 @@ class TradeView extends StatefulWidget {
   State<StatefulWidget> createState() => _TradeViewState();
 }
 
-//fake implementation
+
 class _TradeViewState extends State<TradeView> {
 
-
+//fake implementation
   List<DropDownValueModel> get dropdownItems {
     List<DropDownValueModel> menuItems = [
       DropDownValueModel(value: "AAPL", name: 'AAPL'),
@@ -50,9 +50,9 @@ class _TradeViewState extends State<TradeView> {
       body: Padding(padding: EdgeInsets.all(20),
         child: Form(
           child: Column(
-            children: [
+            children: <Widget>[
               Row(
-                children: [
+                children: <Widget>[
                   const Expanded(
                     flex: 1,
                     child: Text("Sembol Kodu"), ),
@@ -72,7 +72,7 @@ class _TradeViewState extends State<TradeView> {
                 ],
               ),
               Row(
-                children: [
+                children: <Widget>[
                   const Expanded(child: Text("Emir Fiyat Tipi:")),
                   SizedBox(width: 8.0,),
                   Expanded(child: DropDownTextField(
@@ -89,7 +89,7 @@ class _TradeViewState extends State<TradeView> {
                 ],
               ),
               Row(
-                children: [
+                children: <Widget>[
                   const Expanded(child: Text("Fiyat")),
                   const SizedBox(width: 8.0,),
                   Expanded(child: DropDownTextField(
@@ -105,16 +105,54 @@ class _TradeViewState extends State<TradeView> {
                   ),
                 ],
               ),
+              //TODO::implement MaxFindingFunction
               Row(
-                children: const [
+                children: <Widget> [
                   Expanded(child: Text("Adet")),
-                  SizedBox(width:8.0 ,),
-                  /*Expanded(child: TextField(
-                    c
+                  SizedBox(width: 8.0 ,),
+                  Expanded(child: SpinBox(
+                    min: 0.0,
+                    max: 5000.0,
+                    value: 365.65 ,
+                    onChanged: (double) => () {},
+                    decimals: 2,
+                    step: 0.01,
+                    keyboardType: TextInputType.number,
+                    acceleration: 0.03,
                     ),
-                  ),*/
+                  ),
                 ],
-              )
+              ),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                      child: Text("Toplam Tutar")),
+                  SizedBox(
+                    width: 8.0,),
+                  Expanded(
+                      child: SpinBox(
+                      min: 0.0,
+                      max: 5000.0,
+                      value: 365.65 ,
+                      onChanged: (double) => () {},
+                      decimals: 2,
+                      step: 0.01,
+                      keyboardType: TextInputType.number,
+                      acceleration: 0.03,
+                    ),
+                  ),
+                ],
+              ),
+              /*
+              Row(
+                children: <Widget>[
+                  Slider(value: 20, onChanged: (value) {
+
+                  }
+                  ),
+                ],
+              ),*/
+
 
             ],
           ),
