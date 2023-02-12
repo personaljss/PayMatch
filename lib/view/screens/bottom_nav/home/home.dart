@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/constants/network_constants.dart';
-import 'package:pay_match/model/data_models/user/user.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/search_delegate.dart';
+import 'package:pay_match/view/screens/secondaries/trade.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
@@ -153,7 +153,9 @@ class CreateListDialog extends StatelessWidget {
   }
 }
 
-
+goToTradeScreen(BuildContext context){
+  Navigator.push(context, MaterialPageRoute(builder: (context)=>const TradeView()));
+}
 
 Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
   top: false,
@@ -166,9 +168,12 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
         padding: const EdgeInsets.all(12),
         sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: FavStockCard(asset: assets[index], listName: listName),
+              return GestureDetector(
+                onTap: ()=>goToTradeScreen(context),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 6),
+                  child: FavStockCard(asset: assets[index], listName: listName),
+                ),
               );
             }, childCount: assets.length)),
       )
