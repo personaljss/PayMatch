@@ -12,21 +12,27 @@ enum LoginStatus {
   wrongInfo,
   unverifiedAccount,
   systemError,
-  loading
+  loading,
 }
 
 class UserModel with ChangeNotifier {
   static const String defaultList="favoriler";
-  late LoginStatus _status;
+  late LoginStatus _status=LoginStatus.loading;
   late int _userCode;
-  Map<String, List<String>> _lists={defaultList:["symbol 1","symbol 2"]};
+  Map<String, List<String>> _lists={defaultList:[]};
   late String _time;
-  late StocksModel _stocksModel;
+  late StocksModel stocksModel;
 
-  //synchronisation with stocks' data
-  void syncWithStocks(StocksModel model){
-    _stocksModel=model;
-    notifyListeners();
+  UserModel({required this.stocksModel}){
+    if(status==LoginStatus.loading){
+      logIn("905058257285", "dktrnnskt");
+    }
+  }
+
+  UserModel update(StocksModel model){
+    stocksModel=model;
+    //notifyListeners();
+    return this;
   }
 
   //getters and setters
@@ -67,14 +73,6 @@ class UserModel with ChangeNotifier {
     };
   }
 
-  void updateUserData(LoginStatus status, int userCode,
-      Map<String, List<String>> lists, String time) {
-    this.status = status;
-    this.userCode = userCode;
-    this.lists = lists;
-    this.time = time;
-  }
-
   Future<void> _loadLists() async {
     try {
       lists = await UserNetwork.fetchGroupData(userCode);
@@ -84,21 +82,28 @@ class UserModel with ChangeNotifier {
     }
   }
 
+  //login
   Future<void> logIn(String phone, String password) async {
     try{
+      //Uri url=Uri.https("https://29fd-212-12-142-150.eu.ngrok.io","/market/login.php");
       Uri url=Uri.parse(ApiAdress.server+ApiAdress.login);
       status=LoginStatus.loading;
-      final response=await http.post(url,body: jsonEncode(<String, dynamic>{
+      final response=await http.post(url,body: {
         'phone': phone,
         'password': password,
         'key': '1',
         'value': '1',
-        'size': 5,
-      }));
+        'size': '5',
+      });
+      print(response.body);
       final data=jsonDecode(response.body);
-      int statuR=int.parse(data["statu"]);
+      int statuR=data["statu"];
       if(statuR==0){
         status=LoginStatus.success;
+        userCode=data["usercode"];
+        //lists=_parseGroupData(data["groupdata"]);
+        print(data["groupdata"].runtimeType );
+        _parseGroupData(data["groupdata"]);
       }else if(statuR==1){
         status=LoginStatus.wrongInfo;
       }else if(statuR==2){
@@ -106,18 +111,17 @@ class UserModel with ChangeNotifier {
       }else{
         status=LoginStatus.systemError;
       }
-      
-      lists=_parseGroupData(data["groupdata"]);
 
     }catch(e){
-
+      print("login $e");
     }
   }
+
 
   //fav
   List<Asset> getAssetsInList(String listName){
     List<Asset> list=[];
-    for(Asset asset in _stocksModel.allAssets){
+    for(Asset asset in stocksModel.allAssets){
       if(lists[listName]!.contains(asset.symbol)){
         list.add(asset);
       }
@@ -125,7 +129,7 @@ class UserModel with ChangeNotifier {
     return list;
   }
 
-  void createShareGroupe(String listName){
+  void createShareGroup(String listName){
     lists[listName]=[];
     notifyListeners();
   }
@@ -139,18 +143,17 @@ class UserModel with ChangeNotifier {
   Future<void> addSymbolToShareGroup(String groupName, String symbol) async {
     Uri url=Uri.parse(ApiAdress.server+ApiAdress.lists);
     final response = await http.post(url, body: {
-      "usercode": userCode,
+      "usercode": _userCode.toString(),
       "groupname": groupName,
       "symbol": symbol,
       "type": "add",
-      "key": 1,
-      "value": 1,
-      "size": 1,
+      "key": "1",
+      "value":"1",
+      "size": "7",
     });
 
     final data = json.decode(response.body);
     final status = data['statu'];
-    final time = data['time'];
 
     if (status == 0) {
       if (!lists.containsKey(groupName)) {
@@ -165,16 +168,16 @@ class UserModel with ChangeNotifier {
     }
   }
 
-  Future<void> deleteFromShareGroup(String groupName, String symbol) async {
+  Future<void> deleteSymbolFromShareGroup(String groupName, String symbol) async {
     Uri url=Uri.parse(ApiAdress.server+ApiAdress.lists);
     final response = await http.post(url, body: {
-      "usercode": userCode,
+      "usercode": _userCode.toString(),
       "groupname": groupName,
       "symbol": symbol,
       "type": "del",
-      "key": 1,
-      "value": 1,
-      "size": 1,
+      "key": "1",
+      "value":"1",
+      "size": "7",
     });
     final data = json.decode(response.body);
     final status = data['statu'];
@@ -182,9 +185,12 @@ class UserModel with ChangeNotifier {
     if (status == 0) {
       if (lists.containsKey(groupName)) {
         lists[groupName]!.remove(symbol);
+        /*
         if (lists[groupName]!.isEmpty) {
           lists.remove(groupName);
         }
+
+         */
       }
       notifyListeners();
     } else if (status == 1) {
@@ -193,28 +199,48 @@ class UserModel with ChangeNotifier {
       throw Exception("System error");
     }
   }
-  
   //utils
-  Map<String, List<String>> _parseGroupData(String jsonString) {
-    Map<String, List<String>> groups = Map();
-
-    var jsonData = json.decode(jsonString);
-    var groupData = jsonData['groupdata'];
-    List groupDataList = json.decode(groupData);
-
-    for (var group in groupDataList) {
-      String groupName = group['groupname'];
-      String symbol = group['symbol'];
-
-      if (!groups.containsKey(groupName)) {
-        groups[groupName] = [];
+  void _parseGroupData(String groupData) {
+    try{
+      final List<dynamic> parsed = jsonDecode(groupData);
+      for(var item in parsed){
+        /*
+        String listName=jsonDecode(item)['groupname'];
+        String symbol=jsonDecode(item)['symbol'];
+         */
+        String listName=item['groupname'];
+        String symbol=item['symbol'];
+        if(lists.containsKey(listName)){
+          lists[listName]?.add(symbol);
+        }else{
+          List<String> l=List.generate(1, (index) => symbol);
+          lists[listName]=l;
+        }
       }
-
-      groups[groupName]?.add(symbol);
+    }catch(e){
+      print("_parseGroupData $e");
     }
+  }
 
+  /*
+  Map<String, List<String>> _parseGroupData(String groupData) {
+    Map<String, List<String>> groups = {};
+    final List<dynamic> parsed = jsonDecode(groupData);
+    for(var item in parsed){
+      String listName=jsonDecode(item)['groupname'];
+      String symbol=jsonDecode(item)['symbol'];
+      if(lists.containsKey(listName)){
+        lists[listName]?.add(symbol);
+      }else{
+        List<String> l=List.generate(1, (index) => symbol);
+        lists[listName]=l;
+      }
+    }
     return groups;
   }
+
+   */
+
 
 }
 

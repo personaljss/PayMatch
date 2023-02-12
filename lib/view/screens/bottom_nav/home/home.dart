@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/user/user.dart';
+import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
+import 'package:pay_match/utils/colors.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/search_delegate.dart';
+import 'package:pay_match/view/screens/secondaries/trade.dart';
+import 'package:pay_match/view/ui_tools/loading_screen.dart';
+import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +15,7 @@ import '../../../../model/data_models/base/Asset.dart';
 
 
 class HomeView extends StatefulWidget {
-  HomeView({Key? key}) : super(key: key);
+  const HomeView({Key? key}) : super(key: key);
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -21,10 +27,11 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
   late List<String> _tabs=[UserModel.defaultList,];
 
   bool isSearchClicked=false;
-  Icon _searchIcon = Icon(
+  final Icon _searchIcon = const Icon(
     Icons.search,
   );
-  final TextEditingController _filter = new TextEditingController();
+
+  final TextEditingController _filter = TextEditingController();
 
 
   @override
@@ -43,34 +50,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
     setState(() {});
   }
 
-  /*
-  void _searchPressed() {
-    setState(() {
-      if (this._searchIcon.icon == Icons.search) {
-        this._searchIcon = Icon(
-          Icons.close,
-        );
-        isSearchClicked = true;
-      } else {
-        this._searchIcon = Icon(
-          Icons.search,
-
-        );
-        isSearchClicked = false;
-        _filter.clear();
-      }
-    });
-  }
-
-
-   */
-
 
   @override
   Widget build(BuildContext context) {
     _tabs=context.select<UserModel, List<String>>((value) => value.lists.keys.toList());
     _assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(_tabs[_tabController.index]));
-
+    NetworkState networkState=context.select<StocksModel,NetworkState>((value) => value.allState);
     if(_tabController.length!=_tabs.length){
       _tabController=TabController(
           initialIndex: _tabController.index,
@@ -78,7 +63,8 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
           vsync: this);
       setState(() {});
     }
-    return Scaffold(
+    return(networkState==NetworkState.DONE)? Scaffold(
+      drawer: const MyDrawer(),
       body: NestedScrollView(
             floatHeaderSlivers: true,
             headerSliverBuilder: (context, isScrolled) => [
@@ -125,16 +111,16 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
             ],
             body: TabBarView(
               controller: _tabController,
-              children: List.generate(_tabs.length, (index) => buildFavPage(context.select<UserModel, List<Asset>>((value) => value.getAssetsInList(_tabs[index]))))
+              children: List.generate(_tabs.length, (index) => buildFavPage(context.select<UserModel, List<Asset>>((value) => value.getAssetsInList(_tabs[index])),_tabs[index])),
             )
         ),
       floatingActionButton: FloatingActionButton(
         onPressed: () { showDialog(context: context, builder: (BuildContext context)=>CreateListDialog(update: _createList,));},
         child: const Icon(Icons.add),
       ),
-    );
+    ) :
+    (networkState==NetworkState.LOADING)? const LoadingScreen() : const ErrorScreen();
   }
-
 
 }
 
@@ -143,6 +129,9 @@ class CreateListDialog extends StatelessWidget {
   final ValueChanged<String> update;
 
   final TextEditingController _controller=TextEditingController();
+  
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +143,7 @@ class CreateListDialog extends StatelessWidget {
       actions: [
         TextButton(
             onPressed: (){
-              Provider.of<UserModel>(context,listen: false).createShareGroupe(_controller.text);
+              Provider.of<UserModel>(context,listen: false).createShareGroup(_controller.text);
               update(_controller.text);
               Navigator.of(context).pop();
               },
@@ -171,7 +160,7 @@ class CreateListDialog extends StatelessWidget {
 
 
 
-Widget buildFavPage(List<Asset> assets) => SafeArea(
+Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
   top: false,
   bottom: false,
   child: Builder(
@@ -183,11 +172,28 @@ Widget buildFavPage(List<Asset> assets) => SafeArea(
         sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: StocksCard(asset: assets[index],),
+                //margin: const EdgeInsets.only(bottom: 12),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () => gotoTradeView(context),
+                      child: StockCard(asset: assets[index], listName: listName,),
+                    ),
+                    Divider(height: 0.1,
+                      indent: 50.0,
+                      endIndent: 50.0,
+                      color: lightColorScheme.primaryContainer,
+                    ),
+                  ],
+                ),
               );
             }, childCount: assets.length)),
       )
     ]),
   ),
 );
+
+
+void gotoTradeView(BuildContext context) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TradeView()));
+}
