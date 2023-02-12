@@ -50,7 +50,7 @@ class StockSearchDelegate extends SearchDelegate {
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
         var result = matchQuery[index];
-        return StocksCard(asset: result);
+        return FavStockCard(asset: result, listName: listName,);
       },
     );
   }
@@ -70,7 +70,7 @@ class StockSearchDelegate extends SearchDelegate {
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
         var result = matchQuery[index];
-        return StocksCard(asset: result);
+        return FavStockCard(asset: result, listName: listName,);
       },
     );
   }

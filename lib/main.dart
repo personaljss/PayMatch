@@ -4,6 +4,7 @@ import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/home.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/portfolio.dart';
+import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:provider/provider.dart';
 
 
@@ -11,11 +12,10 @@ void main() => runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context)=>StocksModel()),
       ChangeNotifierProxyProvider<StocksModel,UserModel>(
-          create: (context)=>UserModel(),
-          update: (_, stocksModel, userModel){
-            userModel!.syncWithStocks(stocksModel);
-          return userModel;
-          }
+          create: (context)=>UserModel(stocksModel: Provider.of<StocksModel>(context, listen: false)),
+          update: (_, stocksModel, userModel)=>(userModel!=null)?
+          userModel!.update(stocksModel):
+          UserModel(stocksModel: stocksModel),
       )
     ],
     child: const MyApp()
@@ -49,7 +49,7 @@ class ParentPage extends StatefulWidget {
 class _ParentPageState extends State<ParentPage> {
   int _selectedIndex = 0;
   final List<Widget> screens=[
-    HomeView(),
+    const HomeView(),
     const FundingsView(),
     const PortfolioView()
   ];
@@ -61,30 +61,39 @@ class _ParentPageState extends State<ParentPage> {
   }
 
   @override
-  Widget build(BuildContext context) =>Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: screens,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Sayfam',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Fonlamalar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.wallet),
-            label: 'Portföy',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        onTap: _onItemTapped,
-        showUnselectedLabels: false,
-      ),
-    );
+  Widget build(BuildContext context) {
+    LoginStatus loginStatus=context.select<UserModel,LoginStatus>((model) => model.status);
+    if(loginStatus==LoginStatus.success){
+      return Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: screens,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Sayfam',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.business),
+              label: 'Fonlamalar',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.wallet),
+              label: 'Portföy',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.blue,
+          onTap: _onItemTapped,
+          showUnselectedLabels: false,
+        ),
+      );
+    }else if(loginStatus==LoginStatus.loading){
+      return const LoadingScreen();
+    }else {
+      return const ErrorScreen();
+    }
+  }
 }

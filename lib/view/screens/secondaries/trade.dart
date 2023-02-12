@@ -1,6 +1,5 @@
 
 import 'package:dropdown_textfield/dropdown_textfield.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/utils/styles/text_styles.dart';
 import 'package:provider/provider.dart';
@@ -54,7 +53,7 @@ class _TradeViewState extends State<TradeView> {
             children: [
               Row(
                 children: [
-                  Expanded(
+                  const Expanded(
                     flex: 1,
                     child: Text("Sembol Kodu"), ),
                   Expanded(
@@ -74,7 +73,7 @@ class _TradeViewState extends State<TradeView> {
               ),
               Row(
                 children: [
-                  Expanded(child: Text("Emir Fiyat Tipi:")),
+                  const Expanded(child: Text("Emir Fiyat Tipi:")),
                   SizedBox(width: 8.0,),
                   Expanded(child: DropDownTextField(
                     enableSearch: true,
@@ -91,8 +90,8 @@ class _TradeViewState extends State<TradeView> {
               ),
               Row(
                 children: [
-                  Expanded(child: Text("Fiyat")),
-                  SizedBox(width: 8.0,),
+                  const Expanded(child: Text("Fiyat")),
+                  const SizedBox(width: 8.0,),
                   Expanded(child: DropDownTextField(
                     enableSearch: true,
                     searchDecoration:
@@ -107,7 +106,7 @@ class _TradeViewState extends State<TradeView> {
                 ],
               ),
               Row(
-                children: [
+                children: const [
                   Expanded(child: Text("Adet")),
                   SizedBox(width:8.0 ,),
                   /*Expanded(child: TextField(
