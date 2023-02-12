@@ -11,7 +11,9 @@ class PortfolioNetwork{
 
   static Future<TradeResult> orderSend(TradeRequest request) async{
     //fake impl
-    TradeResult res = await Future.delayed(const Duration(seconds: 2), () => TradeResult.success(
+    TradeResult res = await Future.delayed(const Duration(seconds: 2), () =>
+        TradeResult.success("AAPL",
+        "Apple Inc.",
         0,
         request.volume,
         request.price,

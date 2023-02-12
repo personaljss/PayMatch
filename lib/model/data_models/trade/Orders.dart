@@ -48,6 +48,8 @@ class TradeRequest {
 }
 
 class TradeResult {
+  final String symbol;
+  final String fullName;
   final RET_CODE retCode; //return code of a TradeRequest
   final int dealId; //id of the deal in case of a match of buyer and seller
   final double volume; //lots bought or sold(this can be different from the volume requested because of market depth)
@@ -55,13 +57,13 @@ class TradeResult {
   final double bid; //best price offered by a buyer(buy order with highest price)
   final double ask; //best price offered by a seller(sell order with lowest price )
 
-  TradeResult(this.retCode, this.dealId, this.volume, this.price, this.bid,
+  TradeResult(this.symbol, this.fullName, this.retCode, this.dealId, this.volume, this.price, this.bid,
       this.ask);
 
-  TradeResult.success(this.dealId, this.volume, this.price, this.bid,
+  TradeResult.success(this.symbol, this.fullName, this.dealId, this.volume, this.price, this.bid,
       this.ask) : retCode = RET_CODE.DONE;
 
-  TradeResult.error(this.retCode)
+  TradeResult.error(this.symbol, this.fullName, this.retCode)
       : dealId = 0,
         volume = 0,
         price = 0,
