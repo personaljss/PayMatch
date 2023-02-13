@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/constants/network_constants.dart';
-import 'package:pay_match/model/data_models/user/user.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/utils/colors.dart';

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:pay_match/constants/network_constants.dart';
 import '../data_models/base/Asset.dart';
 
@@ -66,7 +66,7 @@ class StocksModel with ChangeNotifier{
   }
 
   Future<void> updateAssets() async{
-    Timer.periodic(const Duration(milliseconds: 2000),(Timer t)=>fetchAllAssets());
+      Timer.periodic(const Duration(milliseconds: 2000),(Timer t)=>fetchAllAssets());
   }
 
   Future<List<Asset>> parseJson(String jsonString) async {
