@@ -157,7 +157,6 @@ class _PortfolioViewState extends State<PortfolioView> {
                   }, childCount: results.length)),
             )
           ]
-
       ),
     ),
   );

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pay_match/model/observables/portfolio_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/home.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/portfolio.dart';
+import 'package:pay_match/view/screens/login.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -14,9 +16,9 @@ void main() => runApp(MultiProvider(
       ChangeNotifierProxyProvider<StocksModel,UserModel>(
           create: (context)=>UserModel(stocksModel: Provider.of<StocksModel>(context, listen: false)),
           update: (_, stocksModel, userModel)=>(userModel!=null)?
-          userModel!.update(stocksModel):
+          userModel.update(stocksModel):
           UserModel(stocksModel: stocksModel),
-      )
+      ),
     ],
     child: const MyApp()
   )
@@ -92,6 +94,8 @@ class _ParentPageState extends State<ParentPage> {
       );
     }else if(loginStatus==LoginStatus.loading){
       return const LoadingScreen();
+    }else if(loginStatus==LoginStatus.wrongInfo){
+      return const LoginScreen();
     }else {
       return const ErrorScreen();
     }

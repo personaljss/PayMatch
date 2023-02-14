@@ -19,8 +19,10 @@ class ErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("bir hata oluştu..."),
+    return Scaffold(
+      body: const Center(
+        child: Text("bir hata oluştu..."),
+      ),
     );
   }
 }
