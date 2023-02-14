@@ -1,6 +1,7 @@
 import 'package:flutter_spinbox/material.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_match/model/data_models/trade/Orders.dart';
 import 'package:pay_match/utils/colors.dart';
 import 'package:pay_match/utils/styles/text_styles.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,17 @@ class _TradeViewState extends State<TradeView> {
 
   //Toggle switch initial index
   int? initialIndex = 0;
+  //formKey for sending requests to server to handle events in fields
+  final _formkey = GlobalKey<FormState>();
+  //members for interwidget communication
+  TradeRequest? request;
+  String symbol = "AAPL";
+  //why not enum??
+  String? orderType;
+  double price = 0;
+  double volume = 0;
+  double total = 0;
+
 //fake implementation
   List<DropDownValueModel> get dropdownItems {
     List<DropDownValueModel> menuItems = [
@@ -38,9 +50,34 @@ class _TradeViewState extends State<TradeView> {
     ];
     return menuItems;
   }
+  //Fake impl for data request
+  void initRequest() async {
+    symbol = await Future.delayed(Duration(seconds: 1), () {
+      return "AAPL";
+    });
+    orderType = "LMT";
+    price =  36.52;
+    volume = await Future.delayed(Duration(seconds: 1), () {
+      return 100;
+    });
+    total = price! * volume!;
+  }
 
-  //TODO: implement controller and onChanged to the fields
-  //TODO: implement adet slider, buy/sell boxes,
+  @override
+  void initState() {
+    super.initState();
+    initRequest();
+    //add listeners to controller
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+  //DONE: onChanged and validator are put into Spinbox, implemented buy/sell boxes
+  //TODO: implement onChanged to symbol and orderTypefields
+  //TODO: implement adet slider,
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -59,6 +96,7 @@ class _TradeViewState extends State<TradeView> {
       ),
       body: Padding(padding: EdgeInsets.all(20),
         child: Form(
+          key: _formkey,
           child: Column(
             children: <Widget>[
               Row(
@@ -70,14 +108,28 @@ class _TradeViewState extends State<TradeView> {
                     flex: 2,
                     child: DropDownTextField(
                       //initialValue: dropdownItems[0],
+                      validator: (value) {
+                        if (value == null || value.isEmpty){
+                          return "Sembol Seçin";
+                        }
+                        return null;
+                      },
+                      //Bug:: DropDown doesn't collapse
+                      /*onChanged: (value) {
+                        if (value != null && !value.isEmpty){
+                          orderType = value;
+                          setState(() {
+                          });
+                        }
+                      },*/
+
                       enableSearch: true,
                       textFieldDecoration: InputDecoration(
+                        border: OutlineInputBorder(),
                         //errorText: "Sembol Bulunamamıştır",
                         hintText: "Hisse seçin veya arayın",
 
                         ),
-
-
                       keyboardType: TextInputType.name,
                       dropDownList: dropdownItems,
                     ),
@@ -93,14 +145,26 @@ class _TradeViewState extends State<TradeView> {
                   SizedBox(width: 8.0,),
                   Expanded( flex: 2,
                     child: DropDownTextField(
-                    enableSearch: true,
-                    searchDecoration:
-                    InputDecoration(
-                      label: Text("Coco"),
-                      labelStyle: kLabelLightTextStyle,
-                    ),
-                    keyboardType: TextInputType.name,
-                    dropDownList: dropdownMenuItems,
+                      validator: (value) {
+                        if (value == null || value.isEmpty){
+                          return "Sembol Seçin";
+                        }
+                        return null;
+                      },
+                      //Bug:: DropDown doesn't collapse
+                      /*onChanged: (value) {
+                        if (value != null && !value.isEmpty){
+                          orderType = value;
+                        }
+                      },*/
+                      enableSearch: true,
+                      searchDecoration:
+                      InputDecoration(
+                        label: Text("Coco"),
+                        labelStyle: kLabelLightTextStyle,
+                      ),
+                      keyboardType: TextInputType.name,
+                      dropDownList: dropdownMenuItems,
                     ),
                   ),
                 ],
@@ -113,16 +177,22 @@ class _TradeViewState extends State<TradeView> {
                       child: Text("Fiyat:")),
                   const SizedBox(width: 8.0,),
                   Expanded(
-                    flex: 2,
-                    child: DropDownTextField(
-                    enableSearch: true,
-                    searchDecoration:
-                      InputDecoration(
-                      label: Text("356.67"),
-                      labelStyle: kLabelLightTextStyle,
-                      ),
-                    keyboardType: TextInputType.number,
-                    dropDownList: dropdownItems,
+                    flex: 3,
+                    child: SpinBox(
+
+                      min: 0.0,
+                      max: 5000.0,
+                      value: price ,
+                      onChanged: (value) {
+                        price = value;
+                        setState(() {
+                          total = price * volume!;
+                        });
+                      },
+                      decimals: 2,
+                      step: 0.01,
+                      keyboardType: TextInputType.number,
+                      acceleration: 0.03,
                     ),
                   ),
                 ],
@@ -140,8 +210,14 @@ class _TradeViewState extends State<TradeView> {
                     child: SpinBox(
                       min: 0.0,
                       max: 5000.0,
-                      value: 365.65 ,
-                      onChanged: (double) => () {},
+                      value: volume ,
+                      onChanged: (value)  {
+                        volume = value;
+                        setState(() {
+                          total = price * volume;
+                        });
+                      },
+
                       decimals: 2,
                       step: 0.01,
                       keyboardType: TextInputType.number,
@@ -162,9 +238,20 @@ class _TradeViewState extends State<TradeView> {
                     flex: 3,
                     child: SpinBox(
                       min: 0.0,
-                      max: 5000.0,
-                      value: 365.65 ,
-                      onChanged: (double) => () {},
+                      max: 500000.0,
+                      value: total,
+                      onChanged: (value){
+                        total = value;
+                        setState(() {
+                          if(price != 0){
+                            volume = total / price;
+                          }
+                          else{
+                            volume = total;
+                            price = 1.0;
+                          }
+                        });
+                      },
                       decimals: 2,
                       step: 0.01,
                       keyboardType: TextInputType.number,
@@ -215,6 +302,18 @@ class _TradeViewState extends State<TradeView> {
                   ),
                 ],
               ),
+              Row(
+                children: [
+                  OutlinedButton(onPressed: () {
+                    if(_formkey.currentState!.validate()){
+                      //_formkey.currentState!.save();
+                      //TODO:: Implement httpRequest
+                    }
+                  }, child: Text("abc"),)
+
+                ],
+              ),
+
             ],
           ),
         ),
