@@ -4,8 +4,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
+import 'package:pay_match/model/observables/portfolio_model.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
-import 'package:pay_match/model/web_services/UserNetwork.dart';
+
 
 enum LoginStatus {
   success,
@@ -21,12 +22,19 @@ class UserModel with ChangeNotifier {
   late int _userCode;
   Map<String, List<String>> _lists={defaultList:[]};
   late String _time;
+  //observable to create lists of asset
   late StocksModel stocksModel;
+  //object holding the data of portfolio
+  late PortfolioModel _portfolioModel;
 
   UserModel({required this.stocksModel}){
+    logIn("905058257285", "dktrnnskt");
+    /*
     if(status==LoginStatus.loading){
       logIn("905058257285", "dktrnnskt");
     }
+
+     */
   }
 
   UserModel update(StocksModel model){
@@ -64,6 +72,8 @@ class UserModel with ChangeNotifier {
     notifyListeners();
   }
 
+  PortfolioModel get portfolio =>_portfolioModel;
+  //JSON converter
   Map<String, dynamic> toJson() {
     return {
       'statu': status.index,
@@ -73,19 +83,9 @@ class UserModel with ChangeNotifier {
     };
   }
 
-  Future<void> _loadLists() async {
-    try {
-      lists = await UserNetwork.fetchGroupData(userCode);
-      notifyListeners();
-    } catch (e) {
-      //later
-    }
-  }
-
   //login
   Future<void> logIn(String phone, String password) async {
     try{
-      //Uri url=Uri.https("https://29fd-212-12-142-150.eu.ngrok.io","/market/login.php");
       Uri url=Uri.parse(ApiAdress.server+ApiAdress.login);
       status=LoginStatus.loading;
       final response=await http.post(url,body: {
@@ -104,6 +104,8 @@ class UserModel with ChangeNotifier {
         //lists=_parseGroupData(data["groupdata"]);
         print(data["groupdata"].runtimeType );
         _parseGroupData(data["groupdata"]);
+        //creating the portfolio model object in case of a successful login
+        _portfolioModel=PortfolioModel(userCode: userCode);
       }else if(statuR==1){
         status=LoginStatus.wrongInfo;
       }else if(statuR==2){
@@ -114,9 +116,9 @@ class UserModel with ChangeNotifier {
 
     }catch(e){
       print("login $e");
+      status=LoginStatus.systemError;
     }
   }
-
 
   //fav
   List<Asset> getAssetsInList(String listName){
@@ -221,25 +223,6 @@ class UserModel with ChangeNotifier {
       print("_parseGroupData $e");
     }
   }
-
-  /*
-  Map<String, List<String>> _parseGroupData(String groupData) {
-    Map<String, List<String>> groups = {};
-    final List<dynamic> parsed = jsonDecode(groupData);
-    for(var item in parsed){
-      String listName=jsonDecode(item)['groupname'];
-      String symbol=jsonDecode(item)['symbol'];
-      if(lists.containsKey(listName)){
-        lists[listName]?.add(symbol);
-      }else{
-        List<String> l=List.generate(1, (index) => symbol);
-        lists[listName]=l;
-      }
-    }
-    return groups;
-  }
-
-   */
 
 
 }

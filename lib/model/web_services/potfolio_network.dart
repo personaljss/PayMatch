@@ -2,10 +2,11 @@ import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
 import 'package:pay_match/model/observables/portfolio_model.dart';
 
+/*
 class PortfolioNetwork{
-  static Future<Portfolio> fetchPortfolio() async {
+  static Future<PortfolioModel> fetchPortfolio() async {
     //fake impl
-    Portfolio portfolio=Portfolio();
+    PortfolioModel portfolio=PortfolioModel();
     return portfolio;
   }
 
@@ -24,3 +25,5 @@ class PortfolioNetwork{
   }
 
 }
+
+ */

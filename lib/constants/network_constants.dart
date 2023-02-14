@@ -11,4 +11,6 @@ class ApiAdress{
   static String login="login.php";
   static String lists="sharegroups.php";
   static String portfolio="portfolio.php";
+  static String importShare="importshare.php";
+  static String transactions="showtransactions.php";
 }

@@ -43,7 +43,13 @@ final kChangeRedTextStyle = TextStyle(
   fontWeight: FontWeight.w500,
   letterSpacing: -0.5,
 );
-
+final kOnButtonLightTextStyle = TextStyle(
+  color: lightColorScheme.onPrimary,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w700,
+  fontSize: 30.0,
+  letterSpacing: -0.5,
+);
 final kButtonLightTextStyle = TextStyle(
   color: lightColorScheme.onPrimary,
   fontSize: 20.0,
