@@ -128,9 +128,6 @@ class CreateListDialog extends StatelessWidget {
   final ValueChanged<String> update;
 
   final TextEditingController _controller=TextEditingController();
-  
-  
-
 
   @override
   Widget build(BuildContext context) {

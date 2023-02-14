@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pay_match/model/observables/user_model.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,40 +18,30 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Login Page"),
+        centerTitle: true,
+        title: const Text("giriş"),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 60.0),
-              child: Center(
-                child: Container(
-                    width: 200,
-                    height: 150,
-                    /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
-                    child: Image.asset('asset/images/flutter-logo.png')),
-              ),
-            ),
+            const SizedBox(height: 50,),
             Padding(
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 controller: _phoneController,
+                keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'telefon numrası',
+                    labelText: 'telefon numarası',
                     hintText: 'telefon numaranızı girin'),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(
                   left: 15.0, right: 15.0, top: 15, bottom: 0),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                controller: _phoneController,
+                controller: _pwdController,
                 obscureText: true,
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -62,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 //TODO FORGOT PASSWORD SCREEN GOES HERE
               },
               child: const Text(
-                'Forgot Password',
+                'Şifrenizi mi unuttunuz',
                 style: TextStyle(color: Colors.blue, fontSize: 15),
               ),
             ),
@@ -73,10 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.blue, borderRadius: BorderRadius.circular(20)),
               child: TextButton(
                 onPressed: () {
-
+                  Provider.of<UserModel>(context,listen: false).logIn(_phoneController.text, _pwdController.text);
                 },
                 child: const Text(
-                  'Login',
+                  'Giriş yap',
                   style: TextStyle(color: Colors.white, fontSize: 25),
                 ),
               ),
@@ -85,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 130,
             ),
             TextButton(onPressed: (){},
-                child: const Text('New User? Create Account'))
+                child: const Text('kayıtlı değil misiniz?,hesap oluşturun'))
           ],
         ),
       ),

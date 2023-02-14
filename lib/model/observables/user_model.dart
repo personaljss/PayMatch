@@ -18,7 +18,7 @@ enum LoginStatus {
 
 class UserModel with ChangeNotifier {
   static const String defaultList="favoriler";
-  late LoginStatus _status=LoginStatus.loading;
+  late LoginStatus _status=LoginStatus.wrongInfo;
   late int _userCode;
   Map<String, List<String>> _lists={defaultList:[]};
   late String _time;
@@ -102,7 +102,6 @@ class UserModel with ChangeNotifier {
         status=LoginStatus.success;
         userCode=data["usercode"];
         //lists=_parseGroupData(data["groupdata"]);
-        print(data["groupdata"].runtimeType );
         _parseGroupData(data["groupdata"]);
         //creating the portfolio model object in case of a successful login
         _portfolioModel=PortfolioModel(userCode: userCode);

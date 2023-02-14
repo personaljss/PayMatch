@@ -5,11 +5,10 @@ class LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
+    return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
     );
   }
 }
@@ -19,8 +18,8 @@ class ErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(
+    return const Scaffold(
+      body: Center(
         child: Text("bir hata oluştu..."),
       ),
     );

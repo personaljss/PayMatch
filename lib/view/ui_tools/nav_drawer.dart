@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/utils/colors.dart';
+import 'package:pay_match/view/screens/drawer_nav/deposit.dart';
 
 import '../screens/drawer_nav/about_us.dart';
 import '../screens/drawer_nav/notifications.dart';
@@ -22,6 +23,12 @@ class MyDrawer extends StatelessWidget {
   void _goToNotifications(BuildContext context) {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => const Notifications()));
+  }
+
+  void _goToDeposit(BuildContext context){
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => DepositView())
+    );
   }
 
   @override
@@ -51,6 +58,11 @@ class MyDrawer extends StatelessWidget {
               title: const Text('Ayarlar'),
               onTap: ()=>_goToSettings(context)
           ),
+          ListTile(
+            leading: const Icon(Icons.money),
+            title: const Text("depozit"),
+            onTap: ()=>_goToDeposit(context),
+          )
         ],
       ),
     );
