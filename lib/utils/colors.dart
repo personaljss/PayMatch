@@ -1,5 +1,19 @@
 import 'package:flutter/material.dart';
 
+
+class AppColors {
+
+
+  static const Color green1 = const Color(0xFFC5F6C1);
+  static const Color green2 = const Color(0xFF80FF81);
+  static const Color secondary = const Color(0xFFFFFFFF);
+  static const Color third = const Color(0xFF000000);
+  static const Color background = const Color(0xFFEEEEEE);
+
+  Color color = Colors.pink;
+
+}
+
 const lightColorScheme = const ColorScheme(
   brightness: Brightness.light,
   primary: const Color(0xFF006689),
