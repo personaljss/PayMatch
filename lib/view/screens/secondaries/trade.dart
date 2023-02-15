@@ -34,10 +34,10 @@ class _TradeViewState extends State<TradeView> {
 //fake implementation
   List<DropDownValueModel> get dropdownItems {
     List<DropDownValueModel> menuItems = [
-      DropDownValueModel(value: "AAPL", name: 'AAPL'),
-      DropDownValueModel(value: "NVDA", name:"NVDA"),
-      DropDownValueModel(value: "AMD",  name:"AMD"),
-      DropDownValueModel(value: "FB",  name:"FB"),
+      const DropDownValueModel(value: "AAPL", name: 'AAPL'),
+      const DropDownValueModel(value: "NVDA", name:"NVDA"),
+      const DropDownValueModel(value: "AMD",  name:"AMD"),
+      const DropDownValueModel(value: "FB",  name:"FB"),
     ];
     return menuItems;
   }

@@ -81,3 +81,9 @@ enum TransType{
   buyLimit,
   sellLimit
 }
+
+enum TradeResponse{
+  success,
+  failure,
+  systemError
+}

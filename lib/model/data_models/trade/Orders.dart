@@ -1,4 +1,4 @@
-enum ORDER_TYPE {
+enum OrderType {
   BUY_LIMIT,
   SELL_LIMIT,
   MODIFY,
@@ -29,7 +29,7 @@ class TradeRequest {
   final String symbol; //name of the asset
   final double price; //order price
   final double volume; //lots to be bought or sold
-  final ORDER_TYPE orderType; //buy, sell, modify or cancel
+  final OrderType orderType; //buy, sell, modify or cancel
   final double tp; //take profit(a limit order opposite of existing one)
   final double sl; //stop loss(a limit order opposite of existing one)
   final int expiration; //the expiration time of the order

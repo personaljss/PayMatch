@@ -1,3 +1,5 @@
+import 'package:pay_match/model/data_models/trade/Orders.dart';
+
 enum NetworkState{
   //http connection states
   LOADING,
@@ -13,4 +15,15 @@ class ApiAdress{
   static String portfolio="portfolio.php";
   static String importShare="importshare.php";
   static String transactions="showtransactions.php";
+  static String sellOrder="sellorder.php";
+  static String buyOrder="buyorder.php";
+  static String getTradePage(OrderType orderType){
+    if(orderType==OrderType.BUY_LIMIT){
+      return server+buyOrder;
+    }else if(orderType==OrderType.SELL_LIMIT){
+      return server+sellOrder;
+    }else{
+      throw Exception("this order type has not a page in the server yet!");
+    }
+  }
 }
