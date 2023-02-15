@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pay_match/model/observables/portfolio_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
@@ -53,7 +52,7 @@ class _ParentPageState extends State<ParentPage> {
   final List<Widget> screens=[
     const HomeView(),
     const FundingsView(),
-    const PortfolioView()
+    PortfolioView()
   ];
 
   void _onItemTapped(int index){

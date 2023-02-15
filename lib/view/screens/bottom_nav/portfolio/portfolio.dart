@@ -1,31 +1,28 @@
 import 'package:flutter/material.dart';
-
-import '../../../../model/data_models/trade/Orders.dart';
+import 'package:pay_match/constants/network_constants.dart';
+import 'package:pay_match/model/data_models/base/Asset.dart';
+import 'package:pay_match/model/observables/user_model.dart';
+import 'package:pay_match/view/ui_tools/loading_screen.dart';
+import 'package:provider/provider.dart';
 import '../../../../utils/colors.dart';
 import '../../../ui_tools/stock_card.dart';
+import 'package:pay_match/model/data_models/trade/Orders.dart';
 
 
+class PortfolioView extends StatelessWidget {
+  PortfolioView({Key? key}) : super(key: key);
 
-class PortfolioView extends StatefulWidget {
-  const PortfolioView({Key? key}) : super(key: key);
-
-  @override
-  State<PortfolioView> createState() => _PortfolioViewState();
-}
-
-class _PortfolioViewState extends State<PortfolioView> {
-
-//fake instance
-  List<TradeResult> results = [
+  //fake instance
+  final List<TradeResult> results = [
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    
+
   ];
-  List<TradeResult> results2 = [
+  final List<TradeResult> results2 = [
     TradeResult("AMZN", "Amazon Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     TradeResult("EXXN", "Exxon Mobile Oil Company Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
     TradeResult("TMNT", "Teenage Mutant Ninja Turtles Incorporated.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
@@ -34,13 +31,12 @@ class _PortfolioViewState extends State<PortfolioView> {
     TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
 
   ];
-  String listName = "FakeName";
-  
-  
-  
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    NetworkState state=context.select<UserModel,NetworkState>((value) => value.portfolioState);
+    return (state==NetworkState.DONE)? Scaffold(
       body: DefaultTabController(
         length: 3,
         child: NestedScrollView(
@@ -81,19 +77,22 @@ class _PortfolioViewState extends State<PortfolioView> {
                 ],
             body: TabBarView(
               children: [
-                buildWalletPage(results2, listName),
-                buildOrdersPage(results, listName),
-                buildOrdersPage(results2, listName),
+                buildWalletPage(),
+                buildOrdersPage(results),
+                buildOrdersPage(results2),
               ],
             )),
       ),
-    );
+    ) : const LoadingScreen();
   }
-  Widget buildWalletPage(List<TradeResult> results, String listName) => SafeArea(
+
+  Widget buildWalletPage() => SafeArea(
     top: false,
     bottom: false,
     child: Builder(
-      builder: (context) => CustomScrollView(
+      builder: (context) {
+        List<Asset> assets=context.select<UserModel,List<Asset>>((value)=>value.assets);
+        return CustomScrollView(
         slivers: [
           SliverOverlapInjector(
               handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
@@ -107,7 +106,7 @@ class _PortfolioViewState extends State<PortfolioView> {
                     children: [
                       GestureDetector(
                         //onTap: () => gotoTradeView(context),
-                        child: WalletCard(result: results[index], listName: listName,),
+                        child: WalletCard(asset: assets[index]),
                       ),
                       Divider(height: 1,
                         indent: 50.0,
@@ -117,16 +116,17 @@ class _PortfolioViewState extends State<PortfolioView> {
                     ],
                   ),
                 );
-              }, childCount: results.length
+              }, childCount: assets.length
               ),
             ),
           ),
         ],
-      ),
+      );
+      },
     ),
   );
 
-  Widget buildOrdersPage(List<TradeResult> results, String listName) => SafeArea(
+  Widget buildOrdersPage(List<TradeResult> results) => SafeArea(
     top: false,
     bottom: false,
     child: Builder(
@@ -144,7 +144,7 @@ class _PortfolioViewState extends State<PortfolioView> {
                         children: [
                           GestureDetector(
                             //onTap: () => gotoTradeView(context),
-                            child: WaitingOrderCard(result: results[index], listName: listName,),
+                            child: WaitingOrderCard(result: results[index]),
                           ),
                           Divider(height: 0.5,
                             indent: 50.0,

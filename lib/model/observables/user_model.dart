@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
-import 'package:pay_match/model/observables/portfolio_model.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
+
+import '../data_models/base/Transaction.dart';
 
 
 enum LoginStatus {
@@ -14,28 +18,31 @@ enum LoginStatus {
   unverifiedAccount,
   systemError,
   loading,
+  notYet
 }
 
 class UserModel with ChangeNotifier {
   static const String defaultList="favoriler";
-  late LoginStatus _status=LoginStatus.wrongInfo;
+  late LoginStatus _status=LoginStatus.notYet;
   late int _userCode;
+  //lists created by user
   Map<String, List<String>> _lists={defaultList:[]};
   late String _time;
   //observable to create lists of asset
   late StocksModel stocksModel;
-  //object holding the data of portfolio
-  late PortfolioModel _portfolioModel;
+  //portfolio related
+  NetworkState _portfolioState=NetworkState.LOADING;
+  late double _balance;
+  late double _equity;
+  late List<Transaction> _deals;
+  late List<Transaction> _orders;
+  late List<Asset> _assets;
+
 
   UserModel({required this.stocksModel}){
     logIn("905058257285", "dktrnnskt");
-    /*
-    if(status==LoginStatus.loading){
-      logIn("905058257285", "dktrnnskt");
-    }
-
-     */
   }
+
 
   UserModel update(StocksModel model){
     stocksModel=model;
@@ -72,7 +79,49 @@ class UserModel with ChangeNotifier {
     notifyListeners();
   }
 
-  PortfolioModel get portfolio =>_portfolioModel;
+  // portfolio related getters and setters
+  double get balance => _balance;
+
+  double get equity => _equity;
+
+  List<Asset> get assets => _assets;
+
+  List<Transaction> get deals => _deals;
+
+  List<Transaction> get orders => _orders;
+
+  NetworkState get portfolioState => _portfolioState;
+
+  set balance(double value) {
+    _balance = value;
+    notifyListeners(); // Notify listeners that the balance has been updated
+  }
+
+  set equity(double value) {
+    _equity = value;
+    notifyListeners(); // Notify listeners that the equity has been updated
+  }
+
+  set deals(List<Transaction> value) {
+    _deals = value;
+    notifyListeners(); // Notify listeners that the deals have been updated
+  }
+
+  set orders(List<Transaction> value) {
+    _orders = value;
+    notifyListeners(); // Notify listeners that the orders have been updated
+  }
+
+  set assets(List<Asset> value){
+    _assets=value;
+    notifyListeners();
+  }
+
+  set portfolioState(NetworkState state){
+    _portfolioState=state;
+    notifyListeners();
+  }
+
   //JSON converter
   Map<String, dynamic> toJson() {
     return {
@@ -103,8 +152,8 @@ class UserModel with ChangeNotifier {
         userCode=data["usercode"];
         //lists=_parseGroupData(data["groupdata"]);
         _parseGroupData(data["groupdata"]);
-        //creating the portfolio model object in case of a successful login
-        _portfolioModel=PortfolioModel(userCode: userCode);
+        //updating the portfolio if successful login
+        Timer.periodic(const Duration(milliseconds: 2000),(Timer t){_updatePortfolio();});
       }else if(statuR==1){
         status=LoginStatus.wrongInfo;
       }else if(statuR==2){
@@ -116,6 +165,14 @@ class UserModel with ChangeNotifier {
     }catch(e){
       print("login $e");
       status=LoginStatus.systemError;
+    }
+  }
+
+  Future<void> _updatePortfolio() async {
+    await _fetchTransactions();
+    await _fetchPortfolio();
+    if(_portfolioState==NetworkState.LOADING){
+      portfolioState=NetworkState.DONE;
     }
   }
 
@@ -223,6 +280,145 @@ class UserModel with ChangeNotifier {
     }
   }
 
+  //portfolio related methods
+
+  Future<void> _fetchTransactions() async {
+    print("fetch trans called");
+
+    Uri url = Uri.parse(ApiAdress.server + ApiAdress.transactions);
+    final response = await http.post(url, body: {
+      "usercode": userCode.toString(),
+      "key": "1",
+      "value": "1",
+      "type": "sell_o,buy_o,sell,buy",
+      "size": "5"
+    });
+    _parseTransactions(response);
+  }
+
+  Future<bool> deposit(double amount, String symbol) async {
+    //isset($_POST["symbol"]) && isset($_POST["usercode"]) && isset($_POST["amount"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"]);
+    Uri url = Uri.parse(ApiAdress.server + ApiAdress.importShare);
+
+    final response = await http.post(url, body: {
+      "symbol": symbol,
+      "usercode": userCode.toString(),
+      "amount": amount.toString(),
+      "key": "1",
+      "value": "1",
+      "size": "6"
+    });
+    print(response.body);
+    int status = jsonDecode(response.body)["statu"];
+    if (status == 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<void> _fetchPortfolio() async{
+    //--isset($_POST["usercode"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"]);
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.portfolio);
+    final response=await http.post(url,
+        body: {
+          "usercode":userCode.toString(),
+          "key":"1",
+          "value":"1",
+          "size":"4"
+        });
+    _parseAssets(response);
+  }
+
+  //
+  void _parseTransactions(Response response) {
+    print(response);
+    //{"tid":60,"usercode":1,"symbol":"RW","amount":80,"remaining":0,"price":1.2,"ts":2147483647,"statu":1,"startts":211313321}
+    Map data = jsonDecode(jsonDecode(response.body)["data"]);
+
+    List<Transaction> orderList = [];
+    List<Transaction> dealList = [];
+
+    // Parsing sell orders
+    for (var item in data["sell_o"]) {
+      Transaction ts = Transaction(
+          id: item["tid"],
+          symbol: item["symbol"],
+          amount: item["amount"].toDouble(),
+          remaining: item["remaining"].toDouble(),
+          price: item["price"].toDouble(),
+          expiration: item["ts"],
+          status: TransStatus.values[item["statu"]],
+          transType: TransType.sell,
+          time: item["startTs"]
+      );
+      orderList.add(ts);
+    }
+
+    // Parsing buy orders
+    for (var item in data["buy_o"]) {
+      Transaction ts = Transaction(
+          id: item["tid"],
+          symbol: item["symbol"],
+          amount: item["amount"].toDouble(),
+          remaining: item["remaining"].toDouble(),
+          price: item["price"].toDouble(),
+          expiration: item["ts"],
+          status: TransStatus.values[item["statu"]],
+          transType: TransType.buy,
+          time: item["startts"]
+      );
+      orderList.add(ts);
+    }
+
+    // Parsing completed deals
+    for (var item in data["sell"]) {
+      Transaction ts = Transaction(
+          id: item["tid"],
+          symbol: item["symbol"],
+          amount: item["amount"].toDouble(),
+          remaining: item["remaining"].toDouble(),
+          price: item["price"].toDouble(),
+          expiration: item["ts"],
+          status: TransStatus.success,
+          transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
+          time: item["startts"]
+      );
+      dealList.add(ts);
+    }
+
+    for (var item in data["buy"]) {
+      Transaction ts = Transaction(
+          id: item["tid"],
+          symbol: item["symbol"],
+          amount: item["amount"].toDouble(),
+          remaining: item["remaining"].toDouble(),
+          price: item["price"].toDouble(),
+          expiration: item["ts"],
+          status: TransStatus.success,
+          transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
+          time: item["startts"]
+      );
+      dealList.add(ts);
+    }
+    deals = Transaction.sortTimes(dealList);
+    orders = Transaction.sortTimes(orderList);
+
+  }
+
+  void _parseAssets(Response response) {
+    print(response.body);
+    List<Asset> assetList = [];
+    String list=jsonDecode(response.body)["data"];
+    for (var assetJson in jsonDecode(list)) {
+      Asset asset=Asset.fromJson(assetJson);
+      //profit calculation and setting fullname will be updated
+      asset.profit=0;
+      asset.fullName="DNE";
+      assetList.add(asset);
+    }
+    assets=assetList;
+  }
 
 }
 

@@ -22,7 +22,7 @@ class _DepositViewState extends State<DepositView> {
   void _onPressed(BuildContext context) async{
     double amount=double.parse(_controller.text);
     if(amount>0){
-      bool res=await Provider.of<UserModel>(context,listen: false).portfolio.deposit(amount, "TL");
+      bool res=await Provider.of<UserModel>(context,listen: false).deposit(amount, "TL");
       (res)?_showSnackBar(context, "işlem başarılı"):_showSnackBar(context, "işlem başarısız");
     }else{
       //

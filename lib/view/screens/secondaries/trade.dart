@@ -18,8 +18,6 @@ class TradeView extends StatefulWidget {
 
 
 class _TradeViewState extends State<TradeView> {
-
-
   //Toggle switch initial index
   int? initialIndex = 0;
   //formKey for sending requests to server to handle events in fields

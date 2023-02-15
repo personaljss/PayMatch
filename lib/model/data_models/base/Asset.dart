@@ -6,8 +6,9 @@ class Asset{
   double amount;//lots hold by the user's account
   double ask;
   double bid;
-  final String fullName;
+  late String fullName;
   final double percChange;
+  late double profit;
 
   Asset({
     required this.symbol,

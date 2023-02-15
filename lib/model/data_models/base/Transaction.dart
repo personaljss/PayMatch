@@ -1,4 +1,7 @@
 
+import 'package:flutter/cupertino.dart';
+import 'package:pay_match/model/data_models/base/Asset.dart';
+
 class Transaction{
   //{"tid":39,"usercode":1,"symbol":"DPT","amount":40,"remaining":0,"price":1,"ts":2147483647,"statu":1}
   final int id;
@@ -9,10 +12,10 @@ class Transaction{
   final int expiration;
   final int time;
   final TransStatus status;
-  final TransType orderType;
+  final TransType transType;
 
   Transaction({required this.id, required this.symbol, required this.amount, required this.remaining,
-      required this.price, required this.expiration, required this.status,required this.orderType,required this.time});
+      required this.price, required this.expiration, required this.status,required this.transType,required this.time});
 
   static List<Transaction> sortTimes(List<Transaction> transactions) {
     if (transactions.length <= 1) {
@@ -57,6 +60,8 @@ class Transaction{
 
     return mergedList;
   }
+
+
 
 }
 //0: transaction iptal edilmiş

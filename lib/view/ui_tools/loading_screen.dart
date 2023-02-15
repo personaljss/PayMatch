@@ -24,5 +24,6 @@ class ErrorScreen extends StatelessWidget {
       ),
     );
   }
+
 }
 

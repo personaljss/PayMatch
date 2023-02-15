@@ -34,34 +34,30 @@ class FavStockCard extends StatelessWidget {
 
 class WaitingOrderCard extends StatelessWidget {
   TradeResult result;
-  String listName;
-
-  WaitingOrderCard({Key? key,required this.result,required this.listName}) : super(key: key);
+  WaitingOrderCard({Key? key,required this.result}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return buildWaitingOrderCard(context, result, listName);
+    return buildWaitingOrderCard(context, result);
   }
 }
 
 
 class WalletCard extends StatelessWidget {
-  TradeResult result;
-  String listName;
+  Asset asset;
   void setCompanyName(){
-
   }
 
-  WalletCard({Key? key,required this.result,required this.listName}) : super(key: key);
+  WalletCard({Key? key,required this.asset}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return buildWalletCard(context, result, listName);
+    return buildWalletCard(context, asset);
   }
 }
 
 
-Widget buildWalletCard(BuildContext context,TradeResult result, String listName) => Card(
+Widget buildWalletCard(BuildContext context,Asset asset) => Card(
   margin: EdgeInsets.all(0.0),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
   color: lightColorScheme.onPrimary,
@@ -87,10 +83,10 @@ Widget buildWalletCard(BuildContext context,TradeResult result, String listName)
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(result.symbol,
+              Text(asset.symbol,
                   style: kSymbolNameTextStyle),
               const SizedBox(height: 8.0,),
-              Text((result.fullName).length < 20 ? result.fullName : "${result.fullName.substring(0,20)}...",
+              Text((asset.fullName).length < 20 ? asset.fullName : "${asset.fullName.substring(0,20)}...",
                 style: kSymbolTextStyle,),
             ],
           ),
@@ -106,7 +102,7 @@ Widget buildWalletCard(BuildContext context,TradeResult result, String listName)
                 style: kSymbolNameTextStyle,
               ),
               const SizedBox(height: 8.0,),
-              Text("${(result.volume)}"),
+              Text("${asset.amount}"),
             ],
           ),
         ),
@@ -120,7 +116,7 @@ Widget buildWalletCard(BuildContext context,TradeResult result, String listName)
                 style: kSymbolNameTextStyle,
               ),
               const SizedBox(height: 8.0,),
-              Text("${((result.volume * result.price) - (result.volume * result.ask))}"),
+              Text("${asset.profit}"),
             ],
           ),
         ),
@@ -129,7 +125,7 @@ Widget buildWalletCard(BuildContext context,TradeResult result, String listName)
   ),
 );
 
-Widget buildWaitingOrderCard(BuildContext context,TradeResult result, String listName) => Card(
+Widget buildWaitingOrderCard(BuildContext context,TradeResult result) => Card(
   margin: EdgeInsets.all(0.0),
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
   color: lightColorScheme.onSecondary,
