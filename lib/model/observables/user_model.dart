@@ -152,7 +152,7 @@ class UserModel with ChangeNotifier {
         //lists=_parseGroupData(data["groupdata"]);
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
-        Timer.periodic(const Duration(milliseconds: 2000), (Timer t) {
+        Timer.periodic(const Duration(milliseconds: 10000), (Timer t) {
           _updatePortfolio();
         });
       } else if (statuR == 1) {

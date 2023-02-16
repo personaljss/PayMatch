@@ -17,6 +17,8 @@ class ApiAdress{
   static String transactions="showtransactions.php";
   static String sellOrder="sellorder.php";
   static String buyOrder="buyorder.php";
+  static String symbolNames="symbolnames.php";
+  static String icons="geticons.php";
   static String getTradePage(OrderType orderType){
     if(orderType==OrderType.BUY_LIMIT){
       return server+buyOrder;

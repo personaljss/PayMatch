@@ -6,12 +6,20 @@ import 'package:pay_match/constants/network_constants.dart';
 import '../data_models/base/Asset.dart';
 
 class StocksModel with ChangeNotifier{
+  static const int _interval=10000;
   NetworkState _allState=NetworkState.LOADING;
   List<Asset> _allAssets=[];//all the assets
+  Map<String,String> _symbolsMap= {};
+  Map<String,dynamic> _icons= {};
 
-
-  StocksModel(){
-    updateAssets();
+  StocksModel() {
+    _fetchSymbolNames().then((value) {
+      _updateAssets();
+      _fetchIcons();
+    }).catchError((e){
+      allState=NetworkState.ERROR;
+    });
+    _fetchIcons();
   }
   //setters
   set allState(NetworkState networkState){
@@ -36,8 +44,32 @@ class StocksModel with ChangeNotifier{
 
 
   //networking
+  Future<void> _fetchSymbolNames() async{
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.symbolNames);
+    final response=await http.post(url,body: {
+      "key":"1",
+      "value":"1",
+      "size":"3"
+    });
+    List symbols=jsonDecode(jsonDecode(response.body)["data"]);
+    for(Map<String,dynamic> item in symbols){
+      _symbolsMap[item["symbol"]]=item["sharename"];
+    }
+  }
 
-  Future<void> fetchAllAssets() async{
+  Future<void> _fetchIcons() async{
+    //gereken postlar: isset($_POST["symbols"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.icons);
+    final response=await http.post(url,body: {
+      "symbols":_symbolsMap.keys.join(","),
+      "key":"1",
+      "value":"1",
+      "size":"4"
+    });
+    _icons=jsonDecode(jsonDecode(response.body)["data"]);
+  }
+
+  Future<void> _fetchAllAssets() async{
     try{
       //post values and url should change bedirrahman celebi will create a new page
       Uri url=Uri.parse(ApiAdress.server+ApiAdress.portfolio);
@@ -52,7 +84,7 @@ class StocksModel with ChangeNotifier{
         );
 
         if (response.statusCode == 200) {
-          allAssets=Asset.parseAssets(response.body);
+          allAssets=_parseStocks(response);
           allState=NetworkState.DONE;
         } else {
           throw Exception('Failed to fetch assets');
@@ -65,17 +97,25 @@ class StocksModel with ChangeNotifier{
     }
   }
 
-  Future<void> updateAssets() async{
-      Timer.periodic(const Duration(milliseconds: 2000),(Timer t)=>fetchAllAssets());
+  Future<void> _updateAssets() async{
+      Timer.periodic(const Duration(milliseconds: _interval),(Timer t)=>_fetchAllAssets());
   }
 
-  Future<List<Asset>> parseJson(String jsonString) async {
-    final jsonData = json.decode(jsonString)['data'];
+  List<Asset> _parseStocks(http.Response response)  {
+    final List<dynamic> parsed = jsonDecode(json.decode(response.body)['data']);
     List<Asset> assets = [];
-    for (var assetJson in jsonData) {
-      assets.add(Asset.fromJson(assetJson));
+    for (var assetJson in parsed) {
+      Asset asset=Asset.fromJson(assetJson);
+      try{
+        asset.fullName=_symbolsMap[asset.symbol]!;
+        asset.logo=_icons[asset.symbol]!;
+      }catch(e){
+      }
+      assets.add(asset);
     }
+
     return assets;
   }
+
 
 }

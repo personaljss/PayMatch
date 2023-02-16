@@ -7,7 +7,8 @@ class Asset{
   double ask;
   double bid;
   late String fullName;
-  final double percChange;
+  late String logo;
+  late double percChange;
   late double profit;
 
   Asset({
