@@ -26,8 +26,9 @@ final kSymbolTextStyle = TextStyle(
 final kPriceTextStyle = TextStyle(
   color: lightColorScheme.scrim,
   fontFamily: "Montserrat",
-  fontWeight: FontWeight.w400,
-  letterSpacing: -0.7,
+  fontWeight: FontWeight.w500,
+  fontSize: 20.0,
+  letterSpacing: -0.5,
 );
 
 final kChangeGreenTextStyle = TextStyle(

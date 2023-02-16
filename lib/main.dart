@@ -51,7 +51,7 @@ class _ParentPageState extends State<ParentPage> {
   int _selectedIndex = 0;
   final List<Widget> screens=[
     const HomeView(),
-    const FundingsView(),
+    FundingsView(),
     PortfolioView()
   ];
 

@@ -96,6 +96,34 @@ class PortfolioView extends StatelessWidget {
         slivers: [
           SliverOverlapInjector(
               handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20,10,20,10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    //mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Toplam Tutar"),
+                      SizedBox(height: 4.0,),
+                      Text("Toplam Kar/Zarar"),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text("8661.65 ₺"),
+                      SizedBox(height: 4.0,),
+                      Text("+55000.47 ₺"),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
           SliverPadding(
             padding: const EdgeInsets.all(0),
             sliver: SliverList(
