@@ -24,40 +24,43 @@ class FundingsView extends StatelessWidget {
       top: false,
       bottom: false,
       child: Builder(
-        builder: (context) =>
-        CustomScrollView(
-          slivers: [
-            SliverOverlapInjector(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                    context)),
-            SliverPadding(
-              padding: const EdgeInsets.all(0),
-              sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return Container(
-                      //margin: const EdgeInsets.only(bottom: 12),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            //onTap: () => gotoDetailsView(context),
-                            child: FundingsCard(
-                              funding: fundingsList[index],),
-                          ),
-                          Divider(height: 1,
-                            indent: 50.0,
-                            endIndent: 50.0,
-                            color: lightColorScheme.primaryContainer,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  childCount: fundingsList.length
+          builder: (context) {
+          return CustomScrollView(
+            slivers: [
+              /*SliverOverlapInjector(
+                  handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),*/
+              SliverAppBar(
+                title: Text("Fonlamalar"),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.all(0),
+                sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return Container(
+                        //margin: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              //onTap: () => gotoDetailsView(context),
+                              child: FundingsCard(
+                                funding: fundingsList[index],),
+                            ),
+                            Divider(height: 1,
+                              indent: 50.0,
+                              endIndent: 50.0,
+                              color: lightColorScheme.primaryContainer,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    childCount: fundingsList.length
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        }
       ),
     );
   }

@@ -132,8 +132,7 @@ Widget buildWalletCard(BuildContext context,Asset asset,double height,) => Conta
               borderRadius: BorderRadius.circular(8),
               //border: Border.all(width: 8),
             ),
-            child: Expanded(
-              flex: 2,
+
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
@@ -165,7 +164,7 @@ Widget buildWalletCard(BuildContext context,Asset asset,double height,) => Conta
                 ],
               ),
             ),
-          ),
+
           //const SizedBox(width: 16.0,),
           Expanded(
             flex: 1,
@@ -292,7 +291,7 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, double hei
           ),
           const SizedBox(width: 16.0,),
           Expanded(
-            flex: 4,
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,

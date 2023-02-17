@@ -68,9 +68,10 @@ final kButtonLightTextStyle = TextStyle(
 );
 final kLabelLightTextStyle = TextStyle(
   color: Colors.white,
-  fontSize: 13.0,
-
-  //letterSpacing: -0.7,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w700,
+  fontSize: 30.0,
+  letterSpacing: -0.5,
 );
 
 final kButtonDarkTextStyle = TextStyle(
