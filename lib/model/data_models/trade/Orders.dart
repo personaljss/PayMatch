@@ -47,6 +47,8 @@ class TradeRequest {
       this.orderId);
 }
 
+//OrderType needed
+
 class TradeResult {
   final String symbol;
   final String fullName;

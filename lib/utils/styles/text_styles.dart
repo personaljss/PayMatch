@@ -31,17 +31,27 @@ final kPriceTextStyle = TextStyle(
   letterSpacing: -0.5,
 );
 
+final kOrderTextStyle = TextStyle(
+  color: lightColorScheme.scrim,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  fontSize: 16.0,
+  letterSpacing: -0.5,
+);
+
 final kChangeGreenTextStyle = TextStyle(
   color: Colors.green,
   fontFamily: "Montserrat",
-  fontWeight: FontWeight.w500,
+  fontWeight: FontWeight.w700,
+  fontSize: 20.0,
   letterSpacing: -0.5,
 );
 
 final kChangeRedTextStyle = TextStyle(
   color: Colors.red,
   fontFamily: "Montserrat",
-  fontWeight: FontWeight.w500,
+  fontWeight: FontWeight.w700,
+  fontSize: 20.0,
   letterSpacing: -0.5,
 );
 final kOnButtonLightTextStyle = TextStyle(

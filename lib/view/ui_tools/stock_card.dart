@@ -278,7 +278,7 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, double hei
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Expanded(
             flex: 2,
@@ -309,21 +309,23 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, double hei
             flex: 7,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       flex: 2,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text("Fiyat",
                             style: kSymbolNameTextStyle,
                           ),
                           Divider(height: 16.0, thickness: 1.5, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
-                          Text("${(result.price)}₺"),
+                          Text("${(result.price)}₺", style: kOrderTextStyle,),
                         ],
                       ),
                     ),
@@ -331,13 +333,13 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, double hei
                       flex: 2,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        //crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text("Pay",
                             style: kSymbolNameTextStyle,
                           ),
                           Divider(height: 16.0, thickness: 1.5, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
-                          Text("${(result.volume)}₺"),
+                          Text("${(result.volume)}₺", style: kOrderTextStyle,),
                         ],
                       ),
                     ),
@@ -345,32 +347,40 @@ Widget buildWaitingOrderCard(BuildContext context,TradeResult result, double hei
                       flex: 3,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        //crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text("Toplam",
                             style: kSymbolNameTextStyle,
                           ),
                           Divider(height: 16.0, thickness: 1.5, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
-                          Text("${(result.volume * result.price)}₺"),
+                          Text("${(result.volume * result.price)}₺", style: kOrderTextStyle,),
                         ],
                       ),
                     ),
                   ],
                 ),
-                Divider(height: 8.0,thickness: 1.5, indent: 10.0, endIndent: 10.0),
+                Divider(height: 16.0,thickness: 1.5, indent: 10.0, endIndent: 10.0 ,color: lightColorScheme.inversePrimary,),
                 //SizedBox(height: 8.0,),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  //crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
-                      flex: 1,
-                      child: Text("Al", style: kChangeGreenTextStyle,),
+                      flex: 3,
+                      child: ((result.fullName).length > 15)
+                        ?
+                        Text("AL",
+                        style: kChangeGreenTextStyle,
+                        textAlign: TextAlign.center,)
+                        :
+                        Text("SAT",
+                        style: kChangeRedTextStyle,
+                        textAlign: TextAlign.center,)
                     ),
                     Expanded(
-                      flex: 6,
+                      flex: 4,
                       child: Text(
-                          "02.04.2001"
+                          "02.04.2001 -> 31.05.2001"
                       ),
                     ),
                   ],
