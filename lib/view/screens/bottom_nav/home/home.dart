@@ -9,7 +9,6 @@ import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../model/data_models/base/Asset.dart';
 
 
