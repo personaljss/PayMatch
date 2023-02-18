@@ -9,7 +9,7 @@ enum NetworkState{
 
 class ApiAdress{
   //here is the location for backend urls
-  static String server="https://9862-212-12-142-150.eu.ngrok.io/market/";
+  static String server="https://8e96-212-12-142-150.eu.ngrok.io/market/";
   static String login="login.php";
   static String lists="sharegroups.php";
   static String portfolio="portfolio.php";

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../model/data_models/base/fundings_model.dart';
 import '../../../model/data_models/trade/Orders.dart';
 import '../../../utils/colors.dart';
+import '../../ui_tools/funding_card.dart';
 import '../../ui_tools/nav_drawer.dart';
 import '../../ui_tools/stock_card.dart';
 
