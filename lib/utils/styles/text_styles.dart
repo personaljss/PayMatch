@@ -61,6 +61,21 @@ final kOnButtonLightTextStyle = TextStyle(
   fontSize: 30.0,
   letterSpacing: -0.5,
 );
+
+final kGreenTextStyle = TextStyle(
+  color: Colors.green,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  fontSize: 16.0,
+  letterSpacing: -0.5,
+);
+final kButtonTextStyle = TextStyle(
+  color: lightColorScheme.onPrimaryContainer,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  fontSize: 16.0,
+  letterSpacing: -0.5,
+);
 final kButtonLightTextStyle = TextStyle(
   color: lightColorScheme.onPrimary,
   fontSize: 20.0,
@@ -74,10 +89,12 @@ final kLabelLightTextStyle = TextStyle(
   letterSpacing: -0.5,
 );
 
-final kButtonDarkTextStyle = TextStyle(
+final kLabelTextStyle = TextStyle(
   color: Colors.white,
-  fontSize: 20.0,
-  letterSpacing: -0.7,
+  fontSize: 16.0,
+  letterSpacing: -0.5,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
 );
 
 final kAppBarTitleTextStyle = TextStyle(
