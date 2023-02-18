@@ -10,11 +10,11 @@ class FundingsView extends StatelessWidget {
   FundingsView({Key? key}) : super(key: key);
 
   List<Funding> fundingsList = [
-    Funding("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 15000, 345.30),
-    Funding("AMZN", "Amazon Inc.", RET_CODE.PLACED, 0, 15000, 345.30),
-    Funding("QQQ", "Invesco Trust Shares Inc.", RET_CODE.PLACED, 0, 15000, 345.30),
-    Funding("A1", "A1 Capital Inc.", RET_CODE.PLACED, 0, 15000, 345.30),
-    Funding("TMNT", "Teenage Mutant Ninja Turtles.", RET_CODE.PLACED, 0, 15000, 345.30),
+    Funding("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 15000, 345.30, 0.1),
+    Funding("AMZN", "Amazon Inc.", RET_CODE.PLACED, 0, 15000, 345.30, 0.35),
+    Funding("QQQ", "Invesco Trust Shares Inc.", RET_CODE.PLACED, 0, 15000, 345.30, 0.75),
+    Funding("A1", "A1 Capital Inc.", RET_CODE.PLACED, 0, 15000, 345.30, 0.56),
+    Funding("TMNT", "Teenage Mutant Ninja Turtles.", RET_CODE.PLACED, 0, 15000, 345.30, 0.543),
   ];
 
 
