@@ -108,6 +108,7 @@ class StocksModel with ChangeNotifier{
     List<Asset> assets = [];
     for (var assetJson in parsed) {
       Asset asset=Asset.fromJson(assetJson);
+      if(asset.symbol=="TL")continue;
       try{
         asset.fullName=_symbolsMap[asset.symbol]!;
         asset.logo=_iconsMap[asset.symbol]!;

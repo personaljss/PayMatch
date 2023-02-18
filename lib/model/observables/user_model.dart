@@ -181,8 +181,12 @@ class UserModel with ChangeNotifier {
   List<Asset> getAssetsInList(String listName) {
     List<Asset> list = [];
     for (Asset asset in stocksModel.allAssets) {
-      if (lists[listName]!.contains(asset.symbol)) {
-        list.add(asset);
+      try{
+        if (lists[listName]!.contains(asset.symbol)) {
+          list.add(asset);
+        }
+      }catch(e){
+        print(e);
       }
     }
     return list;
@@ -227,8 +231,15 @@ class UserModel with ChangeNotifier {
     }
   }
 
-  Future<void> deleteSymbolFromShareGroup(
-      String groupName, String symbol) async {
+  void deleteList(String listName){
+    for(String symbol in lists[listName]!){
+      deleteSymbolFromShareGroup(listName, symbol);
+    }
+    lists.remove(listName);
+    lists=Map.of(lists);
+  }
+
+  Future<void> deleteSymbolFromShareGroup(String groupName, String symbol) async {
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.lists);
     final response = await http.post(url, body: {
       "usercode": _userCode.toString(),

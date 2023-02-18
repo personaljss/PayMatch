@@ -45,8 +45,10 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
         length: _tabs.length,
         vsync: this);
 
+    _tabController.animateTo(_tabs.length-1);
     setState(() {});
   }
+
 
 
   @override
@@ -86,7 +88,36 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
                     ): const Text("sayfam"),
                     centerTitle: true,
                     actions: [
-                      IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,)
+                      IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,),
+                      //IconButton(onPressed: ()=>_showListMenu(context,_tabs[_tabController.index]), icon: const Icon(Icons.more_vert_outlined))
+                      PopupMenuButton(itemBuilder: (context){
+                        return [
+                          PopupMenuItem<int>(
+                            value: 0,
+                            child: Text("${_tabs[_tabController.index]} listesini sil"),
+                          ),
+                          const PopupMenuItem<int>(
+                            value:1,
+                              child: Text("yeni liste ekle")),
+                        ];
+                      },
+                      onSelected: (index) {
+                        if(index==0){
+                          //go to previous tab
+                          _tabController.animateTo(_tabController.index-1);
+                          //delete the list
+                          setState(() {
+                            Provider.of<UserModel>(context, listen: false).deleteList(_tabs[_tabController.index+1]);
+                            _tabs.removeAt(_tabController.index+1);
+                          });
+                          //Provider.of<UserModel>(context, listen: false).deleteList(_tabs[_tabController.index+1]);
+                        }
+                        if(index==1){
+                          //show add menu dialog
+                          showDialog(context: context, builder: (BuildContext context)=>CreateListDialog(update: _createList,));
+                        }
+                      }
+                      )
                     ],
                     bottom: TabBar(
                       controller: _tabController,
@@ -102,10 +133,13 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
               children: List.generate(_tabs.length, (index) => FavPage(listName: _tabs[index])),
             )
         ),
+      /*
       floatingActionButton: FloatingActionButton(
         onPressed: () { showDialog(context: context, builder: (BuildContext context)=>CreateListDialog(update: _createList,));},
         child: const Icon(Icons.add),
       ),
+
+       */
     ) :
     (networkState==NetworkState.LOADING)? const LoadingScreen() : const ErrorScreen();
   }
@@ -149,7 +183,12 @@ class FavPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Asset> assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(listName));
-    return buildFavPage(assets, listName);
+    return(assets.length>0)? buildFavPage(assets, listName):const Center(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+          child: Text("henüz listenizde bir şirket yok. Eklemek için arama butonuna tıklayın.")
+      ),
+    );
   }
   Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
     top: false,
