@@ -26,21 +26,32 @@ final kSymbolTextStyle = TextStyle(
 final kPriceTextStyle = TextStyle(
   color: lightColorScheme.scrim,
   fontFamily: "Montserrat",
-  fontWeight: FontWeight.w400,
-  letterSpacing: -0.7,
+  fontWeight: FontWeight.w500,
+  fontSize: 20.0,
+  letterSpacing: -0.5,
+);
+
+final kOrderTextStyle = TextStyle(
+  color: lightColorScheme.scrim,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  fontSize: 16.0,
+  letterSpacing: -0.5,
 );
 
 final kChangeGreenTextStyle = TextStyle(
   color: Colors.green,
   fontFamily: "Montserrat",
-  fontWeight: FontWeight.w500,
+  fontWeight: FontWeight.w700,
+  fontSize: 20.0,
   letterSpacing: -0.5,
 );
 
 final kChangeRedTextStyle = TextStyle(
   color: Colors.red,
   fontFamily: "Montserrat",
-  fontWeight: FontWeight.w500,
+  fontWeight: FontWeight.w700,
+  fontSize: 20.0,
   letterSpacing: -0.5,
 );
 final kOnButtonLightTextStyle = TextStyle(
@@ -57,9 +68,10 @@ final kButtonLightTextStyle = TextStyle(
 );
 final kLabelLightTextStyle = TextStyle(
   color: Colors.white,
-  fontSize: 13.0,
-
-  //letterSpacing: -0.7,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w700,
+  fontSize: 30.0,
+  letterSpacing: -0.5,
 );
 
 final kButtonDarkTextStyle = TextStyle(

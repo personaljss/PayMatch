@@ -21,6 +21,8 @@ class _TradeViewState extends State<TradeView> {
   //Toggle switch initial index
   int? initialIndex = 0;
   //formKey for sending requests to server to handle events in fields
+  final controllerOrderType = SingleValueDropDownController();
+  final controllerSymbolCode = SingleValueDropDownController();
   final _formkey = GlobalKey<FormState>();
   //members for interwidget communication
   TradeRequest? request;
@@ -49,27 +51,42 @@ class _TradeViewState extends State<TradeView> {
     return menuItems;
   }
   //Fake impl for data request
-  void initRequest() async {
-    symbol = await Future.delayed(Duration(seconds: 1), () {
-      return "AAPL";
-    });
+  void initRequest() {
+    symbol = "AAPL";
     orderType = "LMT";
     price =  36.52;
-    volume = await Future.delayed(Duration(seconds: 1), () {
-      return 100;
-    });
-    total = price! * volume!;
+    volume = 100;
+    total = price * volume;
+  }
+
+  //methods to get DropDown value of the DropdownTextField
+  void _saveOrderType() {
+    if (controllerOrderType.dropDownValue != null  && !controllerOrderType.dropDownValue.toString().isEmpty) {
+      orderType = controllerOrderType.dropDownValue.toString();
+      print(orderType);
+    }
+  }
+
+  void _saveSymbolCode() {
+    if (controllerSymbolCode.dropDownValue != null  && !controllerSymbolCode.dropDownValue.toString().isEmpty) {
+      symbol = controllerSymbolCode.dropDownValue.toString();
+      print(symbol);
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    controllerOrderType.addListener(_saveOrderType);
+    controllerSymbolCode.addListener(_saveSymbolCode);
     initRequest();
     //add listeners to controller
   }
 
   @override
   void dispose() {
+    controllerOrderType.dispose();
+    controllerSymbolCode.dispose();
     super.dispose();
   }
   //DONE: onChanged and validator are put into Spinbox, implemented buy/sell boxes
@@ -105,6 +122,7 @@ class _TradeViewState extends State<TradeView> {
                   Expanded(
                     flex: 2,
                     child: DropDownTextField(
+                      controller: controllerSymbolCode,
                       //initialValue: dropdownItems[0],
                       validator: (value) {
                         if (value == null || value.isEmpty){
@@ -143,6 +161,8 @@ class _TradeViewState extends State<TradeView> {
                   SizedBox(width: 8.0,),
                   Expanded( flex: 2,
                     child: DropDownTextField(
+                      controller: controllerOrderType,
+                      //initialValue: orderType,
                       validator: (value) {
                         if (value == null || value.isEmpty){
                           return "Sembol Seçin";
@@ -300,18 +320,33 @@ class _TradeViewState extends State<TradeView> {
                   ),
                 ],
               ),
+              SizedBox(height: 30,),
               Row(
                 children: [
-                  OutlinedButton(onPressed: () {
-                    if(_formkey.currentState!.validate()){
-                      //_formkey.currentState!.save();
-                      //TODO:: Implement httpRequest
-                    }
-                  }, child: Text("abc"),)
-
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom( backgroundColor: Colors.blue),
+                      onPressed: () {
+                      if(_formkey.currentState!.validate()){
+                        //_formkey.currentState!.save();
+                        print(symbol);
+                        print(orderType);
+                        print(price);
+                        print(volume);
+                        print(total);
+                        //TODO:: Implement httpRequest
+                        }
+                      },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text("ONAYLA",
+                        style: kLabelLightTextStyle,
+                        ),
+                    ),
+                    ),
+                  )
                 ],
               ),
-
             ],
           ),
         ),

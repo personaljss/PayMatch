@@ -10,7 +10,7 @@ class StocksModel with ChangeNotifier{
   NetworkState _allState=NetworkState.LOADING;
   List<Asset> _allAssets=[];//all the assets
   Map<String,String> _symbolsMap= {};
-  Map<String,dynamic> _icons= {};
+  Map<String,dynamic> _iconsMap= {};
 
   StocksModel() {
     _fetchSymbolNames().then((value) {
@@ -36,6 +36,8 @@ class StocksModel with ChangeNotifier{
   //getters
   NetworkState get allState => _allState;
   List<Asset> get allAssets => _allAssets;
+  Map<String,String> get symbolsMap=>_symbolsMap;
+  Map<String,dynamic> get iconsMap =>_iconsMap;
 
   //methods
   Asset getAt(int index){
@@ -66,7 +68,7 @@ class StocksModel with ChangeNotifier{
       "value":"1",
       "size":"4"
     });
-    _icons=jsonDecode(jsonDecode(response.body)["data"]);
+    _iconsMap=jsonDecode(jsonDecode(response.body)["data"]);
   }
 
   Future<void> _fetchAllAssets() async{
@@ -108,8 +110,9 @@ class StocksModel with ChangeNotifier{
       Asset asset=Asset.fromJson(assetJson);
       try{
         asset.fullName=_symbolsMap[asset.symbol]!;
-        asset.logo=_icons[asset.symbol]!;
+        asset.logo=_iconsMap[asset.symbol]!;
       }catch(e){
+        //
       }
       assets.add(asset);
     }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/observables/user_model.dart';
+import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/transactions.dart';
+import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/waiting_orders.dart';
+import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/wallet.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:provider/provider.dart';
 import '../../../../utils/colors.dart';
@@ -12,25 +15,6 @@ import 'package:pay_match/model/data_models/trade/Orders.dart';
 class PortfolioView extends StatelessWidget {
   PortfolioView({Key? key}) : super(key: key);
 
-  //fake instance
-  final List<TradeResult> results = [
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-
-  ];
-  final List<TradeResult> results2 = [
-    TradeResult("AMZN", "Amazon Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("EXXN", "Exxon Mobile Oil Company Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("TMNT", "Teenage Mutant Ninja Turtles Incorporated.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-
-  ];
 
 
   @override
@@ -77,9 +61,9 @@ class PortfolioView extends StatelessWidget {
                 ],
             body: TabBarView(
               children: [
-                buildWalletPage(),
-                buildOrdersPage(results),
-                buildOrdersPage(results2),
+                WalletPage(),
+                OrdersPage(),
+                TransactionsPage(),
               ],
             )),
       ),
@@ -96,6 +80,34 @@ class PortfolioView extends StatelessWidget {
         slivers: [
           SliverOverlapInjector(
               handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20,10,20,10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    //mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Toplam Tutar"),
+                      SizedBox(height: 4.0,),
+                      Text("Toplam Kar/Zarar"),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text("8661.65 ₺"),
+                      SizedBox(height: 4.0,),
+                      Text("+55000.47 ₺"),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
           SliverPadding(
             padding: const EdgeInsets.all(0),
             sliver: SliverList(

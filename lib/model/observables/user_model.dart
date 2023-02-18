@@ -403,14 +403,29 @@ class UserModel with ChangeNotifier {
   }
 
   void _parseAssets(Response response) {
+    _equity=0;
     print(response.body);
     List<Asset> assetList = [];
     String list = jsonDecode(response.body)["data"];
     for (var assetJson in jsonDecode(list)) {
       Asset asset = Asset.fromJson(assetJson);
-      //profit calculation and setting fullname will be updated
+      //profit calculation will be updated
       asset.profit = 0;
-      asset.fullName = "DNE";
+      //tl is not an asset it is the account balance
+      if(asset.symbol=="TL"){
+        balance=asset.amount;
+        equity+=asset.amount;
+        continue;
+      }else{
+        equity+=asset.amount*asset.bid;
+      }
+
+      try{
+        asset.fullName = stocksModel.symbolsMap[asset.symbol]!;
+        asset.logo=stocksModel.iconsMap[asset.symbol];
+      }catch(e){
+        //
+      }
       assetList.add(asset);
     }
     assets = assetList;
@@ -421,6 +436,8 @@ class UserModel with ChangeNotifier {
 // (ts transactionun sonlanma süresi timestamp cinsinden. mesela eğer 1 günlükse şuanki timestamp + 86400)
   Future<TradeResponse> orderSend(TradeRequest request) async {
     try {
+      if(balance<request.volume*request.price)return TradeResponse.noMoney;
+
       Uri url = Uri.parse(ApiAdress.getTradePage(request.orderType));
       final response = await http.post(url, body: {
         "usercode": userCode.toString(),

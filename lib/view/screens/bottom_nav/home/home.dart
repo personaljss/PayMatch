@@ -183,7 +183,7 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
                 ),
               );
             }, childCount: assets.length)),
-      )
+      ),
     ]),
   ),
 );

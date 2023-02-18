@@ -85,5 +85,6 @@ enum TransType{
 enum TradeResponse{
   success,
   failure,
-  systemError
+  systemError,
+  noMoney
 }
