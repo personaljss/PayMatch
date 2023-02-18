@@ -68,42 +68,45 @@ class FundingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return buildFundingsCard(context, funding);
+    double height = MediaQuery.of(context).size.height;
+    return buildFundingsCard(context, funding, height);
   }
 }
 
-Widget buildFundingsCard(BuildContext context, Funding funding) => Card(
-  margin: EdgeInsets.all(0.0),
-  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
-  color: lightColorScheme.onPrimary,
-  child: Padding(
-    padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 4,
-              child: Container(
-                  height: 200,
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15.0),
-                    image: DecorationImage(
-                      image: funding.bgImg,
-                      fit: BoxFit.fill,
-                      opacity: 0.3,
-                      isAntiAlias: true,
+Widget buildFundingsCard(BuildContext context, Funding funding, double height) => Container(
+  height: height * 0.65,
+  child:   Card(
+    margin: EdgeInsets.all(0.0),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
+    color: lightColorScheme.onPrimary,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 4,
+                child: Container(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15.0),
+                      image: DecorationImage(
+                        image: funding.bgImg,
+                        fit: BoxFit.fill,
+                        opacity: 0.3,
+                        isAntiAlias: true,
+                      ),
                     ),
-                  ),
-                  child: Text("A1 Capital",
-                    style: kPriceTextStyle,)),
-            ),
-          ],
-        ),
-      ],
+                    child: Text("A1 Capital",
+                      style: kPriceTextStyle,)),
+              ),
+            ],
+          ),
+        ],
+      ),
     ),
   ),
 );
