@@ -19,6 +19,9 @@ class WalletPage extends StatelessWidget {
       child: Builder(
         builder: (context) {
           List<Asset> assets=context.select<UserModel,List<Asset>>((value)=>value.assets);
+          double equity=context.select<UserModel,double>((value) => value.equity);
+          double balance=context.select<UserModel,double>((value) => value.balance);
+          double profit=balance-equity;
           return CustomScrollView(
             slivers: [
               SliverOverlapInjector(
@@ -33,7 +36,7 @@ class WalletPage extends StatelessWidget {
                       Column(
                         //mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: const [
                           Text("Toplam Tutar"),
                           SizedBox(height: 4.0,),
                           Text("Toplam Kar/Zarar"),
@@ -41,10 +44,10 @@ class WalletPage extends StatelessWidget {
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text("8661.65 ₺"),
-                          SizedBox(height: 4.0,),
-                          Text("+55000.47 ₺"),
+                        children:  [
+                          Text("$balance ₺"),
+                          const SizedBox(height: 4.0,),
+                          Text("$profit ₺"),
                         ],
                       )
                     ],

@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/base/Transaction.dart';
-
-import '../../model/data_models/trade/Orders.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
 
@@ -16,7 +14,7 @@ class WaitingOrderCard extends StatelessWidget {
     return buildWaitingOrderCard(context, result ,height);
   }
   Widget buildWaitingOrderCard(BuildContext context,Transaction result, double height) => Container(
-    height: height * 0.18 ,
+    height: height * 0.20 ,
     child:   Card(
       margin: EdgeInsets.all(0.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),

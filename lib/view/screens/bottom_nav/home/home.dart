@@ -52,7 +52,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
     _tabs=context.select<UserModel, List<String>>((value) => value.lists.keys.toList());
-    _assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(_tabs[_tabController.index]));
+    //_assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(_tabs[_tabController.index]));
     NetworkState networkState=context.select<StocksModel,NetworkState>((value) => value.allState);
     if(_tabController.length!=_tabs.length){
       _tabController=TabController(
@@ -87,16 +87,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
                     centerTitle: true,
                     actions: [
                       IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,)
-                      //IconButton(onPressed: ()=>_searchPressed(), icon:_searchIcon,),
-                      /*
-                      (_tabs.length>1 && _tabController.index>0)?IconButton(
-                          onPressed: (){
-                            Provider.of<UserModel>(context, listen: false).deleteShareGroup(_tabs[_tabController.index]);
-                            _tabController.index=_tabController.index-1;
-                          }, icon: const Icon(Icons.delete)):
-                      const SizedBox(width: 0, height: 0,),
-
-                       */
                     ],
                     bottom: TabBar(
                       controller: _tabController,
@@ -109,7 +99,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
             ],
             body: TabBarView(
               controller: _tabController,
-              children: List.generate(_tabs.length, (index) => buildFavPage(context.select<UserModel, List<Asset>>((value) => value.getAssetsInList(_tabs[index])),_tabs[index])),
+              children: List.generate(_tabs.length, (index) => FavPage(listName: _tabs[index])),
             )
         ),
       floatingActionButton: FloatingActionButton(
@@ -153,40 +143,48 @@ class CreateListDialog extends StatelessWidget {
   }
 }
 
+class FavPage extends StatelessWidget {
+  const FavPage({Key? key,required this.listName}) : super(key: key);
+  final String listName;
+  @override
+  Widget build(BuildContext context) {
+    List<Asset> assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(listName));
+    return buildFavPage(assets, listName);
+  }
+  Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
+    top: false,
+    bottom: false,
+    child: Builder(
+      builder: (context)=> CustomScrollView(slivers: [
+        SliverOverlapInjector(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
+        SliverPadding(
+          padding: const EdgeInsets.all(0),
+          sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Container(
+                  //margin: const EdgeInsets.only(bottom: 12),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () => gotoTradeView(context),
+                        child: StockCard(asset: assets[index], listName: listName,),
+                      ),
+                      Divider(height: 1,
+                        indent: 50.0,
+                        endIndent: 50.0,
+                        color: lightColorScheme.primaryContainer,
+                      ),
+                    ],
+                  ),
+                );
+              }, childCount: assets.length)),
+        ),
+      ]),
+    ),
+  );
+}
 
-
-Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
-  top: false,
-  bottom: false,
-  child: Builder(
-    builder: (context)=> CustomScrollView(slivers: [
-      SliverOverlapInjector(
-          handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
-      SliverPadding(
-        padding: const EdgeInsets.all(0),
-        sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              return Container(
-                //margin: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () => gotoTradeView(context),
-                      child: StockCard(asset: assets[index], listName: listName,),
-                    ),
-                    Divider(height: 1,
-                      indent: 50.0,
-                      endIndent: 50.0,
-                      color: lightColorScheme.primaryContainer,
-                    ),
-                  ],
-                ),
-              );
-            }, childCount: assets.length)),
-      ),
-    ]),
-  ),
-);
 
 
 void gotoTradeView(BuildContext context) {

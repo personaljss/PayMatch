@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:provider/provider.dart';
 
 import '../../../model/observables/user_model.dart';
@@ -32,6 +33,10 @@ class _DepositViewState extends State<DepositView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("depozit"),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           const SizedBox(height: 90),

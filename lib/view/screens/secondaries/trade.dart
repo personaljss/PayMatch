@@ -197,7 +197,6 @@ class _TradeViewState extends State<TradeView> {
                   Expanded(
                     flex: 3,
                     child: SpinBox(
-
                       min: 0.0,
                       max: 5000.0,
                       value: price ,

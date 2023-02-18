@@ -6,19 +6,20 @@ import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/transactions.da
 import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/waiting_orders.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/wallet.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
+import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:provider/provider.dart';
 
 
 
 class PortfolioView extends StatelessWidget {
-  PortfolioView({Key? key}) : super(key: key);
-
+  const PortfolioView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     NetworkState state = context.select<UserModel, NetworkState>((
         value) => value.portfolioState);
     return (state == NetworkState.DONE) ? Scaffold(
+      drawer: const MyDrawer(),
       body: DefaultTabController(
         length: 3,
         child: NestedScrollView(
