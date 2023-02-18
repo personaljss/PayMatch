@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_match/view/screens/secondaries/details.dart';
 
 import '../../model/data_models/base/fundings_model.dart';
 import '../../utils/colors.dart';
@@ -16,6 +17,7 @@ class FundingsCard extends StatelessWidget {
     double width = MediaQuery.of(context).size.width;
     return buildFundingsCard(context, funding, height, width);
   }
+
   Widget buildFundingsCard(BuildContext context, Funding funding, double height, double width) => Container(
     height: height * 0.55,
     child:   Card(
@@ -25,27 +27,34 @@ class FundingsCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Column(
+          //mainAxisAlignment: MainAxisAlignment.,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              flex: 4,
+              child:
+              Row(
+                //mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.0),
-                        image: DecorationImage(
-                          image: funding.bgImg,
-                          fit: BoxFit.cover,
-                          opacity: 0.3,
-                          isAntiAlias: true,
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                        padding: EdgeInsets.fromLTRB(6.0, 30.0, 0, 0),
+                        width: width,
+                        height: height * 0.35,
+                        decoration: BoxDecoration(color: Colors.white,
+                          borderRadius: BorderRadius.circular(6.0),
+                          image: DecorationImage(
+                            image: AssetImage("assets/logo.png"),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      child: Text("A1 Capital",
-                        style: kPriceTextStyle,)),
+                        child:
+                        Text("A1 Capital",
+                          style: kLabelLightTextStyle,)
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -114,19 +123,21 @@ class FundingsCard extends StatelessWidget {
                         ),
                         Container(
                           margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          padding: EdgeInsets.all(4.0),
+                          padding: EdgeInsets.all(2.0),
                           height: double.maxFinite,
                           width: width * funding.fundedPercentage,
                           decoration: BoxDecoration(
-                            color: lightColorScheme.onPrimaryContainer,
+                            color: lightColorScheme.inversePrimary,
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          child: Center(
-                            child: Text( "${(funding.fundedPercentage) * 100}%",
-                              style: kLabelTextStyle,
-                            ),
+
+                        ),
+                        Center(
+                          child: Text( "${(funding.fundedPercentage) * 100}%",
+                            style: kLabelUnoTextStyle,
                           ),
                         ),
+
                       ],
                     ),
                   ),
@@ -137,7 +148,6 @@ class FundingsCard extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(" Kalan Hedef ${(funding.volumeRemaining * funding.price)}₺",
-                style: kSymbolNameTextStyle,
               ),
             ),
             SizedBox(height: 16.0,),
@@ -152,9 +162,11 @@ class FundingsCard extends StatelessWidget {
                         side: BorderSide(
                             width: 1.0,
                             color: Colors.green),),
-                      onPressed: () {},
+                      onPressed: () {
+
+                      },
                       child: Text("Yatırım Yap",
-                        style: kGreenTextStyle,
+                        style: kChangeGreenTextStyle,
                       ),
                     ),
                   ),
@@ -166,7 +178,9 @@ class FundingsCard extends StatelessWidget {
                         side: BorderSide(
                             width: 1.0,
                             color: lightColorScheme.onPrimaryContainer),),
-                      onPressed: () {},
+                      onPressed: () {
+                        _gotoDetailsView(context);
+                      },
                       child: Text("İncele",
                         style: kButtonTextStyle,
                       ),
@@ -181,4 +195,8 @@ class FundingsCard extends StatelessWidget {
     ),
   );
 
+}
+
+void _gotoDetailsView(BuildContext context) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailsView()));
 }

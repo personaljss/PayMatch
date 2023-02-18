@@ -28,27 +28,78 @@ class WaitingOrderCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Expanded(
-              flex: 2,
-              child: ClipOval(
-                child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
-                  width: 60.0,
-                  height: 60.0,
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16.0,),
-            Expanded(
-              flex: 3,
+              flex: 5,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(result.symbol,
-                      style: kSymbolNameTextStyle),
-                  const SizedBox(height: 8.0,),
-                  Text((result.symbolName).length < 20 ? result.symbolName : "${result.symbolName.substring(0,20)}...",
-                    style: kSymbolTextStyle,),
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Expanded(
+                    flex: 4,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: ClipOval(
+                            child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
+                              width: 60.0,
+                              height: 60.0,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16.0,),
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Text(result.symbol,
+                                    style: kSymbolNameTextStyle),
+                              ),
+                              //const SizedBox(height: 8.0,),
+                              Expanded(
+                                flex: 2,
+                                child: Text((result.symbolName).length < 20 ? result.symbolName : "${result.symbolName.substring(0,20)}...",
+                                  style: kSymbolTextStyle,),
+                              ),
+                              //const SizedBox(height: 8.0,),
+                              Expanded(
+                                  flex: 1,
+                                  child: ((result.symbolName).length > 15)
+                                      ?
+                                  Text("AL",
+                                    style: kChangeGreenTextStyle,
+                                    textAlign: TextAlign.start,)
+                                      :
+                                  Text("SAT",
+                                    style: kChangeRedTextStyle,
+                                    textAlign: TextAlign.start,)
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  /*
+                  Expanded(
+                      flex: 1,
+                      child: ((result.symbolName).length > 15)
+                          ?
+                      Text("AL",
+                        style: kChangeGreenTextStyle,
+                        textAlign: TextAlign.start,)
+                          :
+                      Text("SAT",
+                        style: kChangeRedTextStyle,
+                        textAlign: TextAlign.start,)
+                  ),*/
+
                 ],
               ),
             ),
@@ -61,8 +112,8 @@ class WaitingOrderCard extends StatelessWidget {
                   Expanded(
                     flex: 5,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      //mainAxisAlignment: MainAxisAlignment.center,
+                      //crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           flex: 2,
@@ -113,29 +164,8 @@ class WaitingOrderCard extends StatelessWidget {
                   //SizedBox(height: 8.0,),
                   Expanded(
                     flex: 3,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                            flex: 3,
-                            child: ((result.symbolName).length > 15)
-                                ?
-                            Text("AL",
-                              style: kChangeGreenTextStyle,
-                              textAlign: TextAlign.center,)
-                                :
-                            Text("SAT",
-                              style: kChangeRedTextStyle,
-                              textAlign: TextAlign.center,)
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Text(
-                              "02.04.2001 -> 31.05.2001"
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                        "02.04.2001 -> 31.05.2001"
                     ),
                   ),
                 ],

@@ -89,6 +89,14 @@ final kLabelLightTextStyle = TextStyle(
   letterSpacing: -0.5,
 );
 
+final kLabelUnoTextStyle = TextStyle(
+  color: lightColorScheme.scrim,
+  fontSize: 16.0,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  letterSpacing: -0.5,
+);
+
 final kLabelTextStyle = TextStyle(
   color: Colors.white,
   fontSize: 16.0,
