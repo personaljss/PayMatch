@@ -6,6 +6,7 @@ import '../../../../../model/data_models/base/Asset.dart';
 import '../../../../../model/observables/user_model.dart';
 import '../../../../../utils/colors.dart';
 import '../../../../ui_tools/stock_card.dart';
+import '../../../../ui_tools/wallet_card.dart';
 
 class WalletPage extends StatelessWidget {
   const WalletPage({Key? key}) : super(key: key);

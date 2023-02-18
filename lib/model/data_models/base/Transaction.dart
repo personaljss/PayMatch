@@ -13,6 +13,7 @@ class Transaction{
   final int time;
   final TransStatus status;
   final TransType transType;
+  late String symbolName;
 
   Transaction({required this.id, required this.symbol, required this.amount, required this.remaining,
       required this.price, required this.expiration, required this.status,required this.transType,required this.time});
