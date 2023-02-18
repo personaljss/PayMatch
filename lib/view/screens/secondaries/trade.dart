@@ -114,169 +114,178 @@ class _TradeViewState extends State<TradeView> {
           key: _formkey,
           child: Column(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  const Expanded(
-                    flex: 1,
-                    child: Text("Sembol Kodu:"), ),
-                  Expanded(
-                    flex: 2,
-                    child: DropDownTextField(
-                      controller: controllerSymbolCode,
-                      //initialValue: dropdownItems[0],
-                      validator: (value) {
-                        if (value == null || value.isEmpty){
-                          return "Sembol Seçin";
-                        }
-                        return null;
-                      },
-                      //Bug:: DropDown doesn't collapse
-                      /*onChanged: (value) {
-                        if (value != null && !value.isEmpty){
-                          orderType = value;
-                          setState(() {
-                          });
-                        }
-                      },*/
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    const Expanded(
+                      flex: 1,
+                      child: Text("Sembol Kodu:"), ),
+                    Expanded(
+                      flex: 2,
+                      child: DropDownTextField(
+                        controller: controllerSymbolCode,
+                        //initialValue: dropdownItems[0],
+                        validator: (value) {
+                          if (value == null || value.isEmpty){
+                            return "Sembol Seçin";
+                          }
+                          return null;
+                        },
+                        //Bug:: DropDown doesn't collapse
+                        /*onChanged: (value) {
+                          if (value != null && !value.isEmpty){
+                            orderType = value;
+                            setState(() {
+                            });
+                          }
+                        },*/
 
-                      enableSearch: true,
-                      textFieldDecoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        //errorText: "Sembol Bulunamamıştır",
-                        hintText: "Hisse seçin veya arayın",
+                        enableSearch: true,
+                        textFieldDecoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          //errorText: "Sembol Bulunamamıştır",
+                          hintText: "Hisse seçin veya arayın",
 
-                        ),
-                      keyboardType: TextInputType.name,
-                      dropDownList: dropdownItems,
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 30,),
-              Row(
-                children: <Widget>[
-                  const Expanded( flex: 1,
-                      child: Text("Emir Fiyat Tipi:")),
-                  SizedBox(width: 8.0,),
-                  Expanded( flex: 2,
-                    child: DropDownTextField(
-                      controller: controllerOrderType,
-                      //initialValue: orderType,
-                      validator: (value) {
-                        if (value == null || value.isEmpty){
-                          return "Sembol Seçin";
-                        }
-                        return null;
-                      },
-                      //Bug:: DropDown doesn't collapse
-                      /*onChanged: (value) {
-                        if (value != null && !value.isEmpty){
-                          orderType = value;
-                        }
-                      },*/
-                      enableSearch: true,
-                      searchDecoration:
-                      InputDecoration(
-                        label: Text("Coco"),
-                        labelStyle: kLabelLightTextStyle,
+                          ),
+                        keyboardType: TextInputType.name,
+                        dropDownList: dropdownItems,
                       ),
-                      keyboardType: TextInputType.name,
-                      dropDownList: dropdownMenuItems,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              SizedBox(height: 30,),
-              Row(
-                children: <Widget>[
-                  const Expanded(
-                      flex: 1,
-                      child: Text("Fiyat:")),
-                  const SizedBox(width: 8.0,),
-                  Expanded(
-                    flex: 3,
-                    child: SpinBox(
 
-                      min: 0.0,
-                      max: 5000.0,
-                      value: price ,
-                      onChanged: (value) {
-                        price = value;
-                        setState(() {
-                          total = price * volume!;
-                        });
-                      },
-                      decimals: 2,
-                      step: 0.01,
-                      keyboardType: TextInputType.number,
-                      acceleration: 0.03,
+              SizedBox(height: 24,),
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    const Expanded( flex: 1,
+                        child: Text("Emir Fiyat Tipi:")),
+                    SizedBox(width: 8.0,),
+                    Expanded( flex: 2,
+                      child: DropDownTextField(
+                        controller: controllerOrderType,
+                        //initialValue: orderType,
+                        validator: (value) {
+                          if (value == null || value.isEmpty){
+                            return "Sembol Seçin";
+                          }
+                          return null;
+                        },
+                        //Bug:: DropDown doesn't collapse
+                        /*onChanged: (value) {
+                          if (value != null && !value.isEmpty){
+                            orderType = value;
+                          }
+                        },*/
+                        enableSearch: true,
+                        searchDecoration:
+                        InputDecoration(
+                          label: Text("Coco"),
+                          labelStyle: kLabelLightTextStyle,
+                        ),
+                        keyboardType: TextInputType.name,
+                        dropDownList: dropdownMenuItems,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              SizedBox(height: 30,),
+              SizedBox(height: 24,),
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    const Expanded(
+                        flex: 1,
+                        child: Text("Fiyat:")),
+                    const SizedBox(width: 8.0,),
+                    Expanded(
+                      flex: 3,
+                      child: SpinBox(
+
+                        min: 0.0,
+                        max: 5000.0,
+                        value: price ,
+                        onChanged: (value) {
+                          price = value;
+                          setState(() {
+                            total = price * volume!;
+                          });
+                        },
+                        decimals: 2,
+                        step: 0.01,
+                        keyboardType: TextInputType.number,
+                        acceleration: 0.03,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24,),
               //TODO::implement MaxFindingFunction
-              Row(
-                children: <Widget> [
-                  Expanded(
-                      flex: 1,
-                      child: Text("Adet:")),
-                  SizedBox(width: 8.0 ,),
-                  Expanded(
-                    flex: 3,
-                    child: SpinBox(
-                      min: 0.0,
-                      max: 5000.0,
-                      value: volume ,
-                      onChanged: (value)  {
-                        volume = value;
-                        setState(() {
-                          total = price * volume;
-                        });
-                      },
+              Expanded(
+                child: Row(
+                  children: <Widget> [
+                    Expanded(
+                        flex: 1,
+                        child: Text("Adet:")),
+                    SizedBox(width: 8.0 ,),
+                    Expanded(
+                      flex: 3,
+                      child: SpinBox(
+                        min: 0.0,
+                        max: 5000.0,
+                        value: volume ,
+                        onChanged: (value)  {
+                          volume = value;
+                          setState(() {
+                            total = price * volume;
+                          });
+                        },
 
-                      decimals: 2,
-                      step: 0.01,
-                      keyboardType: TextInputType.number,
-                      acceleration: 0.03,
+                        decimals: 2,
+                        step: 0.01,
+                        keyboardType: TextInputType.number,
+                        acceleration: 0.03,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              SizedBox(height: 30,),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    flex: 1,
-                      child: Text("Toplam Tutar:")),
-                  SizedBox(
-                    width: 8.0,),
-                  Expanded(
-                    flex: 3,
-                    child: SpinBox(
-                      min: 0.0,
-                      max: 500000.0,
-                      value: total,
-                      onChanged: (value){
-                        total = value;
-                        setState(() {
-                          if(price != 0){
-                            volume = total / price;
-                          }
-                          else{
-                            volume = total;
-                            price = 1.0;
-                          }
-                        });
-                      },
-                      decimals: 2,
-                      step: 0.01,
-                      keyboardType: TextInputType.number,
-                      acceleration: 0.03,
+              SizedBox(height: 24,),
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 1,
+                        child: Text("Toplam Tutar:")),
+                    SizedBox(width: 8.0,),
+                    Expanded(
+                      flex: 3,
+                      child: SpinBox(
+                        min: 0.0,
+                        max: 500000.0,
+                        value: total,
+                        onChanged: (value){
+                          total = value;
+                          setState(() {
+                            if(price != 0){
+                              volume = total / price;
+                            }
+                            else{
+                              volume = total;
+                              price = 1.0;
+                            }
+                          });
+                        },
+                        decimals: 2,
+                        step: 0.01,
+                        keyboardType: TextInputType.number,
+                        acceleration: 0.03,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               /*
               Row(
@@ -288,64 +297,68 @@ class _TradeViewState extends State<TradeView> {
                 ],
               ),*/
 
-              SizedBox(height: 30,),
+              SizedBox(height: 24,),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ToggleSwitch(
-                    initialLabelIndex: initialIndex,
-                      //cornerRadius: 20.0,
-                    minHeight: 60.0,
-                    customWidths: [(width / 2 - 30), (width / 2 - 30)],
-                    activeFgColor: Colors.white,
-                    inactiveBgColor: Colors.grey,
-                    inactiveFgColor: Colors.white,
-                    totalSwitches: 2,
-                    labels: [
-                      "AL", "SAT"
-                    ],
-                    customTextStyles: [kOnButtonLightTextStyle,kOnButtonLightTextStyle],
-                    activeBgColors: [[AppColors.green2, AppColors.green1], [Colors.yellow, Colors.orange]],
-                    animate: true, // with just animate set to true, default curve = Curves.easeIn
-                    curve: Curves.bounceInOut, // animate must be set to true when using custom curve
-                    onToggle: (index) {
-                      print('switched to: $index');
-                      setState(() {
-                        initialIndex = index;
-                        }
-                      );
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(height: 30,),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom( backgroundColor: Colors.blue),
-                      onPressed: () {
-                      if(_formkey.currentState!.validate()){
-                        //_formkey.currentState!.save();
-                        print(symbol);
-                        print(orderType);
-                        print(price);
-                        print(volume);
-                        print(total);
-                        //TODO:: Implement httpRequest
-                        }
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ToggleSwitch(
+                      initialLabelIndex: initialIndex,
+                        //cornerRadius: 20.0,
+                      minHeight: 60.0,
+                      customWidths: [(width / 2 - 30), (width / 2 - 30)],
+                      activeFgColor: Colors.white,
+                      inactiveBgColor: Colors.grey,
+                      inactiveFgColor: Colors.white,
+                      totalSwitches: 2,
+                      labels: [
+                        "AL", "SAT"
+                      ],
+                      customTextStyles: [kOnButtonLightTextStyle,kOnButtonLightTextStyle],
+                      activeBgColors: [[AppColors.green2, AppColors.green1], [Colors.yellow, Colors.orange]],
+                      animate: true, // with just animate set to true, default curve = Curves.easeIn
+                      curve: Curves.bounceInOut, // animate must be set to true when using custom curve
+                      onToggle: (index) {
+                        print('switched to: $index');
+                        setState(() {
+                          initialIndex = index;
+                          }
+                        );
                       },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text("ONAYLA",
-                        style: kLabelLightTextStyle,
-                        ),
                     ),
-                    ),
-                  )
-                ],
+                  ],
+                ),
+              ),
+              SizedBox(height: 24,),
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom( backgroundColor: Colors.blue),
+                        onPressed: () {
+                        if(_formkey.currentState!.validate()){
+                          //_formkey.currentState!.save();
+                          print(symbol);
+                          print(orderType);
+                          print(price);
+                          print(volume);
+                          print(total);
+                          //TODO:: Implement httpRequest
+                          }
+                        },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text("ONAYLA",
+                          style: kLabelLightTextStyle,
+                          ),
+                      ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ],
           ),

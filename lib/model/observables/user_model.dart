@@ -352,6 +352,7 @@ class UserModel with ChangeNotifier {
           status: TransStatus.values[item["statu"]],
           transType: TransType.sell,
           time: item["startTs"]);
+      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
       orderList.add(ts);
     }
 
@@ -367,6 +368,7 @@ class UserModel with ChangeNotifier {
           status: TransStatus.values[item["statu"]],
           transType: TransType.buy,
           time: item["startts"]);
+      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
       orderList.add(ts);
     }
 
@@ -382,6 +384,7 @@ class UserModel with ChangeNotifier {
           status: TransStatus.success,
           transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
           time: item["startts"]);
+      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
       dealList.add(ts);
     }
 
@@ -396,6 +399,7 @@ class UserModel with ChangeNotifier {
           status: TransStatus.success,
           transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
           time: item["startts"]);
+      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
       dealList.add(ts);
     }
     deals = Transaction.sortTimes(dealList);
@@ -419,7 +423,6 @@ class UserModel with ChangeNotifier {
       }else{
         equity+=asset.amount*asset.bid;
       }
-
       try{
         asset.fullName = stocksModel.symbolsMap[asset.symbol]!;
         asset.logo=stocksModel.iconsMap[asset.symbol];

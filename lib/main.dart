@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/model/observables/stocks_model.dart';
-import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
+import 'package:pay_match/view/screens/bottom_nav/fundings/fundings.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/home.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/portfolio.dart';
 import 'package:pay_match/view/screens/login.dart';

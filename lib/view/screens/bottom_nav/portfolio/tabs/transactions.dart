@@ -1,25 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../../model/data_models/base/Transaction.dart';
 import '../../../../../model/data_models/trade/Orders.dart';
+import '../../../../../model/observables/user_model.dart';
 import '../../../../../utils/colors.dart';
+import '../../../../ui_tools/order_card.dart';
 import '../../../../ui_tools/stock_card.dart';
 
 class TransactionsPage extends StatelessWidget {
    TransactionsPage({Key? key}) : super(key: key);
   //fake instance
 
-  List<TradeResult> results = [
-    TradeResult("AMZN", "Amazon Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("EXXN", "Exxon Mobile Oil Company Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("TMNT", "Teenage Mutant Ninja Turtles Incorporated.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-    TradeResult("AAPL", "Apple Inc.", RET_CODE.PLACED, 0, 150, 345.30, 345.31, 345.30),
-
-  ];
+  late List<Transaction> results;
   @override
   Widget build(BuildContext context) {
+    results=context.select<UserModel,List<Transaction>>((model) => model.deals);
     return SafeArea(
       top: false,
       bottom: false,
