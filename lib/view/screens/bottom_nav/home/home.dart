@@ -206,7 +206,7 @@ class FavPage extends StatelessWidget {
                   child: Column(
                     children: [
                       GestureDetector(
-                        onTap: () => gotoTradeView(context),
+                        onTap: () => gotoTradeView(context,assets[index].symbol),
                         child: StockCard(asset: assets[index], listName: listName,),
                       ),
                       Divider(height: 1,
@@ -226,6 +226,6 @@ class FavPage extends StatelessWidget {
 
 
 
-void gotoTradeView(BuildContext context) {
-  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TradeView()));
+void gotoTradeView(BuildContext context,String symbolName) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TradeView(symbol: symbolName)));
 }
