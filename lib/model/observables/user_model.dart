@@ -7,7 +7,7 @@ import 'package:http/http.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
-import 'package:pay_match/model/observables/stocks_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../data_models/base/Transaction.dart';
 
 enum LoginStatus {
@@ -29,7 +29,7 @@ class UserModel with ChangeNotifier {
   late String _time;
 
   //observable to create lists of asset
-  late StocksModel stocksModel;
+  //late StocksModel stocksModel;
 
   //portfolio related
   NetworkState _portfolioState = NetworkState.LOADING;
@@ -39,15 +39,33 @@ class UserModel with ChangeNotifier {
   late List<Transaction> _orders;
   late List<Asset> _assets;
 
-  UserModel({required this.stocksModel}) {
-    //logIn("905058257285", "dktrnnskt");
+  static const int _interval=10000;
+
+  List<Asset> _allAssets=[];//all the assets
+  Map<String,String> _symbolsMap= {};
+  Map<String,dynamic> _iconsMap= {};
+
+
+  UserModel() {
+    _fetchSymbolNames();
+    _fetchIcons();
+    _autoLogin();
   }
 
-  UserModel update(StocksModel model) {
-    stocksModel = model;
-    //notifyListeners();
-    return this;
+  Future<void> _autoLogin()async{
+    Map<String,String> loginData=await _getSavedLoginData();
+    if(loginData.isNotEmpty){
+      try{
+        await logIn(loginData["phone"]!, loginData["password"]!);
+      }catch(e){
+        //
+        status=LoginStatus.wrongInfo;
+      }
+    }else{
+      status=LoginStatus.wrongInfo;
+    }
   }
+
 
   //getters and setters
   LoginStatus get status => _status;
@@ -121,6 +139,53 @@ class UserModel with ChangeNotifier {
     notifyListeners();
   }
 
+  //setters
+
+  set allAssets(List<Asset> assets){
+    _allAssets=assets;
+    notifyListeners();
+  }
+
+
+  //getters
+
+  List<Asset> get allAssets => _allAssets;
+  Map<String,String> get symbolsMap=>_symbolsMap;
+  Map<String,dynamic> get iconsMap =>_iconsMap;
+
+  //methods
+  Asset getAt(int index){
+    return _allAssets[index];
+  }
+
+
+  //networking
+  Future<void> _fetchSymbolNames() async{
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.symbolNames);
+    final response=await http.post(url,body: {
+      "key":"1",
+      "value":"1",
+      "size":"3"
+    });
+    List symbols=jsonDecode(jsonDecode(response.body)["data"]);
+    for(Map<String,dynamic> item in symbols){
+      _symbolsMap[item["symbol"]]=item["sharename"];
+    }
+  }
+
+  Future<void> _fetchIcons() async{
+    //gereken postlar: isset($_POST["symbols"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.icons);
+    final response=await http.post(url,body: {
+      "symbols":_symbolsMap.keys.join(","),
+      "key":"1",
+      "value":"1",
+      "size":"4"
+    });
+    _iconsMap=jsonDecode(jsonDecode(response.body)["data"]);
+  }
+
+
   //JSON converter
   Map<String, dynamic> toJson() {
     return {
@@ -135,7 +200,7 @@ class UserModel with ChangeNotifier {
   Future<void> logIn(String phone, String password) async {
     try {
       Uri url = Uri.parse(ApiAdress.server + ApiAdress.login);
-      status = LoginStatus.loading;
+      status=LoginStatus.loading;
       final response = await http.post(url, body: {
         'phone': phone,
         'password': password,
@@ -147,13 +212,14 @@ class UserModel with ChangeNotifier {
       final data = jsonDecode(response.body);
       int statuR = data["statu"];
       if (statuR == 0) {
+        _saveLoginData(phone, password);
         status = LoginStatus.success;
         userCode = data["usercode"];
         //lists=_parseGroupData(data["groupdata"]);
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
         _updatePortfolio();
-        Timer.periodic(const Duration(milliseconds: 10000), (Timer t) {
+        Timer.periodic(const Duration(milliseconds: _interval), (Timer t) {
           _updatePortfolio();
         });
       } else if (statuR == 1) {
@@ -180,7 +246,7 @@ class UserModel with ChangeNotifier {
   //fav
   List<Asset> getAssetsInList(String listName) {
     List<Asset> list = [];
-    for (Asset asset in stocksModel.allAssets) {
+    for (Asset asset in allAssets) {
       try{
         if (lists[listName]!.contains(asset.symbol)) {
           list.add(asset);
@@ -360,7 +426,7 @@ class UserModel with ChangeNotifier {
     List<Transaction> dealList = [];
 
     // Parsing sell orders
-    for (var item in data["sell_o"]) {
+    for (var item in data["sell"]) {
       Transaction ts = Transaction(
           id: item["tid"],
           symbol: item["symbol"],
@@ -371,12 +437,12 @@ class UserModel with ChangeNotifier {
           status: TransStatus.values[item["statu"]],
           transType: TransType.sell,
           time: item["startTs"]);
-      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
+      ts.symbolName=symbolsMap[item["symbol"]]!;
       orderList.add(ts);
     }
 
     // Parsing buy orders
-    for (var item in data["buy_o"]) {
+    for (var item in data["buy"]) {
       Transaction ts = Transaction(
           id: item["tid"],
           symbol: item["symbol"],
@@ -387,12 +453,12 @@ class UserModel with ChangeNotifier {
           status: TransStatus.values[item["statu"]],
           transType: TransType.buy,
           time: item["startts"]);
-      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
+      ts.symbolName=symbolsMap[item["symbol"]]!;
       orderList.add(ts);
     }
 
     // Parsing completed deals
-    for (var item in data["sell"]) {
+    for (var item in data["sell_o"]) {
       Transaction ts = Transaction(
           id: item["tid"],
           symbol: item["symbol"],
@@ -403,11 +469,11 @@ class UserModel with ChangeNotifier {
           status: TransStatus.success,
           transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
           time: item["startts"]);
-      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
+      ts.symbolName=symbolsMap[item["symbol"]]!;
       dealList.add(ts);
     }
 
-    for (var item in data["buy"]) {
+    for (var item in data["buy_o"]) {
       Transaction ts = Transaction(
           id: item["tid"],
           symbol: item["symbol"],
@@ -418,7 +484,7 @@ class UserModel with ChangeNotifier {
           status: TransStatus.success,
           transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
           time: item["startts"]);
-      ts.symbolName=stocksModel.symbolsMap[item["symbol"]]!;
+      ts.symbolName=symbolsMap[item["symbol"]]!;
       dealList.add(ts);
     }
     deals = Transaction.sortTimes(dealList);
@@ -429,28 +495,34 @@ class UserModel with ChangeNotifier {
     _equity=0;
     print(response.body);
     List<Asset> assetList = [];
+    List<Asset> allList=[];
     String list = jsonDecode(response.body)["data"];
     for (var assetJson in jsonDecode(list)) {
       Asset asset = Asset.fromJson(assetJson);
       //profit calculation will be updated
       asset.profit = 0;
+
       //tl is not an asset it is the account balance
       if(asset.symbol=="TL"){
-        balance=asset.amount;
-        equity+=asset.amount;
+        balance=asset.amountHold;
+        equity+=asset.amountHold;
         continue;
       }else{
-        equity+=asset.amount*asset.bid;
+        equity+=asset.amountHold*asset.bid;
       }
       try{
-        asset.fullName = stocksModel.symbolsMap[asset.symbol]!;
-        asset.logo=stocksModel.iconsMap[asset.symbol];
+        asset.fullName = symbolsMap[asset.symbol]!;
+        asset.logo=iconsMap[asset.symbol];
       }catch(e){
         //
       }
-      assetList.add(asset);
+      allList.add(asset);
+      if(asset.amountHold>0){
+        assetList.add(asset);
+      }
     }
     assets = assetList;
+    allAssets=allList;
   }
 
   // isset($_POST["usercode"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
@@ -459,7 +531,6 @@ class UserModel with ChangeNotifier {
   Future<TradeResponse> orderSend(TradeRequest request) async {
     try {
       if(balance<request.volume*request.price)return TradeResponse.noMoney;
-
       Uri url = Uri.parse(ApiAdress.getTradePage(request.orderType));
       final response = await http.post(url, body: {
         "usercode": userCode.toString(),
@@ -473,9 +544,10 @@ class UserModel with ChangeNotifier {
       });
       TradeResponse tradeResponse = TradeResponse.systemError;
       Map data = jsonDecode(response.body);
-      if (data["Statü"] == 0) {
+      print(data);
+      if (data["statu"] == 0) {
         tradeResponse = TradeResponse.success;
-      } else if (data["Statü"] == 1) {
+      } else if (data["statu"] == 1) {
         tradeResponse = TradeResponse.failure;
       }
       return tradeResponse;
@@ -484,4 +556,23 @@ class UserModel with ChangeNotifier {
       return TradeResponse.systemError;
     }
   }
+
+  _saveLoginData(String phone, String password)async{
+    final prefs= await SharedPreferences.getInstance();
+    prefs.setString("phone", phone);
+    prefs.setString("password", password);
+  }
+
+  Future<Map<String,String>> _getSavedLoginData() async{
+    Map<String,String> data={};
+    try{
+      final SharedPreferences prefs=await SharedPreferences.getInstance();
+      data["password"]=(await prefs.getString("password"))!;
+      data["phone"]=(await prefs.getString("phone"))!;
+    }catch(e){
+      //
+    }
+    return data;
+  }
+
 }

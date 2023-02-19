@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/constants/network_constants.dart';
-import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/transactions.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/tabs/waiting_orders.dart';
@@ -59,9 +58,9 @@ class PortfolioView extends StatelessWidget {
                 ),
               )
             ],
-            body: TabBarView(
+            body: const TabBarView(
               children: [
-                const WalletPage(),
+                WalletPage(),
                 OrdersPage(),
                 TransactionsPage(),
               ],

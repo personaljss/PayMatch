@@ -3,21 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../model/data_models/base/Transaction.dart';
-import '../../../../../model/data_models/trade/Orders.dart';
+
 import '../../../../../model/observables/user_model.dart';
 import '../../../../../utils/colors.dart';
 import '../../../../ui_tools/order_card.dart';
-import '../../../../ui_tools/stock_card.dart';
+
 import '../../../../ui_tools/tiriviri.dart';
 
 class TransactionsPage extends StatelessWidget {
-   TransactionsPage({Key? key}) : super(key: key);
+  const TransactionsPage({Key? key}) : super(key: key);
   //fake instance
 
-  late List<Transaction> results;
   @override
   Widget build(BuildContext context) {
-    results=context.select<UserModel,List<Transaction>>((model) => model.deals);
+    List<Transaction> results=context.select<UserModel,List<Transaction>>((model) => model.deals);
     return (results.isNotEmpty)? SafeArea(
       top: false,
       bottom: false,

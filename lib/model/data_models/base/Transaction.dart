@@ -1,6 +1,5 @@
 
-import 'package:flutter/cupertino.dart';
-import 'package:pay_match/model/data_models/base/Asset.dart';
+
 
 class Transaction{
   //{"tid":39,"usercode":1,"symbol":"DPT","amount":40,"remaining":0,"price":1,"ts":2147483647,"statu":1}
@@ -40,7 +39,7 @@ class Transaction{
     int rightIndex = 0;
 
     while (leftIndex < leftList.length && rightIndex < rightList.length) {
-      if (leftList[leftIndex].time < rightList[rightIndex].time) {
+      if (leftList[leftIndex].time > rightList[rightIndex].time) {
         mergedList.add(leftList[leftIndex]);
         leftIndex++;
       } else {

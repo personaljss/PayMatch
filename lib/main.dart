@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/observables/user_model.dart';
-import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/home.dart';
 import 'package:pay_match/view/screens/bottom_nav/portfolio/portfolio.dart';
@@ -11,13 +10,8 @@ import 'package:provider/provider.dart';
 
 void main() => runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context)=>StocksModel()),
-      ChangeNotifierProxyProvider<StocksModel,UserModel>(
-          create: (context)=>UserModel(stocksModel: Provider.of<StocksModel>(context, listen: false)),
-          update: (_, stocksModel, userModel)=>(userModel!=null)?
-          userModel.update(stocksModel):
-          UserModel(stocksModel: stocksModel),
-      ),
+      //ChangeNotifierProvider(create: (context)=>StocksModel()),
+      ChangeNotifierProvider<UserModel>(create: (context)=>UserModel(),)
     ],
     child: const MyApp()
   )
@@ -91,9 +85,9 @@ class _ParentPageState extends State<ParentPage> {
           showUnselectedLabels: false,
         ),
       );
-    }else if(loginStatus==LoginStatus.loading){
+    }else if(loginStatus==LoginStatus.loading || loginStatus==LoginStatus.notYet){
       return const LoadingScreen();
-    }else if(loginStatus==LoginStatus.wrongInfo || loginStatus==LoginStatus.notYet){
+    }else if(loginStatus==LoginStatus.wrongInfo){
       return const LoginScreen();
     }else {
       return const ErrorScreen();

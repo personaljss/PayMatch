@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
-import 'package:pay_match/model/observables/stocks_model.dart';
+import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +39,7 @@ class StockSearchDelegate extends SearchDelegate {
 // third overwrite to show query result
   @override
   Widget buildResults(BuildContext context) {
-    searchTerms=context.select<StocksModel,List<Asset>>((model)=>model.allAssets);
+    searchTerms=context.select<UserModel,List<Asset>>((model)=>model.allAssets);
     List<Asset> matchQuery = [];
     for (Asset asset in searchTerms) {
       if (asset.symbol.toLowerCase().contains(query.toLowerCase())) {
@@ -59,7 +59,7 @@ class StockSearchDelegate extends SearchDelegate {
 // querying process at the runtime
   @override
   Widget buildSuggestions(BuildContext context) {
-    searchTerms=context.select<StocksModel,List<Asset>>((model)=>model.allAssets);
+    searchTerms=context.select<UserModel,List<Asset>>((model)=>model.allAssets);
     List<Asset> matchQuery = [];
     for (Asset asset in searchTerms) {
       if (asset.symbol.toLowerCase().contains(query.toLowerCase())) {

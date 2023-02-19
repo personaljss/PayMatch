@@ -10,8 +10,6 @@ import 'package:pay_match/view/ui_tools/tiriviri.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import '../../../constants/network_constants.dart';
-import '../../../model/observables/stocks_model.dart';
 
 class TradeView extends StatefulWidget {
   /*since generally user will open this page from a stock, the symbol field can be initialised
@@ -36,7 +34,7 @@ class _TradeViewState extends State<TradeView> {
   //members for interwidget communication
   late String symbol;
   //why not enum??
-  String? orderType;
+  late String orderType;
   double price = 0;
   double volume = 0;
   double total = 0;
@@ -67,7 +65,7 @@ class _TradeViewState extends State<TradeView> {
   void initState() {
     super.initState();
     symbol=widget.symbol;
-    List<String> symbols=Provider.of<StocksModel>(context,listen: false).symbolsMap.keys.toList();
+    List<String> symbols=Provider.of<UserModel>(context,listen: false).symbolsMap.keys.toList();
     symbolsDropDown=symbols.map((e) => DropDownValueModel(name: e, value: e)).toList();
 
     controllerOrderType.addListener(_saveOrderType);
@@ -76,6 +74,7 @@ class _TradeViewState extends State<TradeView> {
     controllerSymbolCode.dropDownValue=DropDownValueModel(name: symbol, value: symbol);
     //showing limit order as default
     controllerOrderType.dropDownValue=const DropDownValueModel(name: "Limit emir", value: 0);
+    orderType="Limit emir";
     //add listeners to controller
   }
 
@@ -93,7 +92,7 @@ class _TradeViewState extends State<TradeView> {
   Widget build(BuildContext context) {
     // TODO: implement build
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
+    //double height = MediaQuery.of(context).size.height;
 
     //resizeToAvoidBottomInset -> important when keyboard will be opened
     return Scaffold(
@@ -165,7 +164,7 @@ class _TradeViewState extends State<TradeView> {
                         onChanged: (value) {
                           price = value;
                           setState(() {
-                            total = price * volume!;
+                            total = price * volume;
                           });
                         },
                         decimals: 2,
@@ -279,8 +278,12 @@ class _TradeViewState extends State<TradeView> {
                         style: OutlinedButton.styleFrom( backgroundColor: Colors.blue),
                         onPressed: () async{
                         if(_formkey.currentState!.validate()){
+                          //Validating the order properties
+                          if(symbol.isEmpty || price<=0 || volume<=0 || orderType.isEmpty){
+                            displaySnackBar(context, "lütfen geçerli bir emir giriniz");
+                            return;
+                          }
                           //TODO:: Implement httpRequest
-                          //excluding the market order
                           OrderType type=(initialIndex==0)?OrderType.BUY_LIMIT:OrderType.SELL_LIMIT;
                           TradeRequest request=TradeRequest(symbol, price, volume, type, 0, 0, 0, 0, 0);
                           TradeResponse response=await Provider.of<UserModel>(context,listen: false).orderSend(request);

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/constants/network_constants.dart';
-import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/utils/colors.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/search_delegate.dart';
-import 'package:pay_match/view/screens/secondaries/trade.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
@@ -22,7 +20,6 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
   late TabController _tabController;
-  late List<Asset> _assets;
   late List<String> _tabs=[UserModel.defaultList,];
 
   bool isSearchClicked=false;
@@ -61,7 +58,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
   Widget build(BuildContext context) {
     _tabs=context.select<UserModel, List<String>>((value) => value.lists.keys.toList());
     //_assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(_tabs[_tabController.index]));
-    NetworkState networkState=context.select<StocksModel,NetworkState>((value) => value.allState);
+    NetworkState networkState=context.select<UserModel,NetworkState>((value) => value.portfolioState);
     if(_tabController.length!=_tabs.length){
       _tabController=TabController(
           initialIndex: _tabController.index,
@@ -144,7 +141,6 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
         onPressed: () { showDialog(context: context, builder: (BuildContext context)=>CreateListDialog(update: _createList,));},
         child: const Icon(Icons.add),
       ),
-
        */
     ) :
     (networkState==NetworkState.LOADING)? const LoadingScreen() : const ErrorScreen();

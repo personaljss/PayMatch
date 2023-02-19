@@ -17,6 +17,13 @@ void displaySnackBar(BuildContext context,String txt){
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
+//functions
 void gotoTradeView(BuildContext context,String symbolName) {
   Navigator.of(context).push(MaterialPageRoute(builder: (context) => TradeView(symbol: symbolName)));
+}
+
+String formatDateTime(int secondsSinceEpoch) {
+  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
+  String formattedDate = "${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year.toString()}";
+  return formattedDate;
 }

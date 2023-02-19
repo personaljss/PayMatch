@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/base/Transaction.dart';
+import 'package:pay_match/view/ui_tools/tiriviri.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
 
@@ -14,7 +15,7 @@ class WaitingOrderCard extends StatelessWidget {
     return buildWaitingOrderCard(context, result ,height);
   }
   Widget buildWaitingOrderCard(BuildContext context,Transaction result, double height) => Container(
-    height: height * 0.20 ,
+    height: height * 0.25 ,
     child:   Card(
       margin: const EdgeInsets.all(0.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
@@ -125,7 +126,7 @@ class WaitingOrderCard extends StatelessWidget {
                       Expanded(
                         flex: 4,
                         child: Text(
-                            "02.04.2001 -> 31.05.2001"
+                            formatDateTime(result.time)
                         ),
                       ),
                     ],

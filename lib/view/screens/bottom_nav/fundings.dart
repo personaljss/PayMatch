@@ -5,7 +5,6 @@ import '../../../model/data_models/trade/Orders.dart';
 import '../../../utils/colors.dart';
 import '../../ui_tools/funding_card.dart';
 import '../../ui_tools/nav_drawer.dart';
-import '../../ui_tools/stock_card.dart';
 
 class FundingsView extends StatelessWidget {
   FundingsView({Key? key}) : super(key: key);
@@ -21,47 +20,51 @@ class FundingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      bottom: false,
-      child: Builder(
-          builder: (context) {
-          return CustomScrollView(
-            slivers: [
-              /*SliverOverlapInjector(
-                  handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),*/
-              SliverAppBar(
-                title: Text("Fonlamalar"),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(0),
-                sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Container(
-                        //margin: const EdgeInsets.only(bottom: 12),
-                        child: Column(
-                          children: [
-                            GestureDetector(
-                              //onTap: () => gotoDetailsView(context),
-                              child: FundingsCard(
-                                funding: fundingsList[index],),
-                            ),
-                            Divider(height: 1,
-                              indent: 50.0,
-                              endIndent: 50.0,
-                              color: lightColorScheme.primaryContainer,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    childCount: fundingsList.length
+    return Scaffold(
+      drawer: const MyDrawer(),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Builder(
+            builder: (context) {
+            return CustomScrollView(
+              slivers: [
+                /*SliverOverlapInjector(
+                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),*/
+                const SliverAppBar(
+                  title: Text("Fonlamalar"),
+                  centerTitle: true,
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.all(0),
+                  sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return Container(
+                          //margin: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                //onTap: () => gotoDetailsView(context),
+                                child: FundingsCard(
+                                  funding: fundingsList[index],),
+                              ),
+                              Divider(height: 1,
+                                indent: 50.0,
+                                endIndent: 50.0,
+                                color: lightColorScheme.primaryContainer,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      childCount: fundingsList.length
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        }
+              ],
+            );
+          }
+        ),
       ),
     );
   }

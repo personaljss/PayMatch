@@ -9,11 +9,11 @@ import '../../../../ui_tools/tiriviri.dart';
 
 
 class OrdersPage extends StatelessWidget {
-  OrdersPage({Key? key}) : super(key: key);
-  late List<Transaction> results ;
+  const OrdersPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    results=context.select<UserModel,List<Transaction>>((model)=>model.orders);
+    List<Transaction> results=context.select<UserModel,List<Transaction>>((model)=>model.orders);
     return (results.isNotEmpty)? SafeArea(
       top: false,
       bottom: false,

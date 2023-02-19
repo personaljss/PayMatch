@@ -3,7 +3,8 @@ import 'dart:convert';
 class Asset{
   final String symbol;//name of the asset
   final String sector;//sector of the firm(tech, education...)
-  double amount;//lots hold by the user's account
+  double amountHold;//lots hold by the user's account
+  double amountOnSale;
   double ask;
   double bid;
   late double price;
@@ -15,7 +16,8 @@ class Asset{
   Asset({
     required this.symbol,
     required this.sector,
-    required this.amount,
+    required this.amountHold,
+    required this.amountOnSale,
     required this.ask,
     required this.bid,
     required this.fullName,
@@ -26,7 +28,8 @@ class Asset{
     return Asset(
       symbol: json['symbol'],
       sector: 'N/A',
-      amount: json['onSaleAmount'].toDouble(),
+      amountHold: json['userhaving'].toDouble(),
+      amountOnSale: json['onSaleAmount'].toDouble(),
       ask: json['sellPrice'].toDouble(),
       bid: json['buyPrice'].toDouble(),
       //not implemented yet
