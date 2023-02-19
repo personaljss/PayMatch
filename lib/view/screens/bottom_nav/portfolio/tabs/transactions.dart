@@ -8,6 +8,7 @@ import '../../../../../model/observables/user_model.dart';
 import '../../../../../utils/colors.dart';
 import '../../../../ui_tools/order_card.dart';
 import '../../../../ui_tools/stock_card.dart';
+import '../../../../ui_tools/tiriviri.dart';
 
 class TransactionsPage extends StatelessWidget {
    TransactionsPage({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class TransactionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     results=context.select<UserModel,List<Transaction>>((model) => model.deals);
-    return SafeArea(
+    return (results.isNotEmpty)? SafeArea(
       top: false,
       bottom: false,
       child: Builder(
@@ -34,7 +35,7 @@ class TransactionsPage extends StatelessWidget {
                         child: Column(
                           children: [
                             GestureDetector(
-                              //onTap: () => gotoTradeView(context),
+                              onTap: () => gotoTradeView(context,results[index].symbol),
                               child: WaitingOrderCard(result: results[index]),
                             ),
                             Divider(height: 0.5,
@@ -50,6 +51,6 @@ class TransactionsPage extends StatelessWidget {
             ]
         ),
       ),
-    );
+    ) : const Center(child: Text("henüz yapmış olduğunuz bir işlem yok"));
   }
 }

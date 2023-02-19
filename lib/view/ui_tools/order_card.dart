@@ -16,7 +16,7 @@ class WaitingOrderCard extends StatelessWidget {
   Widget buildWaitingOrderCard(BuildContext context,Transaction result, double height) => Container(
     height: height * 0.20 ,
     child:   Card(
-      margin: EdgeInsets.all(0.0),
+      margin: const EdgeInsets.all(0.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
       color: lightColorScheme.onSecondary,
       child: Padding(

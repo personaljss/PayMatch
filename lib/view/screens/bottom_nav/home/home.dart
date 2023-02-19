@@ -10,6 +10,7 @@ import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 import '../../../../model/data_models/base/Asset.dart';
+import '../../../ui_tools/tiriviri.dart';
 
 
 class HomeView extends StatefulWidget {
@@ -49,7 +50,12 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
     setState(() {});
   }
 
-
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _tabController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -201,31 +207,22 @@ class FavPage extends StatelessWidget {
           padding: const EdgeInsets.all(0),
           sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-                return Container(
-                  //margin: const EdgeInsets.only(bottom: 12),
-                  child: Column(
-                    children: [
-                      GestureDetector(
-                        onTap: () => gotoTradeView(context,assets[index].symbol),
-                        child: StockCard(asset: assets[index], listName: listName,),
-                      ),
-                      Divider(height: 1,
-                        indent: 50.0,
-                        endIndent: 50.0,
-                        color: lightColorScheme.primaryContainer,
-                      ),
-                    ],
-                  ),
+                return Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () => gotoTradeView(context,assets[index].symbol),
+                      child: StockCard(asset: assets[index], listName: listName,),
+                    ),
+                    Divider(height: 1,
+                      indent: 50.0,
+                      endIndent: 50.0,
+                      color: lightColorScheme.primaryContainer,
+                    ),
+                  ],
                 );
               }, childCount: assets.length)),
         ),
       ]),
     ),
   );
-}
-
-
-
-void gotoTradeView(BuildContext context,String symbolName) {
-  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TradeView(symbol: symbolName)));
 }

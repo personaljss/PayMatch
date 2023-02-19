@@ -44,17 +44,9 @@ class _TradeViewState extends State<TradeView> {
 //fake implementation
   late List<DropDownValueModel> symbolsDropDown;
   List<DropDownValueModel> ordersDropDown=[
-    const DropDownValueModel(name: "Market emri", value: 0),
-    const DropDownValueModel(name: "Limit emir", value: 1),
+    const DropDownValueModel(name: "Limit emir", value: 0),
+    const DropDownValueModel(name: "Market emri", value: 1),
   ];
-  //Fake impl for data request
-  void initRequest() {
-    symbol = "AAPL";
-    orderType = "LMT";
-    price =  36.52;
-    volume = 100;
-    total = price * volume;
-  }
 
   //methods to get DropDown value of the DropdownTextField
   void _saveOrderType() {
@@ -77,11 +69,13 @@ class _TradeViewState extends State<TradeView> {
     symbol=widget.symbol;
     List<String> symbols=Provider.of<StocksModel>(context,listen: false).symbolsMap.keys.toList();
     symbolsDropDown=symbols.map((e) => DropDownValueModel(name: e, value: e)).toList();
+
     controllerOrderType.addListener(_saveOrderType);
     controllerSymbolCode.addListener(_saveSymbolCode);
     //showing source symbol on the menu
     controllerSymbolCode.dropDownValue=DropDownValueModel(name: symbol, value: symbol);
-    initRequest();
+    //showing limit order as default
+    controllerOrderType.dropDownValue=const DropDownValueModel(name: "Limit emir", value: 0);
     //add listeners to controller
   }
 
@@ -110,7 +104,7 @@ class _TradeViewState extends State<TradeView> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Padding(padding: EdgeInsets.all(20),
+        child: Padding(padding: const EdgeInsets.all(20),
           child: Form(
             key: _formkey,
             child: Column(
@@ -125,21 +119,12 @@ class _TradeViewState extends State<TradeView> {
                       child: DropDownTextField(
                         controller: controllerSymbolCode,
                         //initialValue: dropdownItems[0],
-                        validator: (value) {
-                          if (value == null || value.isEmpty){
-                            return "Sembol Seçin";
-                          }
-                          return null;
-                        },
-                      onChanged: (value){
+                        onChanged: (value){
                           symbol=value;
-                      },
+                        },
                         enableSearch: true,
                         textFieldDecoration: const InputDecoration(
                           border: OutlineInputBorder(),
-                          //errorText: "Sembol Bulunamamıştır",
-                          hintText: "Hisse seçin veya arayın",
-
                           ),
                         keyboardType: TextInputType.name,
                         dropDownList: symbolsDropDown,
@@ -153,23 +138,11 @@ class _TradeViewState extends State<TradeView> {
                   children: <Widget>[
                     const Expanded( flex: 1,
                         child: Text("Emir Fiyat Tipi:")),
-                    SizedBox(width: 8.0,),
+                    const SizedBox(width: 8.0,),
                     Expanded( flex: 2,
                       child: DropDownTextField(
                         controller: controllerOrderType,
-                        //initialValue: orderType,
-                        validator: (value) {
-                          if (value == null || value.isEmpty){
-                            return "Sembol Seçin";
-                          }
-                          return null;
-                        },
                         enableSearch: true,
-                        searchDecoration:
-                        InputDecoration(
-                          label: Text("Coco"),
-                          labelStyle: kLabelLightTextStyle,
-                        ),
                         keyboardType: TextInputType.name,
                         dropDownList: ordersDropDown,
                       ),
@@ -203,14 +176,14 @@ class _TradeViewState extends State<TradeView> {
                     ),
                   ],
                 ),
-                SizedBox(height: 30,),
+                const SizedBox(height: 30,),
                 //TODO::implement MaxFindingFunction
                 Row(
                   children: <Widget> [
-                    Expanded(
+                    const Expanded(
                         flex: 1,
                         child: Text("Adet:")),
-                    SizedBox(width: 8.0 ,),
+                    const SizedBox(width: 8.0 ,),
                     Expanded(
                       flex: 3,
                       child: SpinBox(
@@ -306,24 +279,21 @@ class _TradeViewState extends State<TradeView> {
                         style: OutlinedButton.styleFrom( backgroundColor: Colors.blue),
                         onPressed: () async{
                         if(_formkey.currentState!.validate()){
-                          print(symbol);
-                          print(orderType);
-                          print(price);
-                          print(volume);
-                          print(total);
                           //TODO:: Implement httpRequest
                           //excluding the market order
                           OrderType type=(initialIndex==0)?OrderType.BUY_LIMIT:OrderType.SELL_LIMIT;
                           TradeRequest request=TradeRequest(symbol, price, volume, type, 0, 0, 0, 0, 0);
                           TradeResponse response=await Provider.of<UserModel>(context,listen: false).orderSend(request);
-                          if(response==TradeResponse.success){
-                            print("başarılı");
-                          }else if(response==TradeResponse.noMoney){
-                            print("no money");
-                          }else if(response==TradeResponse.failure){
-                            print("failure");
-                          }else{
-                            print("system error");
+                          if(context.mounted){
+                            if(response==TradeResponse.success){
+                              displaySnackBar(context, "işlem başarılı");
+                            }else if(response==TradeResponse.noMoney){
+                              displaySnackBar(context, "Bakiyeniz yetersiz.");
+                            }else if(response==TradeResponse.failure){
+                              displaySnackBar(context, "işlem başarısız");
+                            }else{
+                              displaySnackBar(context, "emriniz iletilemedi");
+                            }
                           }
                           }
                         },

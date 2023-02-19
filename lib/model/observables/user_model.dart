@@ -40,7 +40,7 @@ class UserModel with ChangeNotifier {
   late List<Asset> _assets;
 
   UserModel({required this.stocksModel}) {
-    logIn("905058257285", "dktrnnskt");
+    //logIn("905058257285", "dktrnnskt");
   }
 
   UserModel update(StocksModel model) {
@@ -204,6 +204,11 @@ class UserModel with ChangeNotifier {
 
   // statu: 404: system error, 0: success, 1: share is already in that group
   Future<void> addSymbolToShareGroup(String groupName, String symbol) async {
+    if (!lists.containsKey(groupName)) {
+      lists[groupName] = <String>[];
+    }
+    lists[groupName]!.add(symbol);
+    notifyListeners();
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.lists);
     final response = await http.post(url, body: {
       "usercode": _userCode.toString(),
@@ -221,9 +226,10 @@ class UserModel with ChangeNotifier {
     if (status == 0) {
       if (!lists.containsKey(groupName)) {
         lists[groupName] = <String>[];
+      }if(!lists[groupName]!.contains(symbol)){
+        lists[groupName]!.add(symbol);
+        notifyListeners();
       }
-      lists[groupName]!.add(symbol);
-      notifyListeners();
     } else if (status == 1) {
       throw Exception("Share is already in the group");
     } else {
@@ -240,7 +246,14 @@ class UserModel with ChangeNotifier {
   }
 
   Future<void> deleteSymbolFromShareGroup(String groupName, String symbol) async {
+
+    if (lists.containsKey(groupName) && lists[groupName]!.contains(symbol)) {
+      lists[groupName]!.remove(symbol);
+      notifyListeners();
+    }
+
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.lists);
+
     final response = await http.post(url, body: {
       "usercode": _userCode.toString(),
       "groupname": groupName,
@@ -256,12 +269,6 @@ class UserModel with ChangeNotifier {
     if (status == 0) {
       if (lists.containsKey(groupName)) {
         lists[groupName]!.remove(symbol);
-        /*
-        if (lists[groupName]!.isEmpty) {
-          lists.remove(groupName);
-        }
-
-         */
       }
       notifyListeners();
     } else if (status == 1) {

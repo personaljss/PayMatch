@@ -52,7 +52,7 @@ class _ParentPageState extends State<ParentPage> {
   final List<Widget> screens=[
     const HomeView(),
     FundingsView(),
-    PortfolioView()
+    const PortfolioView()
   ];
 
   void _onItemTapped(int index){
@@ -93,7 +93,7 @@ class _ParentPageState extends State<ParentPage> {
       );
     }else if(loginStatus==LoginStatus.loading){
       return const LoadingScreen();
-    }else if(loginStatus==LoginStatus.wrongInfo){
+    }else if(loginStatus==LoginStatus.wrongInfo || loginStatus==LoginStatus.notYet){
       return const LoginScreen();
     }else {
       return const ErrorScreen();

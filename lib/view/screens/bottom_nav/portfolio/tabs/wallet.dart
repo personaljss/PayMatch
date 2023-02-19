@@ -6,6 +6,7 @@ import '../../../../../model/data_models/base/Asset.dart';
 import '../../../../../model/observables/user_model.dart';
 import '../../../../../utils/colors.dart';
 import '../../../../ui_tools/stock_card.dart';
+import '../../../../ui_tools/tiriviri.dart';
 import '../../../../ui_tools/wallet_card.dart';
 
 class WalletPage extends StatelessWidget {
@@ -22,7 +23,8 @@ class WalletPage extends StatelessWidget {
           double equity=context.select<UserModel,double>((value) => value.equity);
           double balance=context.select<UserModel,double>((value) => value.balance);
           double profit=balance-equity;
-          return CustomScrollView(
+          return (assets.isEmpty)? const Center(child: Text("henüz yapmış olduğunuz bir işlem yok")) :
+           CustomScrollView(
             slivers: [
               SliverOverlapInjector(
                   handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
@@ -63,7 +65,7 @@ class WalletPage extends StatelessWidget {
                       child: Column(
                         children: [
                           GestureDetector(
-                            //onTap: () => gotoTradeView(context),
+                            onTap: () => gotoTradeView(context,assets[index].symbol),
                             child: WalletCard(asset: assets[index]),
                           ),
                           Divider(height: 1,
@@ -82,6 +84,6 @@ class WalletPage extends StatelessWidget {
           );
         },
       ),
-    );;
+    );
   }
 }
