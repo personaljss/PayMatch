@@ -9,7 +9,7 @@ enum NetworkState{
 
 class ApiAdress{
   //here is the location for backend urls
-  static String server="https://8e96-212-12-142-150.eu.ngrok.io/market/";
+  static String server="https://e0bf-178-233-89-3.eu.ngrok.io/market/";
   static String login="login.php";
   static String lists="sharegroups.php";
   static String portfolio="portfolio.php";
@@ -19,6 +19,8 @@ class ApiAdress{
   static String buyOrder="buyorder.php";
   static String symbolNames="symbolnames.php";
   static String icons="geticons.php";
+  static String autologin="autologin.php";
+
   static String getTradePage(OrderType orderType){
     if(orderType==OrderType.BUY_LIMIT){
       return server+buyOrder;

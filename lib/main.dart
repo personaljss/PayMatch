@@ -6,9 +6,16 @@ import 'package:pay_match/view/screens/bottom_nav/portfolio/portfolio.dart';
 import 'package:pay_match/view/screens/login.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
+void main() async{
 
-void main() => runApp(MultiProvider(
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MultiProvider(
     providers: [
       //ChangeNotifierProvider(create: (context)=>StocksModel()),
       ChangeNotifierProvider<UserModel>(create: (context)=>UserModel(),)
@@ -16,6 +23,7 @@ void main() => runApp(MultiProvider(
     child: const MyApp()
   )
 );
+}
 
 
 //change home if logged in maybe?

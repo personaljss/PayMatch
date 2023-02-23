@@ -1,13 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../../model/data_models/base/Transaction.dart';
-
 import '../../../../../model/observables/user_model.dart';
 import '../../../../../utils/colors.dart';
 import '../../../../ui_tools/order_card.dart';
-
 import '../../../../ui_tools/tiriviri.dart';
 
 class TransactionsPage extends StatelessWidget {

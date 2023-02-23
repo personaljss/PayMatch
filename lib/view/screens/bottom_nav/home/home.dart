@@ -29,6 +29,28 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
 
   final TextEditingController _filter = TextEditingController();
 
+  List<PopupMenuItem<int>> _menuActions(BuildContext context,int index){
+    if(index==0){
+      //
+      return [
+        const PopupMenuItem<int>(
+            value:1,
+            child: Text("yeni liste ekle")
+        ),
+      ];
+    }else{
+      return [
+        PopupMenuItem<int>(
+          value: 0,
+          child: Text("${_tabs[_tabController.index]} listesini sil"),
+        ),
+        const PopupMenuItem<int>(
+            value:1,
+            child: Text("yeni liste ekle")),
+      ];
+    }
+  }
+
 
   @override
   void initState(){
@@ -94,15 +116,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
                       IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,),
                       //IconButton(onPressed: ()=>_showListMenu(context,_tabs[_tabController.index]), icon: const Icon(Icons.more_vert_outlined))
                       PopupMenuButton(itemBuilder: (context){
-                        return [
-                          PopupMenuItem<int>(
-                            value: 0,
-                            child: Text("${_tabs[_tabController.index]} listesini sil"),
-                          ),
-                          const PopupMenuItem<int>(
-                            value:1,
-                              child: Text("yeni liste ekle")),
-                        ];
+                        return _menuActions(context, _tabController.index);
                       },
                       onSelected: (index) {
                         if(index==0){
@@ -136,12 +150,7 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
               children: List.generate(_tabs.length, (index) => FavPage(listName: _tabs[index])),
             )
         ),
-      /*
-      floatingActionButton: FloatingActionButton(
-        onPressed: () { showDialog(context: context, builder: (BuildContext context)=>CreateListDialog(update: _createList,));},
-        child: const Icon(Icons.add),
-      ),
-       */
+
     ) :
     (networkState==NetworkState.LOADING)? const LoadingScreen() : const ErrorScreen();
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:convert';
@@ -23,7 +24,6 @@ class UserModel with ChangeNotifier {
   static const String defaultList = "favoriler";
   late LoginStatus _status = LoginStatus.notYet;
   late int _userCode;
-
   //lists created by user
   Map<String, List<String>> _lists = {defaultList: []};
   late String _time;
@@ -33,11 +33,11 @@ class UserModel with ChangeNotifier {
 
   //portfolio related
   NetworkState _portfolioState = NetworkState.LOADING;
-  late double _balance;
-  late double _equity;
-  late List<Transaction> _deals;
-  late List<Transaction> _orders;
-  late List<Asset> _assets;
+  double _balance=0;
+  double _equity=0;
+  List<Transaction> _deals=[];
+  List<Transaction> _orders=[];
+  List<Asset> _assets=[];
 
   static const int _interval=10000;
 
@@ -49,26 +49,48 @@ class UserModel with ChangeNotifier {
   UserModel() {
     _fetchSymbolNames();
     _fetchIcons();
-    _autoLogin();
+    autoLoginServ();
   }
 
-  Future<void> _autoLogin()async{
-    Map<String,String> loginData=await _getSavedLoginData();
-    if(loginData.isNotEmpty){
-      try{
-        await logIn(loginData["phone"]!, loginData["password"]!);
-      }catch(e){
-        //
-        status=LoginStatus.wrongInfo;
+  Future<void> autoLoginServ()async{
+    try{
+      SharedPreferences sp=await SharedPreferences.getInstance();
+      String deviceToken=sp.getString("deviceToken")!;
+      Uri url=Uri.parse(ApiAdress.server+ApiAdress.autologin);
+      final response=await http.post(url,body: {
+        "key":"1",
+        "value":"1",
+        "devicetoken":deviceToken,
+        "size":"4"
+      });
+      final data = jsonDecode(response.body);
+      int statuR = data["statu"];
+      if (statuR == 0) {
+        status = LoginStatus.success;
+        userCode = data["usercode"];
+        _parseGroupData(data["groupdata"]);
+        //updating the portfolio if successful login
+        _updateData();
+        Timer.periodic(const Duration(milliseconds: _interval), (Timer t) {
+          _updateData();
+        });
+      } else if (statuR == 1) {
+        status = LoginStatus.wrongInfo;
+      } else if (statuR == 2) {
+        status = LoginStatus.unverifiedAccount;
+      } else {
+        status = LoginStatus.systemError;
       }
-    }else{
+    }catch(e){
       status=LoginStatus.wrongInfo;
     }
+
   }
 
 
   //getters and setters
   LoginStatus get status => _status;
+
 
   set status(LoginStatus value) {
     _status = value;
@@ -196,31 +218,34 @@ class UserModel with ChangeNotifier {
     };
   }
 
+
   //login
   Future<void> logIn(String phone, String password) async {
     try {
       Uri url = Uri.parse(ApiAdress.server + ApiAdress.login);
       status=LoginStatus.loading;
+      String? deviceToken=await FirebaseMessaging.instance.getToken();
       final response = await http.post(url, body: {
         'phone': phone,
         'password': password,
+        'devicetoken':deviceToken,
         'key': '1',
         'value': '1',
-        'size': '5',
+        'size': '6',
       });
       print(response.body);
       final data = jsonDecode(response.body);
       int statuR = data["statu"];
       if (statuR == 0) {
-        _saveLoginData(phone, password);
+        SharedPreferences sp=await SharedPreferences.getInstance();
+        sp.setString("deviceToken", deviceToken!);
         status = LoginStatus.success;
         userCode = data["usercode"];
-        //lists=_parseGroupData(data["groupdata"]);
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
-        _updatePortfolio();
+        _updateData();
         Timer.periodic(const Duration(milliseconds: _interval), (Timer t) {
-          _updatePortfolio();
+          _updateData();
         });
       } else if (statuR == 1) {
         status = LoginStatus.wrongInfo;
@@ -235,8 +260,8 @@ class UserModel with ChangeNotifier {
     }
   }
 
-  Future<void> _updatePortfolio() async {
-    await _fetchTransactions();
+  Future<void> _updateData() async {
+    _fetchTransactions();
     await _fetchPortfolio();
     if (_portfolioState == NetworkState.LOADING) {
       portfolioState = NetworkState.DONE;
@@ -363,24 +388,28 @@ class UserModel with ChangeNotifier {
         }
       }
     } catch (e) {
-      print("_parseGroupData $e");
+      //
     }
   }
 
   //portfolio related methods
 
   Future<void> _fetchTransactions() async {
-    print("fetch trans called");
-
+    print("_fetchTranaction():");
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.transactions);
     final response = await http.post(url, body: {
       "usercode": userCode.toString(),
       "key": "1",
       "value": "1",
       "type": "sell_o,buy_o,sell,buy",
-      "size": "5"
+      "size": "6",
+      "from":"0"
     });
-    _parseTransactions(response);
+    try{
+      _parseTransactions(response);
+    }catch(e){
+      print("_parseTransactions(): $e");
+    }
   }
 
   Future<bool> deposit(double amount, String symbol) async {
@@ -411,14 +440,15 @@ class UserModel with ChangeNotifier {
       "usercode": userCode.toString(),
       "key": "1",
       "value": "1",
-      "size": "4"
+      "size": "4",
     });
+    //print(response.body);
     _parseAssets(response);
   }
 
   //
   void _parseTransactions(Response response) {
-    print(response);
+    //print(jsonDecode(response.body));
     //{"tid":60,"usercode":1,"symbol":"RW","amount":80,"remaining":0,"price":1.2,"ts":2147483647,"statu":1,"startts":211313321}
     Map data = jsonDecode(jsonDecode(response.body)["data"]);
 
@@ -497,6 +527,7 @@ class UserModel with ChangeNotifier {
     List<Asset> assetList = [];
     List<Asset> allList=[];
     String list = jsonDecode(response.body)["data"];
+    double eq=0;
     for (var assetJson in jsonDecode(list)) {
       Asset asset = Asset.fromJson(assetJson);
       //profit calculation will be updated
@@ -505,10 +536,10 @@ class UserModel with ChangeNotifier {
       //tl is not an asset it is the account balance
       if(asset.symbol=="TL"){
         balance=asset.amountHold;
-        equity+=asset.amountHold;
+        eq+=asset.amountHold;
         continue;
       }else{
-        equity+=asset.amountHold*asset.bid;
+        eq+=asset.amountHold*asset.bid;
       }
       try{
         asset.fullName = symbolsMap[asset.symbol]!;
@@ -521,6 +552,7 @@ class UserModel with ChangeNotifier {
         assetList.add(asset);
       }
     }
+    equity=eq;
     assets = assetList;
     allAssets=allList;
   }
@@ -532,6 +564,8 @@ class UserModel with ChangeNotifier {
     try {
       if(balance<request.volume*request.price)return TradeResponse.noMoney;
       Uri url = Uri.parse(ApiAdress.getTradePage(request.orderType));
+      int epochNow=DateTime.now().millisecondsSinceEpoch~/1000;
+      //expiration will be handled
       final response = await http.post(url, body: {
         "usercode": userCode.toString(),
         "key": "1",
@@ -540,11 +574,11 @@ class UserModel with ChangeNotifier {
         "symbol": request.symbol,
         "amount": request.volume.toString(),
         "price": request.price.toString(),
-        "ts": request.expiration.toString()
+        "ts": (epochNow<request.expiration)?request.expiration.toString():"4102444800"
       });
       TradeResponse tradeResponse = TradeResponse.systemError;
       Map data = jsonDecode(response.body);
-      print(data);
+      print("trade response$data");
       if (data["statu"] == 0) {
         tradeResponse = TradeResponse.success;
       } else if (data["statu"] == 1) {
@@ -556,23 +590,26 @@ class UserModel with ChangeNotifier {
       return TradeResponse.systemError;
     }
   }
-
-  _saveLoginData(String phone, String password)async{
+/*
+  _saveLoginData(String phone, String password,String deviceToken)async{
     final prefs= await SharedPreferences.getInstance();
     prefs.setString("phone", phone);
     prefs.setString("password", password);
+    prefs.setString("deviceToken", deviceToken);
   }
 
   Future<Map<String,String>> _getSavedLoginData() async{
     Map<String,String> data={};
     try{
       final SharedPreferences prefs=await SharedPreferences.getInstance();
-      data["password"]=(await prefs.getString("password"))!;
-      data["phone"]=(await prefs.getString("phone"))!;
+      data["password"]=(prefs.getString("password"))!;
+      data["phone"]=(prefs.getString("phone"))!;
     }catch(e){
       //
     }
     return data;
   }
+
+ */
 
 }
