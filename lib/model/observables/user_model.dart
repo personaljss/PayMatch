@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,7 @@ import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../firebase_options.dart';
 import '../data_models/base/Transaction.dart';
 
 enum LoginStatus {
@@ -49,10 +51,51 @@ class UserModel with ChangeNotifier {
   UserModel() {
     _fetchSymbolNames();
     _fetchIcons();
-    autoLoginServ();
+    _autoLoginServ();
+    _listenFcm();
   }
 
-  Future<void> autoLoginServ()async{
+  void _listenFcm() async{
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    await FirebaseMessaging.instance.getToken();
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("fcm data");
+      _updateTransctions(message.data);
+      if (message.notification != null) {
+        print('Message also contained a notification: ${message.notification}');
+      }
+    });
+  }
+
+  void _updateTransctions(Map<String,dynamic> data){
+    Map<String,dynamic> transJson=jsonDecode(data["transEnd"]);
+    print(transJson);
+    Transaction ts = Transaction(
+        id: BigInt.from(transJson["tid"]),
+        symbol: transJson["symbol"],
+        amount: transJson["amount"].toDouble(),
+        remaining: transJson["remaining"].toDouble(),
+        price: transJson["price"].toDouble(),
+        expiration: transJson["ts"],
+        status: TransStatus.success,
+        transType: data["operation"] == "seller" ? TransType.sell : TransType.buy,
+        time: transJson["startts"],
+        avgPrice: transJson["avgprice"].toDouble());
+
+    Transaction target=orders.firstWhere((element) => element.id==ts.id);
+    target=ts;
+    orders=_orders;
+    int now=DateTime.now().millisecondsSinceEpoch~/1000;
+
+    List<Transaction> toAdd=orders.where((element) => element.remaining==0 || element.expiration<now).toList();
+    deals.addAll(toAdd);
+    deals=_deals;
+  }
+
+  Future<void> _autoLoginServ()async{
     try{
       SharedPreferences sp=await SharedPreferences.getInstance();
       String deviceToken=sp.getString("deviceToken")!;
@@ -195,6 +238,24 @@ class UserModel with ChangeNotifier {
     }
   }
 
+  /*
+  Future<void> _getIcons() async {
+    final SharedPreferences sp=await SharedPreferences.getInstance();
+    try{
+      if(sp.getStringList("icons")!.isEmpty){
+        _fetchIcons();
+      }else{
+        List<String>? iconsList=sp.getStringList("icons");
+      }
+    }catch(e){
+      _fetchIcons();
+    }
+  }
+
+   */
+
+
+
   Future<void> _fetchIcons() async{
     //gereken postlar: isset($_POST["symbols"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
     Uri url=Uri.parse(ApiAdress.server+ApiAdress.icons);
@@ -206,18 +267,6 @@ class UserModel with ChangeNotifier {
     });
     _iconsMap=jsonDecode(jsonDecode(response.body)["data"]);
   }
-
-
-  //JSON converter
-  Map<String, dynamic> toJson() {
-    return {
-      'statu': status.index,
-      'usercode': userCode,
-      'groupdata': jsonEncode(lists),
-      'time': time,
-    };
-  }
-
 
   //login
   Future<void> logIn(String phone, String password) async {
@@ -233,7 +282,7 @@ class UserModel with ChangeNotifier {
         'value': '1',
         'size': '6',
       });
-      print(response.body);
+
       final data = jsonDecode(response.body);
       int statuR = data["statu"];
       if (statuR == 0) {
@@ -255,7 +304,7 @@ class UserModel with ChangeNotifier {
         status = LoginStatus.systemError;
       }
     } catch (e) {
-      print("login $e");
+
       status = LoginStatus.systemError;
     }
   }
@@ -277,7 +326,7 @@ class UserModel with ChangeNotifier {
           list.add(asset);
         }
       }catch(e){
-        print(e);
+
       }
     }
     return list;
@@ -395,7 +444,7 @@ class UserModel with ChangeNotifier {
   //portfolio related methods
 
   Future<void> _fetchTransactions() async {
-    print("_fetchTranaction():");
+
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.transactions);
     final response = await http.post(url, body: {
       "usercode": userCode.toString(),
@@ -406,9 +455,11 @@ class UserModel with ChangeNotifier {
       "from":"0"
     });
     try{
+      //print("fetchTrans called");
+      //print(response.body);
       _parseTransactions(response);
     }catch(e){
-      print("_parseTransactions(): $e");
+      print(e);
     }
   }
 
@@ -424,7 +475,7 @@ class UserModel with ChangeNotifier {
       "value": "1",
       "size": "6"
     });
-    print(response.body);
+
     int status = jsonDecode(response.body)["statu"];
     if (status == 0) {
       return true;
@@ -442,79 +493,86 @@ class UserModel with ChangeNotifier {
       "value": "1",
       "size": "4",
     });
-    //print(response.body);
+
     _parseAssets(response);
   }
 
   //
   void _parseTransactions(Response response) {
-    //print(jsonDecode(response.body));
-    //{"tid":60,"usercode":1,"symbol":"RW","amount":80,"remaining":0,"price":1.2,"ts":2147483647,"statu":1,"startts":211313321}
     Map data = jsonDecode(jsonDecode(response.body)["data"]);
 
     List<Transaction> orderList = [];
     List<Transaction> dealList = [];
 
     // Parsing sell orders
-    for (var item in data["sell"]) {
+    for (var map in data["sell"]) {
+      //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: item["tid"],
-          symbol: item["symbol"],
-          amount: item["amount"].toDouble(),
-          remaining: item["remaining"].toDouble(),
-          price: item["price"].toDouble(),
-          expiration: item["ts"],
-          status: TransStatus.values[item["statu"]],
+          id: BigInt.from(map["tid"]),
+          symbol: map["symbol"],
+          amount: map["amount"].toDouble(),
+          remaining: map["remaining"].toDouble(),
+          price: map["price"].toDouble(),
+          expiration: map["ts"],
+          status: TransStatus.success,
           transType: TransType.sell,
-          time: item["startTs"]);
-      ts.symbolName=symbolsMap[item["symbol"]]!;
+          time: map["startts"],
+          avgPrice: map["avgprice"].toDouble());
+      ts.symbolName=symbolsMap[map["symbol"]]!;
       orderList.add(ts);
     }
 
     // Parsing buy orders
-    for (var item in data["buy"]) {
+    for (var map in data["buy"]) {
+      //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: item["tid"],
-          symbol: item["symbol"],
-          amount: item["amount"].toDouble(),
-          remaining: item["remaining"].toDouble(),
-          price: item["price"].toDouble(),
-          expiration: item["ts"],
-          status: TransStatus.values[item["statu"]],
+          id: BigInt.from(map["tid"]),
+          symbol: map["symbol"],
+          amount: map["amount"].toDouble(),
+          remaining: map["remaining"].toDouble(),
+          price: map["price"].toDouble(),
+          expiration: map["ts"],
+          status: TransStatus.success,
           transType: TransType.buy,
-          time: item["startts"]);
-      ts.symbolName=symbolsMap[item["symbol"]]!;
+          time: map["startts"],
+          avgPrice: map["avgprice"].toDouble());
+      ts.symbolName=symbolsMap[map["symbol"]]!;
       orderList.add(ts);
     }
 
     // Parsing completed deals
-    for (var item in data["sell_o"]) {
+    for (var map in data["sell_o"]) {
+      //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: item["tid"],
-          symbol: item["symbol"],
-          amount: item["amount"].toDouble(),
-          remaining: item["remaining"].toDouble(),
-          price: item["price"].toDouble(),
-          expiration: item["ts"],
+          id: BigInt.from(map["tid"]),
+          symbol: map["symbol"],
+          amount: map["amount"].toDouble(),
+          remaining: map["remaining"].toDouble(),
+          price: map["price"].toDouble(),
+          expiration: map["ts"],
           status: TransStatus.success,
-          transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
-          time: item["startts"]);
-      ts.symbolName=symbolsMap[item["symbol"]]!;
+          transType:TransType.sell,
+          time: map["startts"],
+          avgPrice: map["avgprice"].toDouble());
+      ts.symbolName=symbolsMap[map["symbol"]]!;
       dealList.add(ts);
     }
 
-    for (var item in data["buy_o"]) {
+    for (var map in data["buy_o"]) {
+      //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: item["tid"],
-          symbol: item["symbol"],
-          amount: item["amount"].toDouble(),
-          remaining: item["remaining"].toDouble(),
-          price: item["price"].toDouble(),
-          expiration: item["ts"],
+          id: BigInt.from(map["tid"]),
+          symbol: map["symbol"],
+          amount: map["amount"].toDouble(),
+          remaining: map["remaining"].toDouble(),
+          price: map["price"].toDouble(),
+          expiration: map["ts"],
           status: TransStatus.success,
-          transType: item["bid_uid"] == 1 ? TransType.sell : TransType.buy,
-          time: item["startts"]);
-      ts.symbolName=symbolsMap[item["symbol"]]!;
+          transType: TransType.buy,
+          time: map["startts"],
+          avgPrice: map["avgprice"].toDouble()
+      );
+      ts.symbolName=symbolsMap[map["symbol"]]!;
       dealList.add(ts);
     }
     deals = Transaction.sortTimes(dealList);
@@ -523,7 +581,7 @@ class UserModel with ChangeNotifier {
 
   void _parseAssets(Response response) {
     _equity=0;
-    print(response.body);
+    //print(response.body);
     List<Asset> assetList = [];
     List<Asset> allList=[];
     String list = jsonDecode(response.body)["data"];
@@ -578,7 +636,7 @@ class UserModel with ChangeNotifier {
       });
       TradeResponse tradeResponse = TradeResponse.systemError;
       Map data = jsonDecode(response.body);
-      print("trade response$data");
+      //print("trade response$data");
       if (data["statu"] == 0) {
         tradeResponse = TradeResponse.success;
       } else if (data["statu"] == 1) {

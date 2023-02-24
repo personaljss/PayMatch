@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
@@ -12,9 +13,6 @@ import 'firebase_options.dart';
 void main() async{
 
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(MultiProvider(
     providers: [
       //ChangeNotifierProvider(create: (context)=>StocksModel()),
@@ -23,6 +21,7 @@ void main() async{
     child: const MyApp()
   )
 );
+
 }
 
 

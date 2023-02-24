@@ -2,8 +2,7 @@
 
 
 class Transaction{
-  //{"tid":39,"usercode":1,"symbol":"DPT","amount":40,"remaining":0,"price":1,"ts":2147483647,"statu":1}
-  final int id;
+  final BigInt id;
   final String symbol;
   final double amount;
   final double remaining;
@@ -12,10 +11,11 @@ class Transaction{
   final int time;
   final TransStatus status;
   final TransType transType;
+  final double avgPrice;
   late String symbolName;
 
   Transaction({required this.id, required this.symbol, required this.amount, required this.remaining,
-      required this.price, required this.expiration, required this.status,required this.transType,required this.time});
+      required this.price, required this.expiration, required this.status,required this.transType,required this.time,required this.avgPrice});
 
   static List<Transaction> sortTimes(List<Transaction> transactions) {
     if (transactions.length <= 1) {
