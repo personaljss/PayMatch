@@ -61,7 +61,10 @@ class WalletPage extends StatelessWidget {
                         children: [
                           GestureDetector(
                             //onTap: () => gotoTradeView(context),
-                            child: WalletCard(asset: assets[index]),
+                            child: ExpandableWalletCard(
+                                isExpanded: false,
+                                expandedChild: WalletCard(asset: assets[index]),
+                                collapsedChild: WalletCardNonExpanded(asset: assets[index])),
                           ),
                           Divider(height: 1,
                             indent: 50.0,
