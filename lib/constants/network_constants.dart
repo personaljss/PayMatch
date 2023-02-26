@@ -9,16 +9,18 @@ enum NetworkState{
 
 class ApiAdress{
   //here is the location for backend urls
-  static String server="https://8e96-212-12-142-150.eu.ngrok.io/market/";
-  static String login="login.php";
-  static String lists="sharegroups.php";
-  static String portfolio="portfolio.php";
-  static String importShare="importshare.php";
-  static String transactions="showtransactions.php";
-  static String sellOrder="sellorder.php";
-  static String buyOrder="buyorder.php";
-  static String symbolNames="symbolnames.php";
-  static String icons="geticons.php";
+  static String server="https://hostingdenemesi.online/";
+  static String login="records/login/";
+  static String lists="records/sharegroups/";
+  static String portfolio="transactions/portfolio/";
+  static String importShare="records/importshare/";
+  static String transactions="transactions/showtransactions/";
+  static String sellOrder="transactions/sellorder/";
+  static String buyOrder="transactions/buyorder/";
+  static String symbolNames="records/symbolnames/";
+  static String icons="records/geticons/";
+  static String autologin="records/autologin/";
+  static String onDispose="records/logout/";
   static String getTradePage(OrderType orderType){
     if(orderType==OrderType.BUY_LIMIT){
       return server+buyOrder;

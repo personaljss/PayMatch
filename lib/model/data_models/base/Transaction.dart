@@ -1,22 +1,22 @@
 
-import 'package:flutter/cupertino.dart';
-import 'package:pay_match/model/data_models/base/Asset.dart';
+
 
 class Transaction{
-  //{"tid":39,"usercode":1,"symbol":"DPT","amount":40,"remaining":0,"price":1,"ts":2147483647,"statu":1}
-  final int id;
+  final BigInt id;
   final String symbol;
   final double amount;
-  final double remaining;
+  double remaining;
   final double price;
   final int expiration;
   final int time;
   final TransStatus status;
   final TransType transType;
+  final double avgPrice;
   late String symbolName;
+  late String imgFileLoc;
 
   Transaction({required this.id, required this.symbol, required this.amount, required this.remaining,
-      required this.price, required this.expiration, required this.status,required this.transType,required this.time});
+      required this.price, required this.expiration, required this.status,required this.transType,required this.time,required this.avgPrice});
 
   static List<Transaction> sortTimes(List<Transaction> transactions) {
     if (transactions.length <= 1) {
@@ -40,7 +40,7 @@ class Transaction{
     int rightIndex = 0;
 
     while (leftIndex < leftList.length && rightIndex < rightList.length) {
-      if (leftList[leftIndex].time < rightList[rightIndex].time) {
+      if (leftList[leftIndex].time > rightList[rightIndex].time) {
         mergedList.add(leftList[leftIndex]);
         leftIndex++;
       } else {

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "530279353524",
+    "project_id": "paymatch-b2561",
+    "storage_bucket": "paymatch-b2561.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530279353524:android:dc73db394e53ba96e65be1",
+        "android_client_info": {
+          "package_name": "com.example.pay_match"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "530279353524-p544vbipi0dae3rptet1dj3lj2atc8vm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyL9u_PUCicO68lNIb7ur2k-0WuFZQiBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "530279353524-p544vbipi0dae3rptet1dj3lj2atc8vm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "530279353524-58tb9545pga2jc21qkahf1qtv2le7r98.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.payMatch"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

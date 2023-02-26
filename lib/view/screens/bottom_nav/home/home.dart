@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pay_match/constants/network_constants.dart';
-import 'package:pay_match/model/observables/stocks_model.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/utils/colors.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/search_delegate.dart';
-import 'package:pay_match/view/screens/secondaries/trade.dart';
 import 'package:pay_match/view/ui_tools/loading_screen.dart';
 import 'package:pay_match/view/ui_tools/nav_drawer.dart';
 import 'package:pay_match/view/ui_tools/stock_card.dart';
 import 'package:provider/provider.dart';
 import '../../../../model/data_models/base/Asset.dart';
+import '../../../ui_tools/tiriviri.dart';
 
 
 class HomeView extends StatefulWidget {
@@ -21,7 +20,6 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
   late TabController _tabController;
-  late List<Asset> _assets;
   late List<String> _tabs=[UserModel.defaultList,];
 
   bool isSearchClicked=false;
@@ -30,6 +28,28 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
   );
 
   final TextEditingController _filter = TextEditingController();
+
+  List<PopupMenuItem<int>> _menuActions(BuildContext context,int index){
+    if(index==0){
+      //
+      return [
+        const PopupMenuItem<int>(
+            value:1,
+            child: Text("yeni liste ekle")
+        ),
+      ];
+    }else{
+      return [
+        PopupMenuItem<int>(
+          value: 0,
+          child: Text("${_tabs[_tabController.index]} listesini sil"),
+        ),
+        const PopupMenuItem<int>(
+            value:1,
+            child: Text("yeni liste ekle")),
+      ];
+    }
+  }
 
 
   @override
@@ -45,15 +65,22 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
         length: _tabs.length,
         vsync: this);
 
+    _tabController.animateTo(_tabs.length-1);
     setState(() {});
   }
 
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _tabController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     _tabs=context.select<UserModel, List<String>>((value) => value.lists.keys.toList());
-    _assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(_tabs[_tabController.index]));
-    NetworkState networkState=context.select<StocksModel,NetworkState>((value) => value.allState);
+    //_assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(_tabs[_tabController.index]));
+    NetworkState networkState=context.select<UserModel,NetworkState>((value) => value.portfolioState);
     if(_tabController.length!=_tabs.length){
       _tabController=TabController(
           initialIndex: _tabController.index,
@@ -86,17 +113,28 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
                     ): const Text("sayfam"),
                     centerTitle: true,
                     actions: [
-                      IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,)
-                      //IconButton(onPressed: ()=>_searchPressed(), icon:_searchIcon,),
-                      /*
-                      (_tabs.length>1 && _tabController.index>0)?IconButton(
-                          onPressed: (){
-                            Provider.of<UserModel>(context, listen: false).deleteShareGroup(_tabs[_tabController.index]);
-                            _tabController.index=_tabController.index-1;
-                          }, icon: const Icon(Icons.delete)):
-                      const SizedBox(width: 0, height: 0,),
-
-                       */
+                      IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,),
+                      //IconButton(onPressed: ()=>_showListMenu(context,_tabs[_tabController.index]), icon: const Icon(Icons.more_vert_outlined))
+                      PopupMenuButton(itemBuilder: (context){
+                        return _menuActions(context, _tabController.index);
+                      },
+                      onSelected: (index) {
+                        if(index==0){
+                          //go to previous tab
+                          _tabController.animateTo(_tabController.index-1);
+                          //delete the list
+                          setState(() {
+                            Provider.of<UserModel>(context, listen: false).deleteList(_tabs[_tabController.index+1]);
+                            _tabs.removeAt(_tabController.index+1);
+                          });
+                          //Provider.of<UserModel>(context, listen: false).deleteList(_tabs[_tabController.index+1]);
+                        }
+                        if(index==1){
+                          //show add menu dialog
+                          showDialog(context: context, builder: (BuildContext context)=>CreateListDialog(update: _createList,));
+                        }
+                      }
+                      )
                     ],
                     bottom: TabBar(
                       controller: _tabController,
@@ -109,13 +147,10 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
             ],
             body: TabBarView(
               controller: _tabController,
-              children: List.generate(_tabs.length, (index) => buildFavPage(context.select<UserModel, List<Asset>>((value) => value.getAssetsInList(_tabs[index])),_tabs[index])),
+              children: List.generate(_tabs.length, (index) => FavPage(listName: _tabs[index])),
             )
         ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () { showDialog(context: context, builder: (BuildContext context)=>CreateListDialog(update: _createList,));},
-        child: const Icon(Icons.add),
-      ),
+
     ) :
     (networkState==NetworkState.LOADING)? const LoadingScreen() : const ErrorScreen();
   }
@@ -153,25 +188,34 @@ class CreateListDialog extends StatelessWidget {
   }
 }
 
-
-
-Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
-  top: false,
-  bottom: false,
-  child: Builder(
-    builder: (context)=> CustomScrollView(slivers: [
-      SliverOverlapInjector(
-          handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
-      SliverPadding(
-        padding: const EdgeInsets.all(0),
-        sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              return Container(
-                //margin: const EdgeInsets.only(bottom: 12),
-                child: Column(
+class FavPage extends StatelessWidget {
+  const FavPage({Key? key,required this.listName}) : super(key: key);
+  final String listName;
+  @override
+  Widget build(BuildContext context) {
+    List<Asset> assets=context.select<UserModel,List<Asset>>((value) => value.getAssetsInList(listName));
+    return(assets.length>0)? buildFavPage(assets, listName):const Center(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+          child: Text("henüz listenizde bir şirket yok. Eklemek için arama butonuna tıklayın.")
+      ),
+    );
+  }
+  Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
+    top: false,
+    bottom: false,
+    child: Builder(
+      builder: (context)=> CustomScrollView(slivers: [
+        SliverOverlapInjector(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
+        SliverPadding(
+          padding: const EdgeInsets.all(0),
+          sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                return Column(
                   children: [
                     GestureDetector(
-                      onTap: () => gotoTradeView(context),
+                      onTap: () => gotoTradeView(context,assets[index].symbol),
                       child: StockCard(asset: assets[index], listName: listName,),
                     ),
                     Divider(height: 1,
@@ -180,15 +224,10 @@ Widget buildFavPage(List<Asset> assets, String listName) => SafeArea(
                       color: lightColorScheme.primaryContainer,
                     ),
                   ],
-                ),
-              );
-            }, childCount: assets.length)),
-      ),
-    ]),
-  ),
-);
-
-
-void gotoTradeView(BuildContext context) {
-  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TradeView()));
+                );
+              }, childCount: assets.length)),
+        ),
+      ]),
+    ),
+  );
 }

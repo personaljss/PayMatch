@@ -1,14 +1,17 @@
+
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/base/Transaction.dart';
-
 import '../../model/data_models/trade/Orders.dart';
+import 'package:pay_match/view/ui_tools/tiriviri.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
 
 class WaitingOrderCard extends StatelessWidget {
-  Transaction result;
-  WaitingOrderCard({Key? key,required this.result}) : super(key: key);
+  final Transaction result;
+  const WaitingOrderCard({Key? key,required this.result}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,7 @@ class WaitingOrderCard extends StatelessWidget {
                         Expanded(
                           flex: 2,
                           child: ClipOval(
-                            child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
+                            child: Image.file(File(result.imgFileLoc),
                               width: 60.0,
                               height: 60.0,
                               fit: BoxFit.fill,
@@ -165,7 +168,7 @@ class WaitingOrderCard extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: Text(
-                        "02.04.2001 -> 31.05.2001"
+                        formatDateTime(result.time)
                     ),
                   ),
                 ],
@@ -176,4 +179,34 @@ class WaitingOrderCard extends StatelessWidget {
       ),
     ),
   );
+
+  Widget _showType(BuildContext ctx,TransType type){
+    String txt="";
+    TextStyle style=kChangeGreenTextStyle;
+    switch(type){
+      case TransType.buy:
+        // TODO: Handle this case.
+        txt="AL";
+        style=kChangeGreenTextStyle;
+        break;
+      case TransType.sell:
+        // TODO: Handle this case.
+        txt="SAT";
+        style=kChangeRedTextStyle;
+        break;
+      case TransType.buyLimit:
+        // TODO: Handle this case.
+        txt="AL";
+        style=kChangeGreenTextStyle;
+        break;
+      case TransType.sellLimit:
+        // TODO: Handle this case.
+        txt="SAT";
+        style=kChangeRedTextStyle;
+        break;
+    }
+    return Text(txt,
+      style: style,
+      textAlign: TextAlign.center,);
+  }
 }

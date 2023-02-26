@@ -5,15 +5,16 @@ import 'package:pay_match/model/observables/user_model.dart';
 import 'package:provider/provider.dart';
 import '../../../../../utils/colors.dart';
 import '../../../../ui_tools/order_card.dart';
+import '../../../../ui_tools/tiriviri.dart';
 
 
 class OrdersPage extends StatelessWidget {
-  OrdersPage({Key? key}) : super(key: key);
-  late List<Transaction> results ;
+  const OrdersPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    results=context.select<UserModel,List<Transaction>>((model)=>model.orders);
-    return SafeArea(
+    List<Transaction> results=context.select<UserModel,List<Transaction>>((model)=>model.orders);
+    return (results.isNotEmpty)? SafeArea(
       top: false,
       bottom: false,
       child: Builder(
@@ -30,7 +31,7 @@ class OrdersPage extends StatelessWidget {
                         child: Column(
                           children: [
                             GestureDetector(
-                              //onTap: () => gotoTradeView(context),
+                              onTap: () => gotoTradeView(context,results[index].symbol),
                               child: WaitingOrderCard(result: results[index]),
                             ),
                             Divider(height: 0.5,
@@ -46,6 +47,6 @@ class OrdersPage extends StatelessWidget {
             ]
         ),
       ),
-    );
+    ):const Center(child: Text("henüz bir alım-satım emriniz yok"));
   }
 }

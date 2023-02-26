@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
 import 'package:pay_match/model/observables/user_model.dart';
@@ -19,7 +21,7 @@ class StockCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return buildCard(context, asset, listName);
   }
-  Widget buildCard(BuildContext context,Asset asset,String listName) => Card(
+  Widget buildCard(BuildContext context,Asset asset,String listName)  => Card(
     margin: const EdgeInsets.all(0.0),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
     color: lightColorScheme.onSecondary,
@@ -32,14 +34,14 @@ class StockCard extends StatelessWidget {
           Expanded(
             flex: 1,
             child: ClipOval(
-              child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
+              child: Image.file(File(asset.imgFileLoc),
                 width: 60.0,
                 height: 60.0,
                 fit: BoxFit.fill,
               ),
             ),
           ),
-          SizedBox(width: 16.0,),
+          const SizedBox(width: 16.0,),
           Expanded(
             flex: 2,
             child: Column(
@@ -69,8 +71,8 @@ class StockCard extends StatelessWidget {
               )
           ),
           SizedBox(height: 8.0,),
-
           Expanded(flex:2,
+
             child: Text("₺ ${(asset.bid.toString())}",
               style: kPriceTextStyle,
             ),
@@ -86,6 +88,7 @@ class StockCard extends StatelessWidget {
     ),
   );
 }
+
 
 class FavStockCard extends StatelessWidget {
   FavStockCard({Key? key,required this.asset,required this.listName}) : super(key: key);
@@ -108,7 +111,7 @@ class FavStockCard extends StatelessWidget {
           Expanded(
             flex: 1,
             child: ClipOval(
-              child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
+              child: Image.file(File(asset.imgFileLoc),
                 width: 60.0,
                 height: 60.0,
                 fit: BoxFit.fill,
@@ -156,20 +159,32 @@ class FavStockCard extends StatelessWidget {
 }
 
 
-class _FavButton extends StatelessWidget {
-   const _FavButton({required this.symbol, required this.listName,});
+class _FavButton extends StatefulWidget {
+  const _FavButton({required this.symbol, required this.listName,});
   final String symbol;
   final String listName;
+
+  @override
+  State<_FavButton> createState() => _FavButtonState();
+}
+
+class _FavButtonState extends State<_FavButton> {
   @override
   Widget build(BuildContext context) {
-    bool isFav=Provider.of<UserModel>(context,listen: false).lists[listName]!.contains(symbol);
+    bool isFav=Provider.of<UserModel>(context,listen: false).lists[widget.listName]!.contains(widget.symbol);
     //bool isFav = context.select<UserModel,bool>((model)=>model.lists[listName]!.contains(symbol));
     return IconButton(
         onPressed: () {
           if (isFav) {
-            Provider.of<UserModel>(context, listen: false).deleteSymbolFromShareGroup(listName, symbol);
+            Provider.of<UserModel>(context, listen: false).deleteSymbolFromShareGroup(widget.listName, widget.symbol);
+            setState(() {
+              isFav=false;
+            });
           } else {
-            Provider.of<UserModel>(context, listen: false).addSymbolToShareGroup(listName, symbol);
+            Provider.of<UserModel>(context, listen: false).addSymbolToShareGroup(widget.listName, widget.symbol);
+            setState(() {
+              isFav=true;
+            });
           }
         },
         icon: (isFav) ? const Icon(Icons.favorite) : const Icon(Icons.favorite_outline_sharp));

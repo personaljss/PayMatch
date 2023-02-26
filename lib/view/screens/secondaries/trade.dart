@@ -1,17 +1,24 @@
 import 'package:flutter_spinbox/material.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_match/model/data_models/base/Transaction.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
+import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/utils/colors.dart';
 import 'package:pay_match/utils/styles/text_styles.dart';
+import 'package:pay_match/view/ui_tools/tiriviri.dart';
 import 'package:provider/provider.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import '../../../constants/network_constants.dart';
-import '../../../model/observables/stocks_model.dart';
 
 class TradeView extends StatefulWidget {
-  const TradeView({Key? key}) : super(key: key);
+  /*since generally user will open this page from a stock, the symbol field can be initialised
+  while creating this class' object however, if it is opened from nowhere the defaultSymbol variable
+  will be passed as a constructor argument
+  * */
+  static const String defaultSymbol="defaultSymbol";
+  const TradeView({Key? key,required this.symbol}) : super(key: key);
+  final String symbol;
   @override
   State<StatefulWidget> createState() => _TradeViewState();
 }
@@ -25,50 +32,30 @@ class _TradeViewState extends State<TradeView> {
   final controllerSymbolCode = SingleValueDropDownController();
   final _formkey = GlobalKey<FormState>();
   //members for interwidget communication
-  TradeRequest? request;
-  String symbol = "AAPL";
+  late String symbol;
   //why not enum??
-  String? orderType;
+  late String orderType;
   double price = 0;
   double volume = 0;
   double total = 0;
 
 //fake implementation
-  List<DropDownValueModel> get dropdownItems {
-    List<DropDownValueModel> menuItems = [
-      const DropDownValueModel(value: "AAPL", name: 'AAPL'),
-      const DropDownValueModel(value: "NVDA", name:"NVDA"),
-      const DropDownValueModel(value: "AMD",  name:"AMD"),
-      const DropDownValueModel(value: "FB",  name:"FB"),
-    ];
-    return menuItems;
-  }
-  List<DropDownValueModel> get dropdownMenuItems {
-    List<DropDownValueModel> menuItems = [
-      DropDownValueModel(value: "Limit", name: 'LMT'),
-      DropDownValueModel(value: "Market", name:"MKT"),
-    ];
-    return menuItems;
-  }
-  //Fake impl for data request
-  void initRequest() {
-    symbol = "AAPL";
-    orderType = "LMT";
-    price =  36.52;
-    volume = 100;
-    total = price * volume;
-  }
+  late List<DropDownValueModel> symbolsDropDown;
+  List<DropDownValueModel> ordersDropDown=[
+    const DropDownValueModel(name: "Limit emir", value: 0),
+    const DropDownValueModel(name: "Market emri", value: 1),
+  ];
 
   //methods to get DropDown value of the DropdownTextField
   void _saveOrderType() {
-    if (controllerOrderType.dropDownValue != null  && !controllerOrderType.dropDownValue.toString().isEmpty) {
+    if (controllerOrderType.dropDownValue != null  && controllerOrderType.dropDownValue.toString().isNotEmpty) {
       orderType = controllerOrderType.dropDownValue.toString();
       print(orderType);
     }
   }
 
   void _saveSymbolCode() {
-    if (controllerSymbolCode.dropDownValue != null  && !controllerSymbolCode.dropDownValue.toString().isEmpty) {
+    if (controllerSymbolCode.dropDownValue != null  && controllerSymbolCode.dropDownValue.toString().isNotEmpty) {
       symbol = controllerSymbolCode.dropDownValue.toString();
       print(symbol);
     }
@@ -77,9 +64,17 @@ class _TradeViewState extends State<TradeView> {
   @override
   void initState() {
     super.initState();
+    symbol=widget.symbol;
+    List<String> symbols=Provider.of<UserModel>(context,listen: false).symbolsMap.keys.toList();
+    symbolsDropDown=symbols.map((e) => DropDownValueModel(name: e, value: e)).toList();
+
     controllerOrderType.addListener(_saveOrderType);
     controllerSymbolCode.addListener(_saveSymbolCode);
-    initRequest();
+    //showing source symbol on the menu
+    controllerSymbolCode.dropDownValue=DropDownValueModel(name: symbol, value: symbol);
+    //showing limit order as default
+    controllerOrderType.dropDownValue=const DropDownValueModel(name: "Limit emir", value: 0);
+    orderType="Limit emir";
     //add listeners to controller
   }
 
@@ -96,11 +91,9 @@ class _TradeViewState extends State<TradeView> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-    StocksModel model = context.watch<StocksModel>();
-    NetworkState networkState = model.allState;
+    //double height = MediaQuery.of(context).size.height;
+
     //resizeToAvoidBottomInset -> important when keyboard will be opened
     return Scaffold(
       resizeToAvoidBottomInset : false,
@@ -125,75 +118,41 @@ class _TradeViewState extends State<TradeView> {
                       child: DropDownTextField(
                         controller: controllerSymbolCode,
                         //initialValue: dropdownItems[0],
-                        validator: (value) {
-                          if (value == null || value.isEmpty){
-                            return "Sembol Seçin";
-                          }
-                          return null;
+                        onChanged: (value){
+                          symbol=value.value;
+                          //symbol=value;
                         },
-                        //Bug:: DropDown doesn't collapse
-                        /*onChanged: (value) {
-                          if (value != null && !value.isEmpty){
-                            orderType = value;
-                            setState(() {
-                            });
-                          }
-                        },*/
-
                         enableSearch: true,
-                        textFieldDecoration: InputDecoration(
+                        textFieldDecoration: const InputDecoration(
                           border: OutlineInputBorder(),
-                          //errorText: "Sembol Bulunamamıştır",
-                          hintText: "Hisse seçin veya arayın",
-
                           ),
                         keyboardType: TextInputType.name,
-                        dropDownList: dropdownItems,
+                        dropDownList: symbolsDropDown,
                       ),
                     ),
                   ],
                 ),
-              ),
+                ),
 
-              SizedBox(height: 24,),
-              Expanded(
-                child: Row(
+                const SizedBox(height: 30),
+
+                Row(
                   children: <Widget>[
                     const Expanded( flex: 1,
                         child: Text("Emir Fiyat Tipi:")),
-                    SizedBox(width: 8.0,),
+                    const SizedBox(width: 8.0,),
                     Expanded( flex: 2,
                       child: DropDownTextField(
                         controller: controllerOrderType,
-                        //initialValue: orderType,
-                        validator: (value) {
-                          if (value == null || value.isEmpty){
-                            return "Sembol Seçin";
-                          }
-                          return null;
-                        },
-                        //Bug:: DropDown doesn't collapse
-                        /*onChanged: (value) {
-                          if (value != null && !value.isEmpty){
-                            orderType = value;
-                          }
-                        },*/
                         enableSearch: true,
-                        searchDecoration:
-                        InputDecoration(
-                          label: Text("Coco"),
-                          labelStyle: kLabelLightTextStyle,
-                        ),
                         keyboardType: TextInputType.name,
-                        dropDownList: dropdownMenuItems,
+                        dropDownList: ordersDropDown,
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 24,),
-              Expanded(
-                child: Row(
+                const SizedBox(height: 30,),
+                Row(
                   children: <Widget>[
                     const Expanded(
                         flex: 1,
@@ -202,14 +161,13 @@ class _TradeViewState extends State<TradeView> {
                     Expanded(
                       flex: 3,
                       child: SpinBox(
-
                         min: 0.0,
                         max: 5000.0,
                         value: price ,
                         onChanged: (value) {
                           price = value;
                           setState(() {
-                            total = price * volume!;
+                            total = price * volume;
                           });
                         },
                         decimals: 2,
@@ -220,16 +178,14 @@ class _TradeViewState extends State<TradeView> {
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 24,),
-              //TODO::implement MaxFindingFunction
-              Expanded(
-                child: Row(
+                const SizedBox(height: 30,),
+                //TODO::implement MaxFindingFunction
+                Row(
                   children: <Widget> [
-                    Expanded(
+                    const Expanded(
                         flex: 1,
                         child: Text("Adet:")),
-                    SizedBox(width: 8.0 ,),
+                    const SizedBox(width: 8.0 ,),
                     Expanded(
                       flex: 3,
                       child: SpinBox(
@@ -251,15 +207,14 @@ class _TradeViewState extends State<TradeView> {
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 24,),
-              Expanded(
-                child: Row(
+
+                SizedBox(height: 30,),
+                Row(
                   children: <Widget>[
-                    Expanded(
+                    const Expanded(
                       flex: 1,
                         child: Text("Toplam Tutar:")),
-                    SizedBox(width: 8.0,),
+                    const SizedBox(width: 8.0,),
                     Expanded(
                       flex: 3,
                       child: SpinBox(
@@ -286,21 +241,10 @@ class _TradeViewState extends State<TradeView> {
                     ),
                   ],
                 ),
-              ),
-              /*
-              Row(
-                children: <Widget>[
-                  Slider(value: 20, onChanged: (value) {
 
-                  }
-                  ),
-                ],
-              ),*/
+                const SizedBox(height: 30,),
 
-              SizedBox(height: 24,),
-
-              Expanded(
-                child: Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -313,7 +257,7 @@ class _TradeViewState extends State<TradeView> {
                       inactiveBgColor: Colors.grey,
                       inactiveFgColor: Colors.white,
                       totalSwitches: 2,
-                      labels: [
+                      labels: const [
                         "AL", "SAT"
                       ],
                       customTextStyles: [kOnButtonLightTextStyle,kOnButtonLightTextStyle],
@@ -330,27 +274,38 @@ class _TradeViewState extends State<TradeView> {
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 24,),
-              Expanded(
-                child: Row(
+                const SizedBox(height: 30,),
+                Row(
                   children: [
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom( backgroundColor: Colors.blue),
-                        onPressed: () {
+                        onPressed: () async{
                         if(_formkey.currentState!.validate()){
-                          //_formkey.currentState!.save();
-                          print(symbol);
-                          print(orderType);
-                          print(price);
-                          print(volume);
-                          print(total);
+                          //Validating the order properties
+                          if(symbol.isEmpty || price<=0 || volume<=0 || orderType.isEmpty){
+                            displaySnackBar(context, "lütfen geçerli bir emir giriniz");
+                            return;
+                          }
                           //TODO:: Implement httpRequest
+                          OrderType type=(initialIndex==0)?OrderType.BUY_LIMIT:OrderType.SELL_LIMIT;
+                          TradeRequest request=TradeRequest(symbol, price, volume, type, 0, 0, 0, 0, 0);
+                          TradeResponse response=await Provider.of<UserModel>(context,listen: false).orderSend(request);
+                          if(context.mounted){
+                            if(response==TradeResponse.success){
+                              displaySnackBar(context, "işlem başarılı");
+                            }else if(response==TradeResponse.noMoney){
+                              displaySnackBar(context, "Bakiyeniz yetersiz.");
+                            }else if(response==TradeResponse.failure){
+                              displaySnackBar(context, "işlem başarısız");
+                            }else{
+                              displaySnackBar(context, "emriniz iletilemedi");
+                            }
+                          }
                           }
                         },
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: Text("ONAYLA",
                           style: kLabelLightTextStyle,
                           ),
@@ -359,11 +314,10 @@ class _TradeViewState extends State<TradeView> {
                     )
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
     );
   }
 }

@@ -1,9 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../model/data_models/base/Asset.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
-
 
 class ExpandableWalletCard extends StatefulWidget {
   bool isExpanded;
@@ -38,8 +39,6 @@ class _ExpandableWalletCardState extends State<ExpandableWalletCard> {
     );
   }
 }
-
-
 
 class WalletCard extends StatelessWidget {
   Asset asset;
@@ -119,7 +118,7 @@ class WalletCard extends StatelessWidget {
                     style: kSymbolNameTextStyle,
                   ),
                   const SizedBox(width: 8.0,),
-                  Text("${(asset.amount * asset.ask)} ₺",
+                  Text("${(asset.amountHold * asset.ask)} ₺",
                     style: kPriceTextStyle,
                   ),
                 ],
@@ -135,7 +134,7 @@ class WalletCard extends StatelessWidget {
                     style: kSymbolNameTextStyle,
                   ),
                   const SizedBox(width: 8.0,),
-                  Text("${(asset.amount)} Adet",
+                  Text("${(asset.amountHold)} Adet",
                     style: kPriceTextStyle,
                   ),
                 ],
@@ -183,7 +182,7 @@ class WalletCard extends StatelessWidget {
                     style: kSymbolNameTextStyle,
                   ),
                   const SizedBox(width: 8.0,),
-                  Text("${((asset.amount * asset.bid) - (asset.amount * asset.ask))} ₺",
+                  Text("${((asset.amountHold * asset.bid) - (asset.amountHold * asset.ask))} ₺",
                     style: kPriceTextStyle,),
                 ],
               ),
@@ -198,7 +197,7 @@ class WalletCard extends StatelessWidget {
                     style: kSymbolNameTextStyle,
                   ),
                   const SizedBox(width: 8.0,),
-                  Text("${((asset.amount * asset.bid) - (asset.amount * asset.ask)) / ((asset.amount * asset.ask)) * 100}",
+                  Text("${((asset.amountHold * asset.bid) - (asset.amountHold * asset.ask)) / ((asset.amountHold * asset.ask)) * 100}",
                     style: kPriceTextStyle,
                   ),
                 ],
@@ -246,7 +245,7 @@ class WalletCardNonExpanded extends StatelessWidget {
                     Expanded(
                       flex: 1,
                       child: ClipOval(
-                        child: Image.network("https://play-lh.googleusercontent.com/8MCdyr0eVIcg8YVZsrVS_62JvDihfCB9qERUmr-G_GleJI-Fib6pLoFCuYsGNBtAk3c",
+                        child: Image.file(File(asset.imgFileLoc),
                           width: 40.0,
                           height: 60.0,
                           fit: BoxFit.fill,

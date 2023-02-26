@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/view/screens/secondaries/details.dart';
-
 import '../../model/data_models/base/fundings_model.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
@@ -137,7 +136,6 @@ class FundingsCard extends StatelessWidget {
                             style: kLabelUnoTextStyle,
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -181,6 +179,7 @@ class FundingsCard extends StatelessWidget {
                       onPressed: () {
                         _gotoDetailsView(context);
                       },
+
                       child: Text("İncele",
                         style: kButtonTextStyle,
                       ),
@@ -197,6 +196,8 @@ class FundingsCard extends StatelessWidget {
 
 }
 
+
 void _gotoDetailsView(BuildContext context) {
   Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailsView()));
 }
+

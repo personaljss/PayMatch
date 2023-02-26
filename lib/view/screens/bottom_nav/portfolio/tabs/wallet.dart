@@ -6,6 +6,7 @@ import '../../../../../model/data_models/base/Asset.dart';
 import '../../../../../model/observables/user_model.dart';
 import '../../../../../utils/colors.dart';
 import '../../../../ui_tools/stock_card.dart';
+import '../../../../ui_tools/tiriviri.dart';
 import '../../../../ui_tools/wallet_card.dart';
 
 class WalletPage extends StatelessWidget {
@@ -19,7 +20,43 @@ class WalletPage extends StatelessWidget {
       child: Builder(
         builder: (context) {
           List<Asset> assets=context.select<UserModel,List<Asset>>((value)=>value.assets);
-          return CustomScrollView(
+          double equity=context.select<UserModel,double>((value) => value.equity);
+          double balance=context.select<UserModel,double>((value) => value.balance);
+          double profit=balance-equity;
+          return (assets.isEmpty)?
+          Scaffold(body:
+          Column(children:[
+            Padding(
+              padding: EdgeInsets.all(30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    //mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text("Toplam Tutar"),
+                      SizedBox(height: 4.0,),
+                      Text("Toplam Kar/Zarar"),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children:  [
+                      Text("$balance ₺"),
+                      const SizedBox(height: 4.0,),
+                      Text("$profit ₺"),
+                    ],
+
+                  ),
+                ],
+              ),
+            ), const Padding(padding: EdgeInsets.all(30), child:Center(child: Text("henüz sahip olduğunuz bir pay yok")))
+              ]
+            ),
+          ) :
+           CustomScrollView(
             slivers: [
               SliverOverlapInjector(
                   handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
@@ -33,7 +70,7 @@ class WalletPage extends StatelessWidget {
                       Column(
                         //mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                        children: const [
                           Text("Toplam Tutar"),
                           SizedBox(height: 4.0,),
                           Text("Toplam Kar/Zarar"),
@@ -41,10 +78,10 @@ class WalletPage extends StatelessWidget {
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text("8661.65 ₺"),
-                          SizedBox(height: 4.0,),
-                          Text("+55000.47 ₺"),
+                        children:  [
+                          Text("$balance ₺"),
+                          const SizedBox(height: 4.0,),
+                          Text("$profit ₺"),
                         ],
                       )
                     ],
@@ -65,6 +102,7 @@ class WalletPage extends StatelessWidget {
                                 isExpanded: false,
                                 expandedChild: WalletCard(asset: assets[index]),
                                 collapsedChild: WalletCardNonExpanded(asset: assets[index])),
+                            onTap: () => gotoTradeView(context,assets[index].symbol),
                           ),
                           Divider(height: 1,
                             indent: 50.0,
@@ -82,6 +120,6 @@ class WalletPage extends StatelessWidget {
           );
         },
       ),
-    );;
+    );
   }
 }
