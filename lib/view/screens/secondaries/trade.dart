@@ -119,7 +119,8 @@ class _TradeViewState extends State<TradeView> {
                         controller: controllerSymbolCode,
                         //initialValue: dropdownItems[0],
                         onChanged: (value){
-                          symbol=value;
+                          symbol=value.value;
+                          //symbol=value;
                         },
                         enableSearch: true,
                         textFieldDecoration: const InputDecoration(

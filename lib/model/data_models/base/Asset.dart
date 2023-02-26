@@ -28,10 +28,10 @@ class Asset{
     return Asset(
       symbol: json['symbol'],
       sector: 'N/A',
-      amountHold: json['userhaving'].toDouble(),
-      amountOnSale: json['onSaleAmount'].toDouble(),
-      ask: json['sellPrice'].toDouble(),
-      bid: json['buyPrice'].toDouble(),
+      amountHold: double.parse(json['userhaving']),
+      amountOnSale: double.parse(json['onSaleAmount']),
+      ask: double.parse(json['sellPrice']),
+      bid: double.parse(json['buyPrice']),
       //not implemented yet
       fullName: 'DNE',
       percChange: 0

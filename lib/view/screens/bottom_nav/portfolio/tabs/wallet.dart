@@ -23,7 +23,39 @@ class WalletPage extends StatelessWidget {
           double equity=context.select<UserModel,double>((value) => value.equity);
           double balance=context.select<UserModel,double>((value) => value.balance);
           double profit=balance-equity;
-          return (assets.isEmpty)? const Center(child: Text("henüz yapmış olduğunuz bir işlem yok")) :
+          return (assets.isEmpty)?
+          Scaffold(body:
+          Column(children:[
+            Padding(
+              padding: EdgeInsets.all(30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    //mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text("Toplam Tutar"),
+                      SizedBox(height: 4.0,),
+                      Text("Toplam Kar/Zarar"),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children:  [
+                      Text("$balance ₺"),
+                      const SizedBox(height: 4.0,),
+                      Text("$profit ₺"),
+                    ],
+
+                  ),
+                ],
+              ),
+            ), const Padding(padding: EdgeInsets.all(30), child:Center(child: Text("henüz sahip olduğunuz bir pay yok")))
+              ]
+            ),
+          ) :
            CustomScrollView(
             slivers: [
               SliverOverlapInjector(

@@ -113,15 +113,7 @@ class WaitingOrderCard extends StatelessWidget {
                     children: [
                       Expanded(
                           flex: 3,
-                          child: ((result.symbolName).length > 15)
-                              ?
-                          Text("AL",
-                            style: kChangeGreenTextStyle,
-                            textAlign: TextAlign.center,)
-                              :
-                          Text("SAT",
-                            style: kChangeRedTextStyle,
-                            textAlign: TextAlign.center,)
+                          child: _showType(context, result.transType)
                       ),
                       Expanded(
                         flex: 4,
@@ -139,4 +131,34 @@ class WaitingOrderCard extends StatelessWidget {
       ),
     ),
   );
+
+  Widget _showType(BuildContext ctx,TransType type){
+    String txt="";
+    TextStyle style=kChangeGreenTextStyle;
+    switch(type){
+      case TransType.buy:
+        // TODO: Handle this case.
+        txt="AL";
+        style=kChangeGreenTextStyle;
+        break;
+      case TransType.sell:
+        // TODO: Handle this case.
+        txt="SAT";
+        style=kChangeRedTextStyle;
+        break;
+      case TransType.buyLimit:
+        // TODO: Handle this case.
+        txt="AL";
+        style=kChangeGreenTextStyle;
+        break;
+      case TransType.sellLimit:
+        // TODO: Handle this case.
+        txt="SAT";
+        style=kChangeRedTextStyle;
+        break;
+    }
+    return Text(txt,
+      style: style,
+      textAlign: TextAlign.center,);
+  }
 }

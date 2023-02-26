@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +7,11 @@ import 'package:flutter/widgets.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
+import 'package:pay_match/model/observables/stock_ticker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../firebase_options.dart';
 import '../data_models/base/Transaction.dart';
@@ -56,23 +59,19 @@ class UserModel with ChangeNotifier {
   }
 
   void _listenFcm() async{
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    await FirebaseMessaging.instance.getToken();
-
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("fcm data");
-      _updateTransctions(message.data);
-      if (message.notification != null) {
-        print('Message also contained a notification: ${message.notification}');
+      //print("userModel: ${message.data}");
+      try{
+        _parseFcm(message);
+      }catch(e){
+        //
       }
     });
   }
 
   void _updateTransctions(Map<String,dynamic> data){
     Map<String,dynamic> transJson=jsonDecode(data["transEnd"]);
-    print(transJson);
+    //print(transJson);
     Transaction ts = Transaction(
         id: BigInt.from(transJson["tid"]),
         symbol: transJson["symbol"],
@@ -238,34 +237,46 @@ class UserModel with ChangeNotifier {
     }
   }
 
-  /*
-  Future<void> _getIcons() async {
-    final SharedPreferences sp=await SharedPreferences.getInstance();
+
+
+  void _saveIcons(String icons) async {
+    final directory = await getApplicationDocumentsDirectory();
+    File file = File("${directory.path}/icons.txt");
+    file.writeAsString(icons,mode: FileMode.append);
+  }
+
+  Future<Map<String,dynamic>> _getIcons() async{
     try{
-      if(sp.getStringList("icons")!.isEmpty){
-        _fetchIcons();
-      }else{
-        List<String>? iconsList=sp.getStringList("icons");
-      }
+      final directory = await getApplicationDocumentsDirectory();
+      File file = File("${directory.path}/icons.txt");
+      String contents=await file.readAsString();
+      return jsonDecode(contents);
     }catch(e){
+      return {};
+    }
+  }
+
+  void _manageIcons() async{
+    Map icons=await _getIcons();
+    if(icons.isEmpty){
       _fetchIcons();
     }
   }
 
-   */
-
-
-
   Future<void> _fetchIcons() async{
     //gereken postlar: isset($_POST["symbols"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
-    Uri url=Uri.parse(ApiAdress.server+ApiAdress.icons);
-    final response=await http.post(url,body: {
-      "symbols":_symbolsMap.keys.join(","),
-      "key":"1",
-      "value":"1",
-      "size":"4"
-    });
-    _iconsMap=jsonDecode(jsonDecode(response.body)["data"]);
+    try{
+      Uri url=Uri.parse(ApiAdress.server+ApiAdress.icons);
+      final response=await http.post(url,body: {
+        "symbols":_symbolsMap.keys.join(","),
+        "key":"1",
+        "value":"1",
+        "size":"4"
+      });
+      _iconsMap=jsonDecode(jsonDecode(response.body)["data"]);
+    }catch(e){
+      //
+    }
   }
 
   //login
@@ -289,7 +300,7 @@ class UserModel with ChangeNotifier {
         SharedPreferences sp=await SharedPreferences.getInstance();
         sp.setString("deviceToken", deviceToken!);
         status = LoginStatus.success;
-        userCode = data["usercode"];
+        userCode = int.parse(data["usercode"]);
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
         _updateData();
@@ -473,7 +484,8 @@ class UserModel with ChangeNotifier {
       "amount": amount.toString(),
       "key": "1",
       "value": "1",
-      "size": "6"
+      "size": "7",
+      "price": "1"//will change
     });
 
     int status = jsonDecode(response.body)["statu"];
@@ -508,16 +520,16 @@ class UserModel with ChangeNotifier {
     for (var map in data["sell"]) {
       //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: BigInt.from(map["tid"]),
+          id: BigInt.parse(map["tid"]),
           symbol: map["symbol"],
-          amount: map["amount"].toDouble(),
-          remaining: map["remaining"].toDouble(),
-          price: map["price"].toDouble(),
-          expiration: map["ts"],
+          amount: double .parse(map["amount"]),
+          remaining: double.parse(map["remaining"]),
+          price: double.parse(map["price"]),
+          expiration: int.parse(map["ts"]),
           status: TransStatus.success,
-          transType: TransType.sell,
-          time: map["startts"],
-          avgPrice: map["avgprice"].toDouble());
+          transType: TransType.sellLimit,
+          time: int.parse(map["startts"]),
+          avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
       orderList.add(ts);
     }
@@ -526,16 +538,16 @@ class UserModel with ChangeNotifier {
     for (var map in data["buy"]) {
       //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: BigInt.from(map["tid"]),
+          id: BigInt.parse(map["tid"]),
           symbol: map["symbol"],
-          amount: map["amount"].toDouble(),
-          remaining: map["remaining"].toDouble(),
-          price: map["price"].toDouble(),
-          expiration: map["ts"],
+          amount: double .parse(map["amount"]),
+          remaining: double.parse(map["remaining"]),
+          price: double.parse(map["price"]),
+          expiration: int.parse(map["ts"]),
           status: TransStatus.success,
-          transType: TransType.buy,
-          time: map["startts"],
-          avgPrice: map["avgprice"].toDouble());
+          transType: TransType.buyLimit,
+          time: int.parse(map["startts"]),
+          avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
       orderList.add(ts);
     }
@@ -544,16 +556,16 @@ class UserModel with ChangeNotifier {
     for (var map in data["sell_o"]) {
       //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: BigInt.from(map["tid"]),
+          id: BigInt.parse(map["tid"]),
           symbol: map["symbol"],
-          amount: map["amount"].toDouble(),
-          remaining: map["remaining"].toDouble(),
-          price: map["price"].toDouble(),
-          expiration: map["ts"],
+          amount: double .parse(map["amount"]),
+          remaining: double.parse(map["remaining"]),
+          price: double.parse(map["price"]),
+          expiration: int.parse(map["ts"]),
           status: TransStatus.success,
-          transType:TransType.sell,
-          time: map["startts"],
-          avgPrice: map["avgprice"].toDouble());
+          transType: TransType.sell,
+          time: int.parse(map["startts"]),
+          avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
       dealList.add(ts);
     }
@@ -561,22 +573,57 @@ class UserModel with ChangeNotifier {
     for (var map in data["buy_o"]) {
       //Map<String,dynamic> map=jsonDecode(item);
       Transaction ts = Transaction(
-          id: BigInt.from(map["tid"]),
+          id: BigInt.parse(map["tid"]),
           symbol: map["symbol"],
-          amount: map["amount"].toDouble(),
-          remaining: map["remaining"].toDouble(),
-          price: map["price"].toDouble(),
-          expiration: map["ts"],
+          amount: double .parse(map["amount"]),
+          remaining: double.parse(map["remaining"]),
+          price: double.parse(map["price"]),
+          expiration: int.parse(map["ts"]),
           status: TransStatus.success,
           transType: TransType.buy,
-          time: map["startts"],
-          avgPrice: map["avgprice"].toDouble()
-      );
+          time: int.parse(map["startts"]),
+          avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
       dealList.add(ts);
     }
     deals = Transaction.sortTimes(dealList);
     orders = Transaction.sortTimes(orderList);
+  }
+
+  void _parseFcm(RemoteMessage message){
+    Map<String,dynamic> data=message.data;
+    if(data["type"]=="trans"){
+      //
+      List l=jsonDecode(data["data"]);
+      for(var elem in l){
+        Map map=jsonDecode(elem);
+        for(var element in deals){
+          if(element.id==map["id"]){
+            element.remaining=double.parse(map["remaining"]);
+          }
+        }
+      }
+      notifyListeners();
+    }else if(data["type"]=="price"){
+      /*
+      List<StockTick> ticks=[];
+     
+       */
+      List l=jsonDecode(data["data"]);
+      for(var elem in l){
+        Map map=jsonDecode(elem);
+        //ticks.add(StockTick(symbol: map["symbol"],ask: map["buyprice"],bid: map["sellprice"]));
+        for(var element in assets) {
+          if(element.symbol==map["symbol"]){
+            element.ask=map["buyprice"];
+            element.bid=map["sellprice"];
+            notifyListeners();
+          } 
+        }
+      }
+      
+      //return ticks;
+    }
   }
 
   void _parseAssets(Response response) {
@@ -638,7 +685,26 @@ class UserModel with ChangeNotifier {
       Map data = jsonDecode(response.body);
       //print("trade response$data");
       if (data["statu"] == 0) {
+        TransType type=TransType.buyLimit;
+        switch(request.orderType){
+          case OrderType.BUY_LIMIT:
+            type=TransType.buyLimit;
+            break;
+          case OrderType.SELL_LIMIT:
+            type=TransType.sellLimit;
+            break;
+          case OrderType.MODIFY:
+            // TODO: Handle this case.
+            break;
+          case OrderType.CANCEL:
+            // TODO: Handle this case.
+            break;
+        }
+        orders.add(Transaction(id: BigInt.parse(data["tid"]), symbol: request.symbol, amount: request.volume,
+            price: request.price, expiration: request.expiration, status: TransStatus.success,
+            transType: type, time: epochNow, avgPrice: 0, remaining: request.volume));
         tradeResponse = TradeResponse.success;
+        notifyListeners();
       } else if (data["statu"] == 1) {
         tradeResponse = TradeResponse.failure;
       }
@@ -648,26 +714,5 @@ class UserModel with ChangeNotifier {
       return TradeResponse.systemError;
     }
   }
-/*
-  _saveLoginData(String phone, String password,String deviceToken)async{
-    final prefs= await SharedPreferences.getInstance();
-    prefs.setString("phone", phone);
-    prefs.setString("password", password);
-    prefs.setString("deviceToken", deviceToken);
-  }
-
-  Future<Map<String,String>> _getSavedLoginData() async{
-    Map<String,String> data={};
-    try{
-      final SharedPreferences prefs=await SharedPreferences.getInstance();
-      data["password"]=(prefs.getString("password"))!;
-      data["phone"]=(prefs.getString("phone"))!;
-    }catch(e){
-      //
-    }
-    return data;
-  }
-
- */
 
 }

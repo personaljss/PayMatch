@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_match/model/observables/stock_ticker.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings.dart';
 import 'package:pay_match/view/screens/bottom_nav/home/home.dart';
@@ -13,6 +14,11 @@ import 'firebase_options.dart';
 void main() async{
 
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseMessaging.instance.getToken();
+
   runApp(MultiProvider(
     providers: [
       //ChangeNotifierProvider(create: (context)=>StocksModel()),
@@ -21,7 +27,14 @@ void main() async{
     child: const MyApp()
   )
 );
-
+  //StockTicker ticker=StockTicker();
+  //ticker.stockTicks.listen((event) {print(event);});
+}
+void _initFcm() async{
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseMessaging.instance.getToken();
 }
 
 

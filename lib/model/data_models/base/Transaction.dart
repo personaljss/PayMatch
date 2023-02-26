@@ -5,7 +5,7 @@ class Transaction{
   final BigInt id;
   final String symbol;
   final double amount;
-  final double remaining;
+  double remaining;
   final double price;
   final int expiration;
   final int time;
