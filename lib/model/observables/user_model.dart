@@ -53,7 +53,7 @@ class UserModel with ChangeNotifier {
 
   UserModel() {
     _fetchSymbolNames();
-    _fetchIcons();
+    _manageIcons();
     _autoLoginServ();
     _listenFcm();
   }
@@ -212,7 +212,6 @@ class UserModel with ChangeNotifier {
 
 
   //getters
-
   List<Asset> get allAssets => _allAssets;
   Map<String,String> get symbolsMap=>_symbolsMap;
   Map<String,dynamic> get iconsMap =>_iconsMap;
@@ -238,13 +237,6 @@ class UserModel with ChangeNotifier {
   }
 
 
-
-  void _saveIcons(String icons) async {
-    final directory = await getApplicationDocumentsDirectory();
-    File file = File("${directory.path}/icons.txt");
-    file.writeAsString(icons,mode: FileMode.append);
-  }
-
   Future<Map<String,dynamic>> _getIcons() async{
     try{
       final directory = await getApplicationDocumentsDirectory();
@@ -257,23 +249,30 @@ class UserModel with ChangeNotifier {
   }
 
   void _manageIcons() async{
-    Map icons=await _getIcons();
-    if(icons.isEmpty){
-      _fetchIcons();
+    Map icons=await _readIconsFile();
+    List<String> iconsToAdd=[];
+    for(String symbol in _symbolsMap.keys){
+      if(!icons.containsKey(symbol)){
+        iconsToAdd.add(symbol);
+      }
+    }
+    if(iconsToAdd.isEmpty){
+      _fetchIcons(iconsToAdd);
     }
   }
 
-  Future<void> _fetchIcons() async{
+  Future<void> _fetchIcons(List<String> symbols) async{
     //gereken postlar: isset($_POST["symbols"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
     try{
       Uri url=Uri.parse(ApiAdress.server+ApiAdress.icons);
       final response=await http.post(url,body: {
-        "symbols":_symbolsMap.keys.join(","),
+        "symbols":symbols.join(","),
         "key":"1",
         "value":"1",
         "size":"4"
       });
-      _iconsMap=jsonDecode(jsonDecode(response.body)["data"]);
+      _iconsMap.addAll(jsonDecode(jsonDecode(response.body)["data"]));
+      _writeIconsFile(_iconsMap);
     }catch(e){
       //
     }
@@ -714,5 +713,30 @@ class UserModel with ChangeNotifier {
       return TradeResponse.systemError;
     }
   }
+
+  Future<Map<String, String>> _readIconsFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    File file = File("${directory.path}/icons.txt");
+    if (await file.exists()) {
+      final contents = await file.readAsString();
+      final jsonData = json.decode(contents);
+      final dataMap = <String, String>{};
+      for (final item in jsonData) {
+        dataMap[item['symbol']] = item['code'];
+      }
+      return dataMap;
+    } else {
+      throw Exception("File does not exist!");
+    }
+  }
+
+  Future<void> _writeIconsFile(Map<String, dynamic> dataList) async {
+    final directory = await getApplicationDocumentsDirectory();
+    File file = File("${directory.path}/icons.txt");
+    final jsonData = json.encode(dataList);
+    await file.writeAsString(jsonData,mode: FileMode.append);
+  }
+
+
 
 }
