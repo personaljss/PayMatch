@@ -25,7 +25,9 @@ enum LoginStatus {
   notYet
 }
 
-int USERCODE=0;//WİLL CHANGEEE
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.data}");
+}
 
 class UserModel with ChangeNotifier {
   static const String defaultList = "favoriler";
@@ -52,6 +54,8 @@ class UserModel with ChangeNotifier {
   Map<String,String> _symbolsMap= {};
   Map<String,dynamic> _iconsMap= {};
 
+  int _portfolioLasteUpdated=0;
+
 
   UserModel() {
     _fetchSymbolNames();
@@ -60,13 +64,16 @@ class UserModel with ChangeNotifier {
     _listenFcm();
   }
 
+
   void _listenFcm() async{
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      //print("userModel: ${message.data}");
+      print("firebase: ${message.data}");
       try{
         _parseFcm(message);
       }catch(e){
         //
+        print(e);
       }
     });
   }
@@ -87,13 +94,13 @@ class UserModel with ChangeNotifier {
       if (statuR == 0) {
         status = LoginStatus.success;
         userCode = int.parse(data["usercode"]);
-        USERCODE=userCode;
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
         _updateData();
         Timer.periodic(const Duration(milliseconds: _interval), (Timer t) {
           _updateData();
         });
+
       } else if (statuR == 1) {
         status = LoginStatus.wrongInfo;
       } else if (statuR == 2) {
@@ -303,7 +310,7 @@ class UserModel with ChangeNotifier {
 
   Future<void> _updateData() async {
     _fetchTransactions();
-    await _fetchPortfolio();
+    await fetchPortfolio();
     if (_portfolioState == NetworkState.LOADING) {
       portfolioState = NetworkState.DONE;
     }
@@ -477,7 +484,7 @@ class UserModel with ChangeNotifier {
     }
   }
 
-  Future<void> _fetchPortfolio() async {
+  Future<void> fetchPortfolio() async {
     //--isset($_POST["usercode"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"]);
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.portfolio);
     final response = await http.post(url, body: {
@@ -579,35 +586,35 @@ class UserModel with ChangeNotifier {
   void _parseFcm(RemoteMessage message){
     Map<String,dynamic> data=message.data;
     if(data["type"]=="trans"){
-      //
       List l=jsonDecode(data["data"]);
       for(var elem in l){
-        Map map=jsonDecode(elem);
+        Map map=elem;
         for(var element in deals){
           if(element.id==map["id"]){
             element.remaining=double.parse(map["remaining"]);
           }
         }
       }
+      int now=DateTime.now().millisecondsSinceEpoch;
+      if(_portfolioLasteUpdated<now-1000){
+        print("requestedPortfolioData");
+        fetchPortfolio();
+        _portfolioLasteUpdated=now;
+      }
       notifyListeners();
     }else if(data["type"]=="price"){
-      /*
-      List<StockTick> ticks=[];
-     
-       */
       List l=jsonDecode(data["data"]);
       for(var elem in l){
-        Map map=jsonDecode(elem);
-        //ticks.add(StockTick(symbol: map["symbol"],ask: map["buyprice"],bid: map["sellprice"]));
-        for(var element in assets) {
+        Map map=elem;
+        for(var element in allAssets) {
           if(element.symbol==map["symbol"]){
-            element.ask=map["buyprice"];
-            element.bid=map["sellprice"];
-            notifyListeners();
+            element.ask=double.parse(map["buyprice"]);
+            element.bid=double.parse(map["sellprice"]);
           } 
         }
       }
-      
+      allAssets=List.of(_allAssets);
+      notifyListeners();
       //return ticks;
     }
   }
@@ -693,6 +700,7 @@ class UserModel with ChangeNotifier {
             price: request.price, expiration: request.expiration, status: TransStatus.success,
             transType: type, time: epochNow, avgPrice: 0, remaining: request.volume));
         tradeResponse = TradeResponse.success;
+        fetchPortfolio();
         notifyListeners();
       } else if (data["statu"] == 1) {
         tradeResponse = TradeResponse.failure;

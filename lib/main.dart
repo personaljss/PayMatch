@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:pay_match/model/observables/stock_ticker.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/screens/bottom_nav/fundings/fundings.dart';
@@ -35,45 +36,13 @@ void main() async{
   //ticker.stockTicks.listen((event) {print(event);});
 }
 
-/*
-class MyLifecycleEventHandler extends WidgetsBindingObserver {
-  _serverInfo(bool online) async{
-    Uri url=Uri.parse(ApiAdress.server+ApiAdress.onDispose);
-    if(USERCODE==0)return;
-    SharedPreferences sp=await SharedPreferences.getInstance();
-    try{
-      http.post(url,body: {
-        "online": online? "1":"0",
-        "key":"1",
-        "value":"1",
-        "userCode":USERCODE.toString(),
-        "size":"5",
-        "devicetoken":sp.getString("deviceToken")
-      });
-    }catch(e){
-//
-    }
-  }
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      // call your function here
-      _serverInfo(false);
-    }
-    if(state==AppLifecycleState.resumed){
-      //
-      _serverInfo(true);
-    }
-  }
-}
- */
 
 
 
-class MyApp extends StatelessWidget  {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   static const String _title = 'PayMatch';
+
 
   @override
   Widget build(BuildContext context) {
@@ -85,33 +54,89 @@ class MyApp extends StatelessWidget  {
   }
 }
 
-class ParentPage extends StatefulWidget {
+class ParentPage extends StatefulWidget{
   const ParentPage({super.key});
 
   @override
   State<ParentPage> createState() => _ParentPageState();
 }
 
-class _ParentPageState extends State<ParentPage> {
-  int _selectedIndex = 0;
+class _ParentPageState extends State<ParentPage>with WidgetsBindingObserver {
   final List<Widget> screens=[
     const HomeView(),
     FundingsView(),
     const PortfolioView()
   ];
+  bool _isBackground=false;
+  int _selectedIndex = 0;
   late int userCode;
+  bool isUserCodeSet=false;
+
   void _onItemTapped(int index){
     setState(() {
       _selectedIndex=index;
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  _serverInfo(bool online) async{
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.onDispose);
+    SharedPreferences sp=await SharedPreferences.getInstance();
+    try{
+      Response response=await http.post(url,body: {
+        "online": online? "1":"0",
+        "key":"1",
+        "value":"1",
+        "usercode":userCode.toString(),
+        "size":"6",
+        "devicetoken":sp.getString("deviceToken")
+      });
+      if(online){
+        _isBackground=true;
+      }else{
+        _isBackground=false;
+      }
+      print(response.body);
+    }catch(e){
+//
+    }
+  }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(!isUserCodeSet){
+      return;
+    }
+    if (state == AppLifecycleState.paused) {
+      print("paused");
+      _serverInfo(false);
+    }
+    if(state==AppLifecycleState.resumed){
+      print("resumed");
+      _serverInfo(true);
+      model.fetchPortfolio();
+    }
+  }
+
+  late UserModel model;
 
   @override
   Widget build(BuildContext context) {
     LoginStatus loginStatus=context.select<UserModel,LoginStatus>((model) => model.status);
     if(loginStatus==LoginStatus.success){
+      isUserCodeSet=true;
       userCode=Provider.of<UserModel>(context,listen:false).userCode;
+      model=Provider.of<UserModel>(context,listen:false);
       return Scaffold(
         body: IndexedStack(
           index: _selectedIndex,
