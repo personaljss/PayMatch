@@ -46,7 +46,8 @@ dependencies:
   toggle_switch: ^2.0.1
   firebase_messaging: ^14.2.5
   firebase_core: ^2.7.0
-
+  # sliver_header_delegate: ^0.0.3
+  persistent_header_adaptive: ^1.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

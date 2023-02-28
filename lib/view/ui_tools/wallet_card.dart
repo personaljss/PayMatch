@@ -235,40 +235,36 @@ class WalletCardNonExpanded extends StatelessWidget {
               decoration: BoxDecoration(
                 color: lightColorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
-                //border: Border.all(width: 8),
               ),
-              child: Expanded(
-                flex: 2,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 1,
-                      child: ClipOval(
-                        child: Image.file(File(asset.imgFileLoc),
-                          width: 40.0,
-                          height: 60.0,
-                          fit: BoxFit.fill,
-                        ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    flex: 1,
+                    child: ClipOval(
+                      child: Image.file(File(asset.imgFileLoc),
+                        width: 40.0,
+                        height: 60.0,
+                        fit: BoxFit.fill,
                       ),
                     ),
-                    SizedBox(width: 8.0,),
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(asset.symbol,
-                              style: kSymbolNameTextStyle),
-                          const SizedBox(height: 8.0,),
-                          Text((asset.fullName).length < 20 ? asset.fullName : "${asset.fullName.substring(0,20)}...",
-                            style: kSymbolTextStyle,),
-                        ],
-                      ),
+                  ),
+                  SizedBox(width: 8.0,),
+                  Expanded(
+                    flex: 4,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(asset.symbol,
+                            style: kSymbolNameTextStyle),
+                        const SizedBox(height: 8.0,),
+                        Text((asset.fullName).length < 20 ? asset.fullName : "${asset.fullName.substring(0,20)}...",
+                          style: kSymbolTextStyle,),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

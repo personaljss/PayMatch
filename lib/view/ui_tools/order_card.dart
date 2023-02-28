@@ -4,11 +4,42 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/base/Transaction.dart';
+import 'package:pay_match/view/ui_tools/wallet_card.dart';
 import '../../model/data_models/trade/Orders.dart';
 import 'package:pay_match/view/ui_tools/tiriviri.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
+class ExpandableWaitingOrderCard extends StatefulWidget {
 
+  bool isExpanded = false;
+  final Widget collapsedChild;
+  final Widget expandedChild;
+  ExpandableWaitingOrderCard({Key? key ,required this.collapsedChild, required this.expandedChild,}) : super(key: key);
+  //const ExpandableWaitingOrderCard({Key? key,required this.result}) : super(key: key);
+
+  @override
+  _ExpandableWaitingOrderCardState createState() => _ExpandableWaitingOrderCardState();
+}
+
+class _ExpandableWaitingOrderCardState extends State<ExpandableWaitingOrderCard> {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          widget.isExpanded = !(widget.isExpanded);
+        });
+      },
+      child: AnimatedContainer(
+        duration: new Duration(seconds: 2),
+        curve: Curves.fastOutSlowIn,
+        child: widget.isExpanded ? widget.expandedChild : widget.collapsedChild,
+      ),
+    );
+  }
+}
 class WaitingOrderCard extends StatelessWidget {
   final Transaction result;
   const WaitingOrderCard({Key? key,required this.result}) : super(key: key);
@@ -19,7 +50,7 @@ class WaitingOrderCard extends StatelessWidget {
     return buildWaitingOrderCard(context, result ,height);
   }
   Widget buildWaitingOrderCard(BuildContext context,Transaction result, double height) => Container(
-    height: height * 0.20,
+    height: height * 0.45,
     child:   Card(
       margin: EdgeInsets.all(0.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
@@ -124,39 +155,41 @@ class WaitingOrderCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("Fiyat",
+                              /*Text("Fiyat",
                                 style: kSymbolNameTextStyle,
                               ),
                               Divider(height: 16.0, thickness: 1.5, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
-                              Text("${(result.price)}₺", style: kOrderTextStyle,),
+                              */Text("${(result.price)}₺", style: kOrderTextStyle,),
                             ],
                           ),
                         ),
+                        VerticalDivider(width: 8.0, thickness: 1.0, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
                         Expanded(
                           flex: 2,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             //crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("Pay",
+                              /*Text("Pay",
                                 style: kSymbolNameTextStyle,
                               ),
                               Divider(height: 16.0, thickness: 1.5, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
-                              Text("${(result.amount)}₺", style: kOrderTextStyle,),
+                              */Text("${(result.amount)}₺", style: kOrderTextStyle,),
                             ],
                           ),
                         ),
+                        VerticalDivider(width: 8.0, thickness: 1.0, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
                         Expanded(
                           flex: 3,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             //crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("Toplam",
+                              /*Text("Toplam",
                                 style: kSymbolNameTextStyle,
                               ),
                               Divider(height: 16.0, thickness: 1.5, indent: 10.0, endIndent: 10.0, color: lightColorScheme.inversePrimary,),
-                              Text("${(result.amount * result.price)}₺", style: kOrderTextStyle,),
+                              */Text("${(result.amount * result.price)}₺", style: kOrderTextStyle,),
                             ],
                           ),
                         ),
@@ -210,3 +243,97 @@ class WaitingOrderCard extends StatelessWidget {
       textAlign: TextAlign.center,);
   }
 }
+
+class WaitingOrderCardCollapsed extends StatelessWidget {
+  final Transaction result;
+  const WaitingOrderCardCollapsed({Key? key,required this.result}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    return buildCollapsedCard(context, result ,height);
+  }
+
+  Widget buildCollapsedCard(BuildContext context, Transaction result, double height) => Container(
+    height: height * 0.20,
+    child: Card(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                flex: 4,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: ClipOval(
+                        child: Image.file(File(result.imgFileLoc),
+                          width: 60.0,
+                          height: 60.0,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16.0,),
+                    Expanded(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Text(result.symbol,
+                                style: kSymbolNameTextStyle),
+                          ),
+                          //const SizedBox(height: 8.0,),
+                          Expanded(
+                            flex: 2,
+                            child: Text((result.symbolName).length < 20 ? result.symbolName : "${result.symbolName.substring(0,20)}...",
+                              style: kSymbolTextStyle,),
+                          ),
+                          //const SizedBox(height: 8.0,),
+                          Expanded(
+                              flex: 1,
+                              child: ((result.symbolName).length > 15)
+                                  ?
+                              Text("AL",
+                                style: kChangeGreenTextStyle,
+                                textAlign: TextAlign.start,)
+                                  :
+                              Text("SAT",
+                                style: kChangeRedTextStyle,
+                                textAlign: TextAlign.start,)
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              /*
+              Expanded(
+                  flex: 1,
+                  child: ((result.symbolName).length > 15)
+                      ?
+                  Text("AL",
+                    style: kChangeGreenTextStyle,
+                    textAlign: TextAlign.start,)
+                      :
+                  Text("SAT",
+                    style: kChangeRedTextStyle,
+                    textAlign: TextAlign.start,)
+              ),*/
+
+            ],
+          ),
+        ),
+    ),
+  );
+
+}
+

@@ -60,6 +60,42 @@ class WalletPage extends StatelessWidget {
             slivers: [
               SliverOverlapInjector(
                   handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
+              /*
+              AdaptiveHeightSliverPersistentHeader(
+                floating: true,
+                pinned: true,
+                child: Padding(
+                  //color: lightColorScheme.primaryContainer,
+                  padding: EdgeInsets.fromLTRB(0,0,0,0),
+                  child: Container(
+                    color: lightColorScheme.primaryContainer,
+                    child: Row(
+                      //backgroundColor: lightColorScheme.primaryContainer,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                            flex:5,
+                            child: Text("")),
+                        Expanded(flex: 2,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text("Fiyat"),
+                              ],
+                            )),
+                        const SizedBox(height: 4.0,),
+                        Expanded( flex: 2,
+                            child: Text("Pay")),
+                        const SizedBox(height: 4.0,),
+                        Expanded(flex: 3,
+                            child: Text("Toplam")),
+
+                      ],
+                    ),
+                  ),
+                ),
+              ),*/
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(20,10,20,10),
