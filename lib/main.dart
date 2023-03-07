@@ -16,65 +16,67 @@ import 'constants/network_constants.dart';
 import 'firebase_options.dart';
 import 'package:http/http.dart' as http;
 
-void main() async{
-
+void main() async {
+/*
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FirebaseMessaging.instance.getToken();
 
-  runApp(MultiProvider(
-    providers: [
-      //ChangeNotifierProvider(create: (context)=>StocksModel()),
-      ChangeNotifierProvider<UserModel>(create: (context)=>UserModel(),)
-    ],
-    child: const MyApp()
-  )
-);
-  //StockTicker ticker=StockTicker();
-  //ticker.stockTicks.listen((event) {print(event);});
+ */
+
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider<UserModel>(
+      create: (context) => UserModel(),
+    )
+  ], child: const MyApp())
+  );
+
 }
-
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  static const String _title = 'PayMatch';
 
+  static const String _title = 'PayMatch';
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: _title,
-      home: ParentPage(),
+      initialRoute: '/',
+      routes: {
+        ParentPage.routeName : (context) => const ParentPage()
+      },
+      home: const ParentPage(),
     );
   }
 }
 
-class ParentPage extends StatefulWidget{
+class ParentPage extends StatefulWidget {
   const ParentPage({super.key});
+  static const routeName="/home_page";
+  static const indexNavKey="index_selected";
 
   @override
   State<ParentPage> createState() => _ParentPageState();
 }
 
-class _ParentPageState extends State<ParentPage>with WidgetsBindingObserver {
-  final List<Widget> screens=[
+class _ParentPageState extends State<ParentPage> with WidgetsBindingObserver {
+  final List<Widget> screens = [
     const HomeView(),
     FundingsView(),
     const PortfolioView()
   ];
-  bool _isBackground=false;
+  bool _isBackground = false;
   int _selectedIndex = 0;
   late int userCode;
-  bool isUserCodeSet=false;
+  bool isUserCodeSet = false;
 
-  void _onItemTapped(int index){
+  void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex=index;
+      _selectedIndex = index;
     });
   }
 
@@ -90,38 +92,39 @@ class _ParentPageState extends State<ParentPage>with WidgetsBindingObserver {
     super.dispose();
   }
 
-  _serverInfo(bool online) async{
-    Uri url=Uri.parse(ApiAdress.server+ApiAdress.onDispose);
-    SharedPreferences sp=await SharedPreferences.getInstance();
-    try{
-      Response response=await http.post(url,body: {
-        "online": online? "1":"0",
-        "key":"1",
-        "value":"1",
-        "usercode":userCode.toString(),
-        "size":"6",
-        "devicetoken":sp.getString("deviceToken")
+  _serverInfo(bool online) async {
+    Uri url = Uri.parse(ApiAdress.server + ApiAdress.onDispose);
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    try {
+      Response response = await http.post(url, body: {
+        "online": online ? "1" : "0",
+        "key": "1",
+        "value": "1",
+        "usercode": userCode.toString(),
+        "size": "6",
+        "devicetoken": sp.getString("deviceToken")
       });
-      if(online){
-        _isBackground=true;
-      }else{
-        _isBackground=false;
+      if (online) {
+        _isBackground = true;
+      } else {
+        _isBackground = false;
       }
       print(response.body);
-    }catch(e){
+    } catch (e) {
 //
     }
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if(!isUserCodeSet){
+    if (!isUserCodeSet) {
       return;
     }
     if (state == AppLifecycleState.paused) {
       print("paused");
       _serverInfo(false);
     }
-    if(state==AppLifecycleState.resumed){
+    if (state == AppLifecycleState.resumed) {
       print("resumed");
       _serverInfo(true);
       model.fetchPortfolio();
@@ -132,11 +135,16 @@ class _ParentPageState extends State<ParentPage>with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    LoginStatus loginStatus=context.select<UserModel,LoginStatus>((model) => model.status);
-    if(loginStatus==LoginStatus.success){
-      isUserCodeSet=true;
-      userCode=Provider.of<UserModel>(context,listen:false).userCode;
-      model=Provider.of<UserModel>(context,listen:false);
+    LoginStatus loginStatus =
+        context.select<UserModel, LoginStatus>((model) => model.status);
+    if (loginStatus == LoginStatus.success) {
+      //checking if there is any arguments when navigating this screen
+      final args = ModalRoute.of(context)!.settings.arguments as Map<String,int>;
+      if(args[ParentPage.indexNavKey]!=null)_selectedIndex=args[ParentPage.routeName]!;
+
+      isUserCodeSet = true;
+      userCode = Provider.of<UserModel>(context, listen: false).userCode;
+      model = Provider.of<UserModel>(context, listen: false);
       return Scaffold(
         body: IndexedStack(
           index: _selectedIndex,
@@ -163,11 +171,12 @@ class _ParentPageState extends State<ParentPage>with WidgetsBindingObserver {
           showUnselectedLabels: false,
         ),
       );
-    }else if(loginStatus==LoginStatus.loading || loginStatus==LoginStatus.notYet){
+    } else if (loginStatus == LoginStatus.loading ||
+        loginStatus == LoginStatus.notYet) {
       return const LoadingScreen();
-    }else if(loginStatus==LoginStatus.wrongInfo){
+    } else if (loginStatus == LoginStatus.wrongInfo) {
       return const LoginScreen();
-    }else {
+    } else {
       return const ErrorScreen();
     }
   }

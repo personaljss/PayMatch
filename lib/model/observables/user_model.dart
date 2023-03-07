@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -11,9 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
-import 'package:pay_match/model/observables/stock_ticker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../firebase_options.dart';
 import '../data_models/base/Transaction.dart';
 
 enum LoginStatus {
@@ -97,10 +94,6 @@ class UserModel with ChangeNotifier {
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
         _updateData();
-        Timer.periodic(const Duration(milliseconds: _interval), (Timer t) {
-          _updateData();
-        });
-
       } else if (statuR == 1) {
         status = LoginStatus.wrongInfo;
       } else if (statuR == 2) {
@@ -292,9 +285,6 @@ class UserModel with ChangeNotifier {
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
         _updateData();
-        Timer.periodic(const Duration(milliseconds: _interval), (Timer t) {
-          _updateData();
-        });
       } else if (statuR == 1) {
         status = LoginStatus.wrongInfo;
       } else if (statuR == 2) {
@@ -493,8 +483,12 @@ class UserModel with ChangeNotifier {
       "value": "1",
       "size": "4",
     });
-
-    await _parseAssets(response);
+    try{
+      await _parseAssets(response);
+    }catch(e){
+      print(e);
+      status=LoginStatus.systemError;
+    }
   }
 
   //
@@ -621,7 +615,7 @@ class UserModel with ChangeNotifier {
 
   Future<void> _parseAssets(Response response) async {
     _equity=0;
-    //print(response.body);
+    print(response.body);
     List<Asset> assetList = [];
     List<Asset> allList=[];
     String list = jsonDecode(response.body)["data"];

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
+import 'package:pay_match/model/observables/stock_ticker.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:provider/provider.dart';
 import '../../model/data_models/base/Asset.dart';
@@ -18,9 +19,15 @@ class StockCard extends StatelessWidget {
   String listName;
 
   @override
-  Widget build(BuildContext context) {
-    return buildCard(context, asset, listName);
-  }
+  Widget build(BuildContext context) => StreamBuilder<StockTick>(
+      stream: StockTicker().ticksOf(asset.symbol),
+      builder: (BuildContext context, AsyncSnapshot<StockTick> snapshot){
+        if(snapshot.hasData){
+          asset.ask=snapshot.data!.ask;
+          asset.bid=snapshot.data!.bid;
+        }
+        return buildCard(context, asset, listName);
+      });
   Widget buildCard(BuildContext context,Asset asset,String listName)  => Card(
     margin: const EdgeInsets.all(0.0),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
@@ -96,9 +103,16 @@ class FavStockCard extends StatelessWidget {
   String listName;
 
   @override
-  Widget build(BuildContext context) {
-    return buildFavCard(context, asset, listName);
-  }
+  Widget build(BuildContext context) => StreamBuilder<StockTick>(
+      stream: StockTicker().ticksOf(asset.symbol),
+      builder: (BuildContext context, AsyncSnapshot<StockTick> snapshot){
+        if(snapshot.hasData){
+          asset.ask=snapshot.data!.ask;
+          asset.bid=snapshot.data!.bid;
+        }
+        return buildFavCard(context, asset, listName);
+      });
+
   Widget buildFavCard(BuildContext context,Asset asset, String listName) => Card(
     margin: EdgeInsets.all(0.0),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
