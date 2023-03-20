@@ -592,7 +592,7 @@ class UserModel with ChangeNotifier {
           time: int.parse(map["startts"]),
           avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
-      ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
+      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
       orderList.add(ts);
     }
 
@@ -612,7 +612,7 @@ class UserModel with ChangeNotifier {
           time: int.parse(map["startts"]),
           avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
-      ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
+      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
       orderList.add(ts);
     }
 
@@ -631,7 +631,7 @@ class UserModel with ChangeNotifier {
           time: int.parse(map["startts"]),
           avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
-      ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
+      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
       dealList.add(ts);
     }
 
@@ -649,7 +649,7 @@ class UserModel with ChangeNotifier {
           time: int.parse(map["startts"]),
           avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
-      ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
+      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
       dealList.add(ts);
     }
     deals = Transaction.sortTimes(dealList);
@@ -704,9 +704,6 @@ class UserModel with ChangeNotifier {
       Asset asset = Asset.fromJson(assetJson);
       //profit calculation will be updated
       asset.profit = 0;
-
-      asset.imgFileLoc="${dir.path}/logos/${asset.symbol}.png";
-
       //tl is not an asset it is the account balance
       if(asset.symbol=="TL"){
         balance=asset.amountHold;

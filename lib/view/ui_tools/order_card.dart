@@ -9,6 +9,7 @@ import 'package:pay_match/view/ui_tools/tiriviri.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
 
+/*
 class WaitingOrderCard extends StatelessWidget {
   final Transaction result;
   const WaitingOrderCard({Key? key,required this.result}) : super(key: key);
@@ -210,3 +211,108 @@ class WaitingOrderCard extends StatelessWidget {
       textAlign: TextAlign.center,);
   }
 }
+
+ */
+class SimpleWaitingOrderCard extends StatelessWidget {
+  Transaction result;
+  SimpleWaitingOrderCard({Key? key, required this.result}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    return buildSimpleWaitingOrderCard(context, result,  height, width);
+  }
+  Widget buildSimpleWaitingOrderCard(BuildContext context, Transaction result, double height, double width) => Container(
+    height: height * 0.10,
+    width: width,
+    color: lightColorScheme.onSecondary,
+    padding: EdgeInsets.fromLTRB(width * 0.03, height * 0.02, width * 0.03, height * 0.02),
+    child: Row(
+      children: <Widget>[
+        Expanded(
+          child: Text("${result.symbol}",
+            textAlign: TextAlign.center,
+            style: kSymbolTextStyle,
+          ),
+        ),
+        Expanded(
+          child: (result.symbolName).length > 15
+              ? Text("AL",
+            textAlign: TextAlign.center,
+            style: kChangeGreenTextStyle,)
+              : Text(
+            ("SAT"),
+            textAlign: TextAlign.center,
+            style: kChangeRedTextStyle,),
+        ),
+        Expanded(
+          child: Text("${result.remaining}",
+            textAlign: TextAlign.center,
+            style: kSymbolNameTextStyle,
+          ),
+        ),
+        VerticalDivider(width: width * 0.003, thickness: width * 0.003, indent: (height * 0.02), endIndent: (height * 0.02), color: lightColorScheme.inversePrimary,),
+        Expanded(
+          child: Text("${result.amount}",
+            textAlign: TextAlign.center,
+            style: kSymbolNameTextStyle,
+          ),
+        ),
+        VerticalDivider(width: width * 0.003, thickness: width * 0.003, indent: (height * 0.02), endIndent: (height * 0.02), color: lightColorScheme.inversePrimary,),
+        Expanded(
+          child: Text("${result.price}",
+            textAlign: TextAlign.center,
+            style: kSymbolNameTextStyle,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class WaitingOrdersHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    return Container(
+      color: lightColorScheme.primaryContainer,
+      padding: EdgeInsets.fromLTRB(width * 0.03, height * 0.02, width * 0.03, height * 0.02),
+      child: Row(
+        //backgroundColor: lightColorScheme.primaryContainer,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(flex: 1,
+            child: Text("Sembol",
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(flex: 1,
+            child: Text("Emir",
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(flex: 1,
+            child: Text("Kalan Pay",
+              textAlign: TextAlign.center,
+            ),
+          ),
+          //VerticalDivider(width: width * 0.1, thickness: width * 0.1,  color: Colors.black,),
+          Expanded( flex: 1,
+            child: Text("Miktar",
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(flex: 1,
+            child: Text("Fiyat",
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

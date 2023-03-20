@@ -41,10 +41,7 @@ class StockCard extends StatelessWidget {
           Expanded(
             flex: 1,
             child: ClipOval(
-              child: Image.file(File(asset.imgFileLoc),
-                width: 60.0,
-                height: 60.0,
-                fit: BoxFit.fill,
+              child: Image.network(asset.imgFileLoc,
               ),
             ),
           ),
@@ -96,7 +93,7 @@ class StockCard extends StatelessWidget {
   );
 }
 
-
+/*
 class FavStockCard extends StatelessWidget {
   FavStockCard({Key? key,required this.asset,required this.listName}) : super(key: key);
   Asset asset;
@@ -172,6 +169,117 @@ class FavStockCard extends StatelessWidget {
 
 }
 
+ */
+class FavStockCard extends StatelessWidget {
+  FavStockCard({Key? key,required this.asset,required this.listName}) : super(key: key);
+  Asset asset;
+  String listName;
+
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
+    return buildFavCard(context, asset, listName, height, width);
+  }
+  Widget buildFavCard(BuildContext context,Asset asset, String listName, double height, double width) => Card(
+    margin: EdgeInsets.all(0.0),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
+    color: lightColorScheme.onSecondary,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          /*Expanded(
+            flex: 2,
+            child: ClipOval(
+              child: Image.asset("assets/logo.png",
+                width: 20.0,
+                height: 40.0,
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),*/
+          //SizedBox(width: width * 0.03,),
+          Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(asset.symbol,
+                    style: kSymbolNameTextStyle),
+                //const SizedBox(height: 8.0,),
+                //Text((asset.fullName).length < 20 ? asset.fullName : "${asset.fullName.substring(0,20)}...",
+                //style: kSymbolTextStyle,),
+              ],
+            ),
+          ),
+          Expanded(flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text("${asset.bid}",
+                  style: kPriceTextStyle,
+                  textAlign: TextAlign.end,
+                ),
+                Text("${asset.ask}",
+                  //style: kPriceMediumTextStyle,
+                  textAlign: TextAlign.end,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: width * 0.04,),
+          Expanded(flex: 3,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 8.0),
+              decoration: BoxDecoration(
+                color: asset.percChange > 0
+                    ? Colors.green
+                    : Colors.redAccent,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(4.0),
+                    topRight: Radius.circular(4.0),
+                    bottomLeft: Radius.circular(4.0),
+                    bottomRight: Radius.circular(4.0)
+                ),
+                //border: Border.all(width: 8),
+              ),
+              child: Text(
+                asset.percChange > 0
+                    ? "+${asset.percChange}%"
+                    : "${asset.percChange}%",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          /*Expanded(
+                flex: 1,
+                child: Text(
+                  asset.percChange.toString(),
+                  style: TextStyle(
+                      color:
+                          (asset.percChange > 0) ? Colors.green : Colors.red),
+                ),
+              ),*/
+          /*Expanded(flex:1,
+                  child: Text(asset.bid.toString())),*/
+          /*Expanded(flex: 1,
+              child: _FavButton(
+                symbol: asset.symbol,
+                listName: listName,
+              ),),*/
+        ],
+      ),
+    ),
+  );
+
+}
 
 class _FavButton extends StatefulWidget {
   const _FavButton({required this.symbol, required this.listName,});
