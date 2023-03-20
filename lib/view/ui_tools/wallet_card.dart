@@ -18,8 +18,6 @@ class ExpandableWalletCard extends StatefulWidget {
   @override
   State<ExpandableWalletCard> createState() =>
       _ExpandableWalletCardState();
-
-
 }
 
 class _ExpandableWalletCardState extends State<ExpandableWalletCard> {
@@ -32,7 +30,7 @@ class _ExpandableWalletCardState extends State<ExpandableWalletCard> {
         });
       },
       child: AnimatedContainer(
-        duration: new Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         curve: Curves.fastOutSlowIn,
         child: widget.isExpanded ? widget.expandedChild : widget.collapsedChild,
       ),
@@ -41,11 +39,8 @@ class _ExpandableWalletCardState extends State<ExpandableWalletCard> {
 }
 
 class WalletCard extends StatelessWidget {
-  Asset asset;
-  void setCompanyName(){
-  }
-
-  WalletCard({Key? key,required this.asset}) : super(key: key);
+  final Asset asset;
+  const WalletCard({Key? key,required this.asset}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +51,7 @@ class WalletCard extends StatelessWidget {
     height: height * 0.45,
     width: double.infinity,
     child:   Card(
-      margin: EdgeInsets.all(0.0),
+      margin: const EdgeInsets.all(0.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
       color: lightColorScheme.onPrimary,
       child: Padding(
@@ -68,7 +63,7 @@ class WalletCard extends StatelessWidget {
             //StockHeader
             Container(
               //width: ,
-              padding: EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(6.0),
               decoration: BoxDecoration(
                 color: lightColorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
@@ -88,7 +83,7 @@ class WalletCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8.0,),
+                  const SizedBox(width: 8.0,),
                   Expanded(
                     flex: 4,
                     child: Column(
@@ -211,15 +206,15 @@ class WalletCard extends StatelessWidget {
 }
 
 class WalletCardNonExpanded extends StatelessWidget {
-  Asset asset;
+  final Asset asset;
 
-  WalletCardNonExpanded({Key? key,required this.asset,}) : super(key: key);
+  const WalletCardNonExpanded({Key? key,required this.asset,}) : super(key: key);
   //String listName;
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     return Card(
-      margin: EdgeInsets.all(0.0),
+      margin: const EdgeInsets.all(0.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
       color: lightColorScheme.onPrimary,
       child: Padding(
@@ -231,7 +226,7 @@ class WalletCardNonExpanded extends StatelessWidget {
             //StockHeader
             Container(
               //width: ,
-              padding: EdgeInsets.all(6.0),
+              padding: const EdgeInsets.all(6.0),
               decoration: BoxDecoration(
                 color: lightColorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
@@ -252,7 +247,7 @@ class WalletCardNonExpanded extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 8.0,),
+                    const SizedBox(width: 8.0,),
                     Expanded(
                       flex: 4,
                       child: Column(

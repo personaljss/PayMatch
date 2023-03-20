@@ -7,8 +7,8 @@ import '../../firebase_options.dart';
 ///This singleton class is responsible for managing the Firebase services and holding the useful data from Firebase.
 class FirebaseService{
   late String _deviceToken;
-  String get deviceToken => _deviceToken;
 
+  String get deviceToken => _deviceToken;
   Stream<RemoteMessage> get onMessage => FirebaseMessaging.onMessage;
 
   Future<void> init() async{
@@ -21,26 +21,28 @@ class FirebaseService{
 
   static final FirebaseService _instance=FirebaseService._privateConstructor();
 
-  FirebaseService._privateConstructor(){
-    init();
-  }
+  FirebaseService._privateConstructor();
 
-  factory FirebaseService() {
+  factory FirebaseService.instance() {
     return _instance;
   }
 
   void _setToken() async{
-    if(Prefs().instance.getString(Prefs.tokenKey)!.isEmpty){
+    try{
+      if(Prefs.instance().getDeviceToken()!.isEmpty){
+        _deviceToken=(await FirebaseMessaging.instance.getToken())!;
+      }else{
+        _deviceToken=Prefs.instance().getDeviceToken()!;
+      }
+    }catch(e){
       _deviceToken=(await FirebaseMessaging.instance.getToken())!;
-    }else{
-    _deviceToken=Prefs().instance.getString(Prefs.tokenKey)!;
     }
   }
 
   void _refreshToken(){
-    FirebaseMessaging.instance.onTokenRefresh.listen((event) {
-      _deviceToken=event;
-      Prefs().instance.setString(Prefs.tokenKey, event);
+    FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+      _deviceToken=token;
+      Prefs.instance().saveDeviceToken(token);
     });
   }
 

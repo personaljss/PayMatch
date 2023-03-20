@@ -10,8 +10,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
+import 'package:pay_match/model/services/auth_service.dart';
+import 'package:pay_match/model/services/sp_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data_models/base/Transaction.dart';
+import '../services/firebase_service.dart';
 
 enum LoginStatus {
   success,
@@ -22,13 +25,20 @@ enum LoginStatus {
   notYet
 }
 
+enum SessionStatus{
+  success,
+  alreadyCreated,
+  loading,
+  systemError
+}
+
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.data}");
 }
 
 class UserModel with ChangeNotifier {
   static const String defaultList = "favoriler";
-  late LoginStatus _status = LoginStatus.notYet;
+  late LoginStatus _status = LoginStatus.wrongInfo;
   late int _userCode;
   //lists created by user
   Map<String, List<String>> _lists = {defaultList: []};
@@ -45,7 +55,6 @@ class UserModel with ChangeNotifier {
   List<Transaction> _orders=[];
   List<Asset> _assets=[];
 
-  static const int _interval=10000;
 
   List<Asset> _allAssets=[];//all the assets
   Map<String,String> _symbolsMap= {};
@@ -55,9 +64,13 @@ class UserModel with ChangeNotifier {
 
 
   UserModel() {
+    _init();
+  }
+  static const int refreshInterval=40000;
+  void _init() async{
+    await startSession();
     _fetchSymbolNames();
-    //_manageIcons();
-    _autoLoginServ();
+    Timer.periodic(const Duration(milliseconds: refreshInterval), (timer) {_refreshSession();});
     _listenFcm();
   }
 
@@ -74,39 +87,6 @@ class UserModel with ChangeNotifier {
       }
     });
   }
-
-  Future<void> _autoLoginServ()async{
-    try{
-      SharedPreferences sp=await SharedPreferences.getInstance();
-      String deviceToken=sp.getString("deviceToken")!;
-      Uri url=Uri.parse(ApiAdress.server+ApiAdress.autologin);
-      final response=await http.post(url,body: {
-        "key":"1",
-        "value":"1",
-        "devicetoken":deviceToken,
-        "size":"4"
-      });
-      final data = jsonDecode(response.body);
-      int statuR = data["statu"];
-      if (statuR == 0) {
-        status = LoginStatus.success;
-        userCode = int.parse(data["usercode"]);
-        _parseGroupData(data["groupdata"]);
-        //updating the portfolio if successful login
-        _updateData();
-      } else if (statuR == 1) {
-        status = LoginStatus.wrongInfo;
-      } else if (statuR == 2) {
-        status = LoginStatus.unverifiedAccount;
-      } else {
-        status = LoginStatus.systemError;
-      }
-    }catch(e){
-      status=LoginStatus.wrongInfo;
-    }
-
-  }
-
 
   //getters and setters
   LoginStatus get status => _status;
@@ -194,9 +174,94 @@ class UserModel with ChangeNotifier {
   Map<String,String> get symbolsMap=>_symbolsMap;
   Map<String,dynamic> get iconsMap =>_iconsMap;
 
-  //methods
+
   Asset getAt(int index){
     return _allAssets[index];
+  }
+
+  //session related
+  late String _sessionPwd;
+  String get sessionPwd => _sessionPwd;
+
+  SessionStatus _sessionStatus=SessionStatus.loading;
+  SessionStatus get sessionStatus => _sessionStatus;
+  set sessionStatus(SessionStatus status){
+    _sessionStatus=status;
+    notifyListeners();
+  }
+
+  //not used right now
+  /*
+  Future<void> endSession() async{
+    //$postValid = isset($_POST["devicetoken"]) && isset($_POST["ps"]) && isset($_POST["usercode"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"]);
+    // return: statu(0: success, 1: session does not exist, 404: system error.), time
+    if(status!=LoginStatus.success)return;
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.endSession);
+    final response=await http.post(url,body: {
+      "key":"1",
+      "value":"1",
+      "devicetoken":FirebaseService.instance().deviceToken,
+      "ps" : sessionPwd,
+      "usercode" : userCode.toString(),
+      "size":"6"
+    });
+    print("session ended: ${response.body}");
+  }
+   */
+
+  Future<void> startSession() async {
+    //isset($_POST["devicetoken"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
+    // return: json_encode(array('statu'=>$statu,'ps'=>$ps,'time'=>((microtime(true)-$init1)*1000)." ms"), JSON_UNESCAPED_UNICODE); statu: 0: success, 1: session already
+
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.startSession);
+    final response=await http.post(url,body: {
+      "key":"1",
+      "value":"1",
+      "devicetoken":FirebaseService.instance().deviceToken,
+      "size":"4"
+    });
+    print("session started: ${response.body}");
+    Map data=jsonDecode(response.body);
+    if(data["statu"]=="0"){
+      _sessionPwd=data["ps"];
+      Prefs.instance().saveSessionPassword(_sessionPwd);
+    }
+    if(data["statu"]=="1"){
+      try{
+        _sessionPwd=Prefs.instance().getSessionPassword()!;
+      }catch(e){
+        //not yet!!!
+        startSession();
+      }
+    }
+    if(data["statu"]=="404"){
+      sessionStatus=SessionStatus.systemError;
+    }
+  }
+
+  //function that will  be called periodically to inform the server that the session should not be terminated
+  Future<void> _refreshSession() async {
+    //gereken postlar: devicetoken,ps,key,value,size
+    // return: 0: başarılı, 403: devicetoken-ps eşleşmiyor, 404: system error
+    print("refreshSession called: $sessionPwd");
+    Uri url=Uri.parse(ApiAdress.server+ApiAdress.refreshSession);
+    final response=await http.post(url,body: {
+      "key":"1",
+      "value":"1",
+      "devicetoken":FirebaseService.instance().deviceToken,
+      "ps":sessionPwd,
+      "size":"5"
+    });
+    print("session refreshed: ${response.body}");
+    Map data=jsonDecode(response.body);
+    if(data["statu"]=="404"){
+      throw Exception("System error while refreshing the session");
+    }else if(data["statu"]=="403"){
+      status=LoginStatus.loading;
+      await startSession();
+      status=LoginStatus.wrongInfo;
+      //throw Exception("Session passwords do not match");
+    }
   }
 
 
@@ -206,8 +271,12 @@ class UserModel with ChangeNotifier {
     final response=await http.post(url,body: {
       "key":"1",
       "value":"1",
-      "size":"3"
+      "ps": sessionPwd,
+      "devicetoken":FirebaseService.instance().deviceToken,
+      "size":"5",
     });
+
+    print("_fetchSymbolNames() ${response.body}");
     List symbols=jsonDecode(jsonDecode(response.body)["data"]);
     for(Map<String,dynamic> item in symbols){
       _symbolsMap[item["symbol"]]=item["sharename"];
@@ -257,6 +326,7 @@ class UserModel with ChangeNotifier {
        */
     }catch(e){
       //
+      print("_fetchIcons() error: $e");
     }
   }
 
@@ -265,35 +335,36 @@ class UserModel with ChangeNotifier {
     try {
       Uri url = Uri.parse(ApiAdress.server + ApiAdress.login);
       status=LoginStatus.loading;
-      String? deviceToken=await FirebaseMessaging.instance.getToken();
       final response = await http.post(url, body: {
         'phone': phone,
         'password': password,
-        'devicetoken':deviceToken,
+        'devicetoken':FirebaseService.instance().deviceToken,
         'key': '1',
         'value': '1',
-        'size': '6',
+        'size': '7',
+        "ps": sessionPwd,
       });
 
       final data = jsonDecode(response.body);
-      int statuR = data["statu"];
-      if (statuR == 0) {
+      print(response.body);
+      String statuR = data["statu"];
+      if (statuR == "0") {
         SharedPreferences sp=await SharedPreferences.getInstance();
-        sp.setString("deviceToken", deviceToken!);
+        sp.setString("deviceToken", FirebaseService.instance().deviceToken);
         status = LoginStatus.success;
         userCode = int.parse(data["usercode"]);
         _parseGroupData(data["groupdata"]);
         //updating the portfolio if successful login
         _updateData();
-      } else if (statuR == 1) {
+      } else if (statuR == "1") {
         status = LoginStatus.wrongInfo;
-      } else if (statuR == 2) {
+      } else if (statuR == "2") {
         status = LoginStatus.unverifiedAccount;
       } else {
         status = LoginStatus.systemError;
       }
     } catch (e) {
-
+      print("logIn() error: $e");
       status = LoginStatus.systemError;
     }
   }
@@ -315,7 +386,7 @@ class UserModel with ChangeNotifier {
           list.add(asset);
         }
       }catch(e){
-
+        //
       }
     }
     return list;
@@ -346,7 +417,8 @@ class UserModel with ChangeNotifier {
       "type": "add",
       "key": "1",
       "value": "1",
-      "size": "7",
+      "ps": sessionPwd,
+      "size": "8",
     });
 
     final data = json.decode(response.body);
@@ -360,9 +432,9 @@ class UserModel with ChangeNotifier {
         notifyListeners();
       }
     } else if (status == 1) {
-      throw Exception("Share is already in the group");
+      throw Exception("addSymbolToShareGroup(): Share is already in the group");
     } else {
-      throw Exception("System error");
+      throw Exception("addSymbolToShareGroup(): System error");
     }
   }
 
@@ -387,10 +459,12 @@ class UserModel with ChangeNotifier {
       "usercode": _userCode.toString(),
       "groupname": groupName,
       "symbol": symbol,
+      "devicetoken" : FirebaseService.instance().deviceToken,
       "type": "del",
       "key": "1",
       "value": "1",
-      "size": "7",
+      "size": "9",
+      "ps": sessionPwd,
     });
     final data = json.decode(response.body);
     final status = data['statu'];
@@ -433,15 +507,16 @@ class UserModel with ChangeNotifier {
   //portfolio related methods
 
   Future<void> _fetchTransactions() async {
-
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.transactions);
     final response = await http.post(url, body: {
       "usercode": userCode.toString(),
+      "devicetoken" : FirebaseService.instance().deviceToken,
+      "ps" : sessionPwd,
       "key": "1",
       "value": "1",
       "type": "sell_o,buy_o,sell,buy",
-      "size": "6",
-      "from":"0"
+      "size": "8",
+      "from":"0",
     });
     try{
       //print("fetchTrans called");
@@ -460,9 +535,11 @@ class UserModel with ChangeNotifier {
       "symbol": symbol,
       "usercode": userCode.toString(),
       "amount": amount.toString(),
+      "devicetoken" : FirebaseService.instance().deviceToken,
       "key": "1",
       "value": "1",
-      "size": "7",
+      "size": "9",
+      "ps": sessionPwd,
       "price": "1"//will change
     });
 
@@ -475,13 +552,15 @@ class UserModel with ChangeNotifier {
   }
 
   Future<void> fetchPortfolio() async {
-    //--isset($_POST["usercode"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"]);
+    //gereken postlar: devicetoken,ps,usercode,key,value,size
     Uri url = Uri.parse(ApiAdress.server + ApiAdress.portfolio);
     final response = await http.post(url, body: {
       "usercode": userCode.toString(),
+      "devicetoken" : FirebaseService.instance().deviceToken,
       "key": "1",
       "value": "1",
-      "size": "4",
+      "size": "6",
+      "ps": sessionPwd,
     });
     try{
       await _parseAssets(response);
@@ -665,16 +744,19 @@ class UserModel with ChangeNotifier {
         "usercode": userCode.toString(),
         "key": "1",
         "value": "1",
-        "size": "8",
+        "size": "10",
         "symbol": request.symbol,
         "amount": request.volume.toString(),
         "price": request.price.toString(),
+        "devicetoken":FirebaseService.instance().deviceToken,
+        "ps" : sessionPwd,
         "ts": (epochNow<request.expiration)?request.expiration.toString():"4102444800"
       });
       TradeResponse tradeResponse = TradeResponse.systemError;
       Map data = jsonDecode(response.body);
       //print("trade response$data");
-      if (data["statu"] == 0) {
+      if (data["statu"] == "0") {
+        tradeResponse=TradeResponse.success;
         TransType type=TransType.buyLimit;
         switch(request.orderType){
           case OrderType.BUY_LIMIT:
@@ -696,7 +778,7 @@ class UserModel with ChangeNotifier {
         tradeResponse = TradeResponse.success;
         fetchPortfolio();
         notifyListeners();
-      } else if (data["statu"] == 1) {
+      } else if (data["statu"] == "1") {
         tradeResponse = TradeResponse.failure;
       }
       return tradeResponse;
