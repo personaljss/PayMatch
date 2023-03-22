@@ -19,8 +19,10 @@ class ApiAdress{
   static String buyOrder="transactions/buyorder/";
   static String symbolNames="records/symbolnames/";
   static String icons="records/geticons/";
-  static String autologin="records/autologin/";
-  static String onDispose="records/logout/";
+  static String startSession = "records/createsession/";
+  static String endSession="records/endsession/";
+  static String refreshSession="records/refreshsession/";
+
   static String getTradePage(OrderType orderType){
     if(orderType==OrderType.BUY_LIMIT){
       return server+buyOrder;
