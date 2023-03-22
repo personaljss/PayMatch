@@ -216,7 +216,7 @@ class FavPage extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () => gotoTradeView(context,assets[index].symbol),
-                      child: StockCard(asset: assets[index], listName: listName,),
+                      child: FavStockCard(asset: assets[index], listName: listName,),
                     ),
                     Divider(height: 1,
                       indent: 50.0,

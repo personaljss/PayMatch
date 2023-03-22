@@ -132,7 +132,7 @@ class FundingsCard extends StatelessWidget {
 
                         ),
                         Center(
-                          child: Text( "${(funding.fundedPercentage) * 100}%",
+                          child: Text( "${((funding.fundedPercentage) * 100).toStringAsFixed(2)}%",
                             style: kLabelUnoTextStyle,
                           ),
                         ),
@@ -164,7 +164,7 @@ class FundingsCard extends StatelessWidget {
 
                       },
                       child: Text("Yatırım Yap",
-                        style: kChangeGreenTextStyle,
+                        style: kButtonGreenTextStyle,
                       ),
                     ),
                   ),

@@ -76,6 +76,13 @@ final kButtonTextStyle = TextStyle(
   fontSize: 16.0,
   letterSpacing: -0.5,
 );
+final kButtonGreenTextStyle = TextStyle(
+  color: Colors.green,
+  fontFamily: "Montserrat",
+  fontWeight: FontWeight.w500,
+  fontSize: 16.0,
+  letterSpacing: -0.5,
+);
 final kButtonLightTextStyle = TextStyle(
   color: lightColorScheme.onPrimary,
   fontSize: 20.0,

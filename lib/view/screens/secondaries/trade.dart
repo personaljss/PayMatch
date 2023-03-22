@@ -1,6 +1,7 @@
 import 'package:flutter_spinbox/material.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_match/main.dart';
 import 'package:pay_match/model/data_models/base/Transaction.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
 import 'package:pay_match/model/observables/user_model.dart';
@@ -287,13 +288,14 @@ class _TradeViewState extends State<TradeView> {
                             displaySnackBar(context, "lütfen geçerli bir emir giriniz");
                             return;
                           }
-                          //TODO:: Implement httpRequest
                           OrderType type=(initialIndex==0)?OrderType.BUY_LIMIT:OrderType.SELL_LIMIT;
                           TradeRequest request=TradeRequest(symbol, price, volume, type, 0, 0, 0, 0, 0);
                           TradeResponse response=await Provider.of<UserModel>(context,listen: false).orderSend(request);
                           if(context.mounted){
                             if(response==TradeResponse.success){
                               displaySnackBar(context, "işlem başarılı");
+                              //navigating to the portfolio
+                              Navigator.pushNamed(context, ParentPage.routeName,arguments: {ParentPage.routeName: 1});
                             }else if(response==TradeResponse.noMoney){
                               displaySnackBar(context, "Bakiyeniz yetersiz.");
                             }else if(response==TradeResponse.failure){
