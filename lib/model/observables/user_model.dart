@@ -370,8 +370,8 @@ class UserModel with ChangeNotifier {
   }
 
   Future<void> _updateData() async {
-    _fetchTransactions();
     await fetchPortfolio();
+    await _fetchTransactions();
     if (_portfolioState == NetworkState.LOADING) {
       portfolioState = NetworkState.DONE;
     }
@@ -563,7 +563,7 @@ class UserModel with ChangeNotifier {
       "ps": sessionPwd,
     });
     try{
-      await _parseAssets(response);
+      _parseAssets(response);
     }catch(e){
       print(e);
       status=LoginStatus.systemError;
@@ -633,6 +633,7 @@ class UserModel with ChangeNotifier {
       ts.symbolName=symbolsMap[map["symbol"]]!;
       //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
       dealList.add(ts);
+      //asset.profit+=ts.price*(ts.amount-ts.remaining);
     }
 
     for (var map in data["buy_o"]) {
@@ -640,7 +641,7 @@ class UserModel with ChangeNotifier {
       Transaction ts = Transaction(
           id: BigInt.parse(map["tid"]),
           symbol: map["symbol"],
-          amount: double .parse(map["amount"]),
+          amount: double.parse(map["amount"]),
           remaining: double.parse(map["remaining"]),
           price: double.parse(map["price"]),
           expiration: int.parse(map["ts"]),
@@ -649,33 +650,65 @@ class UserModel with ChangeNotifier {
           time: int.parse(map["startts"]),
           avgPrice: double.parse(map["avgprice"]));
       ts.symbolName=symbolsMap[map["symbol"]]!;
-      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
+      assets.firstWhere((element) => element.symbol==ts.symbol).calculateProfit(ts.amount-ts.remaining, ts.price);
       dealList.add(ts);
     }
     deals = Transaction.sortTimes(dealList);
     orders = Transaction.sortTimes(orderList);
+    //assets=List.generate(assets.length, (index) => assets[index]);
   }
 
   void _parseFcm(RemoteMessage message){
     Map<String,dynamic> data=message.data;
+    print(message.data);
     if(data["type"]=="trans"){
-      List l=jsonDecode(data["data"]);
-      for(var elem in l){
-        Map map=elem;
-        for(var element in deals){
-          if(element.id==map["id"]){
+        TransType type=(data["operation"]=="buyer")?TransType.buyLimit:TransType.sellLimit;
+        Map map=jsonDecode(data["transEnd"]);
+        Transaction ts = Transaction(
+            id: BigInt.parse(map["tid"]),
+            symbol: map["symbol"],
+            amount: double.parse(map["amount"]),
+            remaining: double.parse(map["remaining"]),
+            price: double.parse(map["price"]),
+            expiration: int.parse(map["ts"]),
+            status: TransStatus.success,
+            transType: type,
+            time: int.parse(map["startts"]),
+            avgPrice: double.parse(map["avgprice"]));
+
+        if(ts.remaining<=0){
+          orders.removeWhere((element) => element.id==ts.id && ts.transType==element.transType);
+        }else{
+          orders.firstWhere((element) => element.id==ts.id && ts.transType==element.transType).remaining=ts.remaining;
+        }
+/*
+        deals.insert(0, ts);
+        for(var element in orders){
+          BigInt id=BigInt.parse(map["id"]);
+          if(element.id==id){
             element.remaining=double.parse(map["remaining"]);
+            if(element.remaining<=0){
+              deals.remove(element);
+            }
+            assets.firstWhere((asset) => asset.symbol==element.symbol).calculateProfit(element.amount-element.remaining, element.price);
           }
         }
-      }
+
+ */
+/*
       int now=DateTime.now().millisecondsSinceEpoch;
       if(_portfolioLasteUpdated<now-1000){
         print("requestedPortfolioData");
         fetchPortfolio();
         _portfolioLasteUpdated=now;
       }
+
+ */
       notifyListeners();
-    }else if(data["type"]=="price"){
+    }
+
+    /*
+    else if(data["type"]=="price"){
       List l=jsonDecode(data["data"]);
       for(var elem in l){
         Map map=elem;
@@ -690,20 +723,19 @@ class UserModel with ChangeNotifier {
       notifyListeners();
       //return ticks;
     }
+
+     */
   }
 
-  Future<void> _parseAssets(Response response) async {
+  void _parseAssets(Response response) async {
     _equity=0;
     print(response.body);
     List<Asset> assetList = [];
     List<Asset> allList=[];
     String list = jsonDecode(response.body)["data"];
     double eq=0;
-    final dir=await getApplicationDocumentsDirectory();
     for (var assetJson in jsonDecode(list)) {
       Asset asset = Asset.fromJson(assetJson);
-      //profit calculation will be updated
-      asset.profit = 0;
       //tl is not an asset it is the account balance
       if(asset.symbol=="TL"){
         balance=asset.amountHold;
@@ -769,11 +801,11 @@ class UserModel with ChangeNotifier {
             // TODO: Handle this case.
             break;
         }
-        orders.add(Transaction(id: BigInt.parse(data["tid"]), symbol: request.symbol, amount: request.volume,
+        orders.insert(0,Transaction(id: BigInt.parse(data["tid"]), symbol: request.symbol, amount: request.volume,
             price: request.price, expiration: request.expiration, status: TransStatus.success,
             transType: type, time: epochNow, avgPrice: 0, remaining: request.volume));
         tradeResponse = TradeResponse.success;
-        fetchPortfolio();
+        //fetchPortfolio();
         notifyListeners();
       } else if (data["statu"] == "1") {
         tradeResponse = TradeResponse.failure;

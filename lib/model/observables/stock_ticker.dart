@@ -45,11 +45,11 @@ class StockTicker {
   List<StockTick> _parseTicks(RemoteMessage message) {
     List<StockTick> res = [];
     List ticks = jsonDecode(message.data["data"]);
-    ticks.forEach((element) {
+    for (var element in ticks) {
       var tick = element;
       //Map<String,dynamic> tick=jsonDecode(element);
       res.add(StockTick(symbol: tick["symbol"], ask: double.parse(tick["buyprice"]), bid: double.parse(tick["sellprice"])));
-    });
+    }
     return res;
   }
 }

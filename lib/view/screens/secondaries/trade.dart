@@ -20,6 +20,11 @@ class TradeView extends StatefulWidget {
   static const String defaultSymbol="defaultSymbol";
   const TradeView({Key? key,required this.symbol}) : super(key: key);
   final String symbol;
+
+  static void go(BuildContext context,String symbol){
+    Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>TradeView(symbol: symbol)));
+  }
+
   @override
   State<StatefulWidget> createState() => _TradeViewState();
 }
@@ -295,7 +300,8 @@ class _TradeViewState extends State<TradeView> {
                             if(response==TradeResponse.success){
                               displaySnackBar(context, "işlem başarılı");
                               //navigating to the portfolio
-                              Navigator.pushNamed(context, ParentPage.routeName,arguments: {ParentPage.routeName: 1});
+                              Navigator.of(context).pop();
+                             // Navigator.pushNamed(context, ParentPage.routeName,arguments: {ParentPage.routeName: 1});
                             }else if(response==TradeResponse.noMoney){
                               displaySnackBar(context, "Bakiyeniz yetersiz.");
                             }else if(response==TradeResponse.failure){

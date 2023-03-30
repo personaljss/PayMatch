@@ -8,7 +8,7 @@ class DetailsHeaderCard extends StatelessWidget {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.height;
     return Card(
-      margin: EdgeInsets.all(0.0),
+      margin: const EdgeInsets.all(0.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.0)),
       child: Padding(
         padding: EdgeInsets.fromLTRB(0, height * 0.1, 0, 0),

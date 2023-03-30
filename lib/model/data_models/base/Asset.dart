@@ -12,8 +12,29 @@ class Asset {
   late String fullName;
   late String logo;
   late double percChange;
-  late double profit;
+  double _profit=0;
   late String imgFileLoc;
+
+  double get profit => _profit;
+  double get cost => _cost;
+
+  //variables to hold the amount of stock that is included in the profit calculation
+  double _calculatedAmount=0;
+  double _cost=0;
+
+  void calculateProfit(double amountBought, double price){
+    if(_calculatedAmount<amountHold){
+      if(_calculatedAmount+amountBought<amountHold){
+        _cost+=amountBought*price;
+        _calculatedAmount+=amountBought;
+      }else{
+        _cost+=(amountHold-_calculatedAmount)*price;
+        _calculatedAmount+=(amountHold-_calculatedAmount);
+        _profit=amountHold*ask-_cost;
+      }
+    }
+
+  }
 
   Asset({
     required this.symbol,
@@ -25,7 +46,6 @@ class Asset {
     required this.fullName,
     required this.percChange,
     required this.imgFileLoc});
-
 
   factory Asset.fromJson(Map<String, dynamic> json) {
     return Asset(

@@ -198,6 +198,6 @@ class FundingsCard extends StatelessWidget {
 
 
 void _gotoDetailsView(BuildContext context) {
-  Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailsView()));
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const DetailsView(symbol: "",)));
 }
 
