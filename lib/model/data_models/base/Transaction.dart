@@ -33,6 +33,27 @@ class Transaction{
     return _merge(leftList, rightList);
   }
 
+  factory Transaction.fromJson(Map<String, dynamic> json, Map<String,String> symbolsMap,TransType type){
+    Transaction ts = Transaction(
+        id: BigInt.parse(json["tid"]),
+        symbol: json["symbol"],
+        amount: double .parse(json["amount"]),
+        remaining: double.parse(json["remaining"]),
+        price: double.parse(json["price"]),
+        expiration: int.parse(json["ts"]),
+        status: TransStatus.success,
+        transType: type,
+        time: int.parse(json["startts"]),
+        avgPrice: double.parse(json["avgprice"]));
+    try{
+      ts.symbolName=symbolsMap[json["symbol"]]!;
+    }catch(e){
+      print(e);
+    }
+
+    return ts;
+  }
+
   static List<Transaction> _merge(List<Transaction> leftList, List<Transaction> rightList) {
     List<Transaction> mergedList = [];
 

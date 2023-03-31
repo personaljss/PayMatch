@@ -6,6 +6,9 @@ class Prefs{
   static const tokenKey="deviceToken";
   static const sessionPwdKey="sessionPwd";
   static const userCodeKey="userCode";
+  static const phoneKey="phone";
+  static const loginPwdKey="loginPassword";
+  static const sessionLastUpdatedKey="session";
 
   late SharedPreferences _sp;
   SharedPreferences get data=>_sp;
@@ -47,4 +50,20 @@ class Prefs{
     return _sp.getString(userCodeKey);
   }
 
+  String? getPhoneNumber() => _sp.getString(phoneKey);
+
+  String? getLoginPassword() => _sp.getString(loginPwdKey);
+
+  void savePhoneNumber(String phoneNumber){
+    _sp.setString(phoneKey, phoneNumber);
+  }
+
+  void saveLoginPassword(String password){
+    _sp.setString(loginPwdKey, password);
+  }
+
+  int? getLastUpdatedSession() => _sp.getInt(sessionLastUpdatedKey);
+  void saveLastUpdatedSession(int time){
+    _sp.setInt(sessionLastUpdatedKey, time);
+  }
 }

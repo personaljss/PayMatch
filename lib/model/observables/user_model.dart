@@ -10,9 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pay_match/constants/network_constants.dart';
 import 'package:pay_match/model/data_models/base/Asset.dart';
 import 'package:pay_match/model/data_models/trade/Orders.dart';
-import 'package:pay_match/model/services/auth_service.dart';
 import 'package:pay_match/model/services/sp_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../data_models/base/Transaction.dart';
 import '../services/firebase_service.dart';
 
@@ -32,12 +30,9 @@ enum SessionStatus{
   systemError
 }
 
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.data}");
-}
-
 class UserModel with ChangeNotifier {
   static const String defaultList = "favoriler";
+  static const int sessionCheckLimit=40000;
   late LoginStatus _status = LoginStatus.wrongInfo;
   late int _userCode;
   //lists created by user
@@ -76,9 +71,9 @@ class UserModel with ChangeNotifier {
 
 
   void _listenFcm() async{
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("firebase: ${message.data}");
+    //FirebaseMessaging.onMessage
+    FirebaseService.instance().onTransaction.listen((RemoteMessage message) {
+      print("firebase transcation: ${message.data}");
       try{
         _parseFcm(message);
       }catch(e){
@@ -190,29 +185,19 @@ class UserModel with ChangeNotifier {
     notifyListeners();
   }
 
-  //not used right now
-  /*
-  Future<void> endSession() async{
-    //$postValid = isset($_POST["devicetoken"]) && isset($_POST["ps"]) && isset($_POST["usercode"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"]);
-    // return: statu(0: success, 1: session does not exist, 404: system error.), time
-    if(status!=LoginStatus.success)return;
-    Uri url=Uri.parse(ApiAdress.server+ApiAdress.endSession);
-    final response=await http.post(url,body: {
-      "key":"1",
-      "value":"1",
-      "devicetoken":FirebaseService.instance().deviceToken,
-      "ps" : sessionPwd,
-      "usercode" : userCode.toString(),
-      "size":"6"
-    });
-    print("session ended: ${response.body}");
-  }
-   */
+
 
   Future<void> startSession() async {
     //isset($_POST["devicetoken"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
     // return: json_encode(array('statu'=>$statu,'ps'=>$ps,'time'=>((microtime(true)-$init1)*1000)." ms"), JSON_UNESCAPED_UNICODE); statu: 0: success, 1: session already
-
+    int? lastUpdated=Prefs.instance().getLastUpdatedSession();
+    if(lastUpdated!=null){
+      if(DateTime.now().millisecondsSinceEpoch-lastUpdated<sessionCheckLimit){
+        _sessionPwd=Prefs.instance().getSessionPassword()!;
+        _refreshSession();
+        return;
+      }
+    }
     Uri url=Uri.parse(ApiAdress.server+ApiAdress.startSession);
     final response=await http.post(url,body: {
       "key":"1",
@@ -224,6 +209,7 @@ class UserModel with ChangeNotifier {
     Map data=jsonDecode(response.body);
     if(data["statu"]=="0"){
       _sessionPwd=data["ps"];
+      Prefs.instance().saveLastUpdatedSession(DateTime.now().millisecondsSinceEpoch);
       Prefs.instance().saveSessionPassword(_sessionPwd);
     }
     if(data["statu"]=="1"){
@@ -237,6 +223,7 @@ class UserModel with ChangeNotifier {
     if(data["statu"]=="404"){
       sessionStatus=SessionStatus.systemError;
     }
+
   }
 
   //function that will  be called periodically to inform the server that the session should not be terminated
@@ -254,13 +241,15 @@ class UserModel with ChangeNotifier {
     });
     print("session refreshed: ${response.body}");
     Map data=jsonDecode(response.body);
+    if(data["statu"]=="0"){
+      Prefs.instance().saveLastUpdatedSession(DateTime.now().millisecondsSinceEpoch);
+    }
     if(data["statu"]=="404"){
       throw Exception("System error while refreshing the session");
     }else if(data["statu"]=="403"){
       status=LoginStatus.loading;
       await startSession();
       status=LoginStatus.wrongInfo;
-      //throw Exception("Session passwords do not match");
     }
   }
 
@@ -281,54 +270,10 @@ class UserModel with ChangeNotifier {
     for(Map<String,dynamic> item in symbols){
       _symbolsMap[item["symbol"]]=item["sharename"];
     }
-    _manageIcons();
+
   }
 
 
-  void _manageIcons() async{
-    List<String> iconsToAdd=[];
-    final dir=await getApplicationDocumentsDirectory();
-    for(String symbol in symbolsMap.keys){
-      File file=File("${dir.path}/logos/$symbol.png");
-      if(!file.existsSync()){
-        iconsToAdd.add(symbol);
-      }
-    }
-    if(iconsToAdd.isNotEmpty){
-      _fetchIcons(iconsToAdd);
-    }
-  }
-
-  Future<void> _fetchIcons(List<String> symbols) async{
-    //gereken postlar: isset($_POST["symbols"]) && isset($_POST["key"]) && isset($_POST["value"]) && isset($_POST["size"])
-    try{
-      /*
-      Uri url=Uri.parse(ApiAdress.server+ApiAdress.icons);
-      final response=await http.post(url,body: {
-        "symbols":symbols.join(","),
-        "key":"1",
-        "value":"1",
-        "size":"4"
-      });
-      print(response.body);
-       */
-      for(var symbol in symbols){
-        String lower=symbol.toLowerCase();
-        Uri url=Uri.parse("${ApiAdress.server}shareicons/$lower.png");
-        final response=await http.get(url);
-        _writeIcon(response, symbol);
-      }
-      /*
-      Map<String,String> data=jsonDecode(jsonDecode(response.body)["data"]);
-      _iconsMap.addAll(data);
-      _writeIconsFile(_iconsMap);
-
-       */
-    }catch(e){
-      //
-      print("_fetchIcons() error: $e");
-    }
-  }
 
   //login
   Future<void> logIn(String phone, String password) async {
@@ -349,8 +294,8 @@ class UserModel with ChangeNotifier {
       print(response.body);
       String statuR = data["statu"];
       if (statuR == "0") {
-        SharedPreferences sp=await SharedPreferences.getInstance();
-        sp.setString("deviceToken", FirebaseService.instance().deviceToken);
+        Prefs.instance().saveLoginPassword(password);
+        Prefs.instance().savePhoneNumber(phone);
         status = LoginStatus.success;
         userCode = int.parse(data["usercode"]);
         _parseGroupData(data["groupdata"]);
@@ -520,7 +465,7 @@ class UserModel with ChangeNotifier {
     });
     try{
       //print("fetchTrans called");
-      //print(response.body);
+      print("transactions: "+response.body);
       _parseTransactions(response);
     }catch(e){
       print(e);
@@ -542,9 +487,9 @@ class UserModel with ChangeNotifier {
       "ps": sessionPwd,
       "price": "1"//will change
     });
-
+    print(response.body);
     int status = jsonDecode(response.body)["statu"];
-    if (status == 0) {
+    if (status == "0") {
       return true;
     } else {
       return false;
@@ -578,80 +523,28 @@ class UserModel with ChangeNotifier {
     List<Transaction> dealList = [];
     final dir=await getApplicationDocumentsDirectory();
     // Parsing sell orders
-    for (var map in data["sell"]) {
-      //Map<String,dynamic> map=jsonDecode(item);
-      Transaction ts = Transaction(
-          id: BigInt.parse(map["tid"]),
-          symbol: map["symbol"],
-          amount: double .parse(map["amount"]),
-          remaining: double.parse(map["remaining"]),
-          price: double.parse(map["price"]),
-          expiration: int.parse(map["ts"]),
-          status: TransStatus.success,
-          transType: TransType.sellLimit,
-          time: int.parse(map["startts"]),
-          avgPrice: double.parse(map["avgprice"]));
-      ts.symbolName=symbolsMap[map["symbol"]]!;
-      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
-      orderList.add(ts);
+    for (var json in data["sell"]) {
+      orderList.add(Transaction.fromJson(json, symbolsMap, TransType.sellLimit));
     }
 
     // Parsing buy orders
-    for (var map in data["buy"]) {
-      //Map<String,dynamic> map=jsonDecode(item);
-      Transaction ts = Transaction(
-
-          id: BigInt.parse(map["tid"]),
-          symbol: map["symbol"],
-          amount: double .parse(map["amount"]),
-          remaining: double.parse(map["remaining"]),
-          price: double.parse(map["price"]),
-          expiration: int.parse(map["ts"]),
-          status: TransStatus.success,
-          transType: TransType.buyLimit,
-          time: int.parse(map["startts"]),
-          avgPrice: double.parse(map["avgprice"]));
-      ts.symbolName=symbolsMap[map["symbol"]]!;
-      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
-      orderList.add(ts);
+    for (var json in data["buy"]) {
+      orderList.add(Transaction.fromJson(json, symbolsMap, TransType.buyLimit));
     }
 
     // Parsing completed deals
-    for (var map in data["sell_o"]) {
-      //Map<String,dynamic> map=jsonDecode(item);
-      Transaction ts = Transaction(
-          id: BigInt.parse(map["tid"]),
-          symbol: map["symbol"],
-          amount: double .parse(map["amount"]),
-          remaining: double.parse(map["remaining"]),
-          price: double.parse(map["price"]),
-          expiration: int.parse(map["ts"]),
-          status: TransStatus.success,
-          transType: TransType.sell,
-          time: int.parse(map["startts"]),
-          avgPrice: double.parse(map["avgprice"]));
-      ts.symbolName=symbolsMap[map["symbol"]]!;
-      //ts.imgFileLoc="${dir.path}/logos/${ts.symbol}.png";
-      dealList.add(ts);
-      //asset.profit+=ts.price*(ts.amount-ts.remaining);
+    for (var json in data["sell_o"]) {
+      dealList.add(Transaction.fromJson(json, symbolsMap, TransType.sell));
     }
 
-    for (var map in data["buy_o"]) {
-      //Map<String,dynamic> map=jsonDecode(item);
-      Transaction ts = Transaction(
-          id: BigInt.parse(map["tid"]),
-          symbol: map["symbol"],
-          amount: double.parse(map["amount"]),
-          remaining: double.parse(map["remaining"]),
-          price: double.parse(map["price"]),
-          expiration: int.parse(map["ts"]),
-          status: TransStatus.success,
-          transType: TransType.buy,
-          time: int.parse(map["startts"]),
-          avgPrice: double.parse(map["avgprice"]));
-      ts.symbolName=symbolsMap[map["symbol"]]!;
-      assets.firstWhere((element) => element.symbol==ts.symbol).calculateProfit(ts.amount-ts.remaining, ts.price);
+    for (var json in data["buy_o"]) {
+      Transaction ts=Transaction.fromJson(json, symbolsMap, TransType.sellLimit);
       dealList.add(ts);
+      try{
+        assets.firstWhere((element) => element.symbol==ts.symbol).calculateProfit(ts.amount-ts.remaining, ts.avgPrice);
+      }catch(e){
+
+      }
     }
     deals = Transaction.sortTimes(dealList);
     orders = Transaction.sortTimes(orderList);
@@ -663,68 +556,21 @@ class UserModel with ChangeNotifier {
     print(message.data);
     if(data["type"]=="trans"){
         TransType type=(data["operation"]=="buyer")?TransType.buyLimit:TransType.sellLimit;
-        Map map=jsonDecode(data["transEnd"]);
-        Transaction ts = Transaction(
-            id: BigInt.parse(map["tid"]),
-            symbol: map["symbol"],
-            amount: double.parse(map["amount"]),
-            remaining: double.parse(map["remaining"]),
-            price: double.parse(map["price"]),
-            expiration: int.parse(map["ts"]),
-            status: TransStatus.success,
-            transType: type,
-            time: int.parse(map["startts"]),
-            avgPrice: double.parse(map["avgprice"]));
-
+        Map<String,dynamic> json=jsonDecode(data["transEnd"]);
+        Transaction ts = Transaction.fromJson(json, symbolsMap, TransType.sellLimit);
+        deals.insert(0, ts);
         if(ts.remaining<=0){
           orders.removeWhere((element) => element.id==ts.id && ts.transType==element.transType);
         }else{
           orders.firstWhere((element) => element.id==ts.id && ts.transType==element.transType).remaining=ts.remaining;
         }
-/*
-        deals.insert(0, ts);
-        for(var element in orders){
-          BigInt id=BigInt.parse(map["id"]);
-          if(element.id==id){
-            element.remaining=double.parse(map["remaining"]);
-            if(element.remaining<=0){
-              deals.remove(element);
-            }
-            assets.firstWhere((asset) => asset.symbol==element.symbol).calculateProfit(element.amount-element.remaining, element.price);
-          }
+        try{
+          assets.firstWhere((element) => element.symbol==ts.symbol).calculateProfit(ts.amount-ts.remaining, ts.price);
+        }catch(e){
+
         }
-
- */
-/*
-      int now=DateTime.now().millisecondsSinceEpoch;
-      if(_portfolioLasteUpdated<now-1000){
-        print("requestedPortfolioData");
-        fetchPortfolio();
-        _portfolioLasteUpdated=now;
-      }
-
- */
-      notifyListeners();
     }
-
-    /*
-    else if(data["type"]=="price"){
-      List l=jsonDecode(data["data"]);
-      for(var elem in l){
-        Map map=elem;
-        for(var element in allAssets) {
-          if(element.symbol==map["symbol"]){
-            element.ask=double.parse(map["buyprice"]);
-            element.bid=double.parse(map["sellprice"]);
-          } 
-        }
-      }
-      allAssets=List.of(_allAssets);
-      notifyListeners();
-      //return ticks;
-    }
-
-     */
+    notifyListeners();
   }
 
   void _parseAssets(Response response) async {

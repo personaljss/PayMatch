@@ -4,6 +4,10 @@ import 'package:pay_match/model/services/sp_service.dart';
 
 import '../../firebase_options.dart';
 
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.data}");
+}
+
 ///This singleton class is responsible for managing the Firebase services and holding the useful data from Firebase.
 class FirebaseService{
   late String _deviceToken;
@@ -11,10 +15,18 @@ class FirebaseService{
   String get deviceToken => _deviceToken;
   Stream<RemoteMessage> get onMessage => FirebaseMessaging.onMessage;
 
+  Stream<RemoteMessage> get onPriceChange =>
+     onMessage.asBroadcastStream().where((message) => message.data["type"]=="price");
+
+
+  Stream<RemoteMessage> get onTransaction =>
+      onMessage.asBroadcastStream().where((message) => message.data["type"]=="trans");
+
   Future<void> init() async{
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     _setToken();
     _refreshToken();
   }

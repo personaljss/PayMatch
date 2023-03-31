@@ -23,6 +23,7 @@ class Asset {
   double _cost=0;
 
   void calculateProfit(double amountBought, double price){
+    //print("$symbol: amountHold: $amountHold calculated: $_calculatedAmount");
     if(_calculatedAmount<amountHold){
       if(_calculatedAmount+amountBought<amountHold){
         _cost+=amountBought*price;
@@ -31,6 +32,7 @@ class Asset {
         _cost+=(amountHold-_calculatedAmount)*price;
         _calculatedAmount+=(amountHold-_calculatedAmount);
         _profit=amountHold*ask-_cost;
+        //print("$symbol: amountHold: $amountHold ask: $ask cost: $_cost ");
       }
     }
 

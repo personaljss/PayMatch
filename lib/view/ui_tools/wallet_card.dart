@@ -132,7 +132,7 @@ class WalletCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text("Toplam Tutar",
+                Text("Değer",
                   style: kSymbolNameTextStyle,
                 ),
                 const SizedBox(width: 8.0,),
@@ -215,7 +215,7 @@ class WalletCard extends StatelessWidget {
                   style: kSymbolNameTextStyle,
                 ),
                 const SizedBox(width: 8.0,),
-                Text("${(result.profit/result.cost*100).toStringAsFixed(2)} ₺",
+                Text("%${(result.profit/result.cost*100).toStringAsFixed(2)}",
                   style: kPriceTextStyle,
                 ),
               ],

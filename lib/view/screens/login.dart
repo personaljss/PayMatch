@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:provider/provider.dart';
 
+import '../../model/services/sp_service.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -12,6 +14,18 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController=TextEditingController();
   final TextEditingController _pwdController=TextEditingController();
+  late final String _pwdHint;
+  late final String _phoneHint;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _pwdHint=((Prefs.instance().getLoginPassword()==null)?"":Prefs.instance().getLoginPassword())!;
+    _phoneHint=((Prefs.instance().getPhoneNumber()==null)?"":Prefs.instance().getPhoneNumber())!;
+    _pwdController.text=_pwdHint;
+    _phoneController.text=_phoneHint;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +57,8 @@ class _LoginScreenState extends State<LoginScreen> {
               child: TextField(
                 controller: _pwdController,
                 obscureText: true,
+                //enableSuggestions: false,
+                autocorrect: false,
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Şifre',

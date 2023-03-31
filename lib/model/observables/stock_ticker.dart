@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:pay_match/model/services/firebase_service.dart';
 
 class StockTicker {
   final StreamController<List<StockTick>> _tickController =
@@ -31,8 +32,9 @@ class StockTicker {
   void _listenServer() async {
     if (Firebase.apps.isNotEmpty) {
       print("listenServer()");
-      FirebaseMessaging.onMessage.asBroadcastStream().listen((RemoteMessage message) {
-        //print("stockTicker: ${message.data}");
+      //FirebaseMessaging.onMessage.asBroadcastStream()
+      FirebaseService.instance().onPriceChange.listen((RemoteMessage message) {
+        print("stockTicker: ${message.data}");
         _emitTicks(_parseTicks(message));
       });
     }
@@ -45,8 +47,7 @@ class StockTicker {
   List<StockTick> _parseTicks(RemoteMessage message) {
     List<StockTick> res = [];
     List ticks = jsonDecode(message.data["data"]);
-    for (var element in ticks) {
-      var tick = element;
+    for (var tick in ticks) {
       //Map<String,dynamic> tick=jsonDecode(element);
       res.add(StockTick(symbol: tick["symbol"], ask: double.parse(tick["buyprice"]), bid: double.parse(tick["sellprice"])));
     }

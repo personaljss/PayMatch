@@ -20,9 +20,8 @@ class WalletPage extends StatelessWidget {
       child: Builder(
         builder: (context) {
           List<Asset> assets=context.select<UserModel,List<Asset>>((value)=>value.assets);
-          double equity=context.select<UserModel,double>((value) => value.equity);
           double balance=context.select<UserModel,double>((value) => value.balance);
-          double profit=balance-equity;
+
           return (assets.isEmpty)?
           Scaffold(body:
           Column(children:[
@@ -46,7 +45,7 @@ class WalletPage extends StatelessWidget {
                     children:  [
                       Text("$balance ₺"),
                       const SizedBox(height: 4.0,),
-                      Text("$profit ₺"),
+                      Text("0 ₺"),
                     ],
 
                   ),
@@ -66,7 +65,11 @@ class WalletPage extends StatelessWidget {
   top: false,
   bottom: false,
   child: Builder(
-    builder: (context) => CustomScrollView(
+    builder: (context) {
+      double equity=context.select<UserModel,double>((value) => value.equity);
+      double balance=context.select<UserModel,double>((value) => value.balance);
+      double profit=equity-balance;
+      return CustomScrollView(
       slivers: [
         SliverOverlapInjector(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)),
@@ -80,7 +83,7 @@ class WalletPage extends StatelessWidget {
                 Column(
                   //mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: const [
                     Text("Toplam Tutar"),
                     SizedBox(height: 4.0,),
                     Text("Toplam Kar/Zarar"),
@@ -89,9 +92,9 @@ class WalletPage extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("8661.65 ₺"),
+                    Text("$balance ₺"),
                     SizedBox(height: 4.0,),
-                    Text("+55000.47 ₺"),
+                    Text("$profit ₺"),
                   ],
                 )
               ],
@@ -128,7 +131,8 @@ class WalletPage extends StatelessWidget {
           ),
         ),
       ],
-    ),
+    );
+    },
   ),
 );
 }
