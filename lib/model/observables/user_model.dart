@@ -363,20 +363,21 @@ class UserModel with ChangeNotifier {
       "key": "1",
       "value": "1",
       "ps": sessionPwd,
-      "size": "8",
+      "devicetoken":FirebaseService.instance().deviceToken,
+      "size": "9",
     });
 
     final data = json.decode(response.body);
     final status = data['statu'];
 
-    if (status == 0) {
+    if (status == "0") {
       if (!lists.containsKey(groupName)) {
         lists[groupName] = <String>[];
       }if(!lists[groupName]!.contains(symbol)){
         lists[groupName]!.add(symbol);
         notifyListeners();
       }
-    } else if (status == 1) {
+    } else if (status == "1") {
       throw Exception("addSymbolToShareGroup(): Share is already in the group");
     } else {
       throw Exception("addSymbolToShareGroup(): System error");
@@ -414,12 +415,12 @@ class UserModel with ChangeNotifier {
     final data = json.decode(response.body);
     final status = data['statu'];
 
-    if (status == 0) {
+    if (status == "0") {
       if (lists.containsKey(groupName)) {
         lists[groupName]!.remove(symbol);
       }
       notifyListeners();
-    } else if (status == 1) {
+    } else if (status == "1") {
       throw Exception("Share is not in the group");
     } else {
       throw Exception("System error");
