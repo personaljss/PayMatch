@@ -14,7 +14,7 @@ class DetailsView extends StatefulWidget {
   @override
   State<DetailsView> createState() => _DetailsState();
   static void go(BuildContext context, String symbol){
-    Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>DetailsView(symbol: symbol))
+    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>DetailsView(symbol: symbol))
     );
   }
 }

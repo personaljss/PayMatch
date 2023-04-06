@@ -115,9 +115,8 @@ class _HomeViewState extends State<HomeView> with TickerProviderStateMixin{
                     actions: [
                       IconButton(onPressed: ()=>showSearch(context: context, delegate: StockSearchDelegate(listName: _tabs[_tabController.index])), icon:_searchIcon,),
                       //IconButton(onPressed: ()=>_showListMenu(context,_tabs[_tabController.index]), icon: const Icon(Icons.more_vert_outlined))
-                      PopupMenuButton(itemBuilder: (context){
-                        return _menuActions(context, _tabController.index);
-                      },
+                      PopupMenuButton(itemBuilder: (context)
+                        => _menuActions(context, _tabController.index),
                       onSelected: (index) {
                         if(index==0){
                           //go to previous tab

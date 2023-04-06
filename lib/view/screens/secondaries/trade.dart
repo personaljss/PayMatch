@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter_spinbox/material.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
@@ -17,13 +18,13 @@ class TradeView extends StatefulWidget {
   while creating this class' object however, if it is opened from nowhere the defaultSymbol variable
   will be passed as a constructor argument
   * */
+  static void go(BuildContext context, String symbol){
+    Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>TradeView(symbol: symbol))
+    );
+  }
   static const String defaultSymbol="defaultSymbol";
   const TradeView({Key? key,required this.symbol}) : super(key: key);
   final String symbol;
-
-  static void go(BuildContext context,String symbol){
-    Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=>TradeView(symbol: symbol)));
-  }
 
   @override
   State<StatefulWidget> createState() => _TradeViewState();
@@ -36,14 +37,13 @@ class _TradeViewState extends State<TradeView> {
   //formKey for sending requests to server to handle events in fields
   final controllerOrderType = SingleValueDropDownController();
   final controllerSymbolCode = SingleValueDropDownController();
-  final _formkey = GlobalKey<FormState>();
-  //members for interwidget communication
   late String symbol;
-  //why not enum??
   late String orderType;
   double price = 0;
   double volume = 0;
   double total = 0;
+
+
 
 //fake implementation
   late List<DropDownValueModel> symbolsDropDown;
@@ -110,7 +110,6 @@ class _TradeViewState extends State<TradeView> {
       ),
       body: Padding(padding: EdgeInsets.all(20),
         child: Form(
-          key: _formkey,
           child: Column(
             children: <Widget>[
               Expanded(
@@ -140,7 +139,7 @@ class _TradeViewState extends State<TradeView> {
                 ),
                 ),
 
-                const SizedBox(height: 30),
+                //const SizedBox(height: 30),
 
                 Row(
                   children: <Widget>[
@@ -153,6 +152,9 @@ class _TradeViewState extends State<TradeView> {
                         enableSearch: true,
                         keyboardType: TextInputType.name,
                         dropDownList: ordersDropDown,
+                        textFieldDecoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
                       ),
                     ),
                   ],
@@ -267,7 +269,7 @@ class _TradeViewState extends State<TradeView> {
                         "AL", "SAT"
                       ],
                       customTextStyles: [kOnButtonLightTextStyle,kOnButtonLightTextStyle],
-                      activeBgColors: [[AppColors.green2, AppColors.green1], [Colors.yellow, Colors.orange]],
+                      activeBgColors: const [[AppColors.green2, AppColors.green1], [Colors.yellow, Colors.orange]],
                       animate: true, // with just animate set to true, default curve = Curves.easeIn
                       curve: Curves.bounceInOut, // animate must be set to true when using custom curve
                       onToggle: (index) {
@@ -287,7 +289,8 @@ class _TradeViewState extends State<TradeView> {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom( backgroundColor: Colors.blue),
                         onPressed: () async{
-                        if(_formkey.currentState!.validate()){
+                        //if(_formkey.currentState!.validate())
+                        if(context.mounted){
                           //Validating the order properties
                           if(symbol.isEmpty || price<=0 || volume<=0 || orderType.isEmpty){
                             displaySnackBar(context, "lütfen geçerli bir emir giriniz");
@@ -299,7 +302,7 @@ class _TradeViewState extends State<TradeView> {
                           if(context.mounted){
                             if(response==TradeResponse.success){
                               displaySnackBar(context, "işlem başarılı");
-                              //navigating to the portfolio
+                              //navigating to the previous screen
                               Navigator.of(context).pop();
                              // Navigator.pushNamed(context, ParentPage.routeName,arguments: {ParentPage.routeName: 1});
                             }else if(response==TradeResponse.noMoney){

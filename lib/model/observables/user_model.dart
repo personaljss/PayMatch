@@ -522,6 +522,7 @@ class UserModel with ChangeNotifier {
 
     List<Transaction> orderList = [];
     List<Transaction> dealList = [];
+
     final dir=await getApplicationDocumentsDirectory();
     // Parsing sell orders
     for (var json in data["sell"]) {

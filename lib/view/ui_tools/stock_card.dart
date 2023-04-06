@@ -1,23 +1,20 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:pay_match/model/data_models/trade/Orders.dart';
 import 'package:pay_match/model/observables/stock_ticker.dart';
 import 'package:pay_match/model/observables/user_model.dart';
 import 'package:pay_match/view/screens/secondaries/details.dart';
 import 'package:provider/provider.dart';
 import '../../model/data_models/base/Asset.dart';
-import '../../model/data_models/base/fundings_model.dart';
 import '../../utils/colors.dart';
 import '../../utils/styles/text_styles.dart';
+import '../screens/secondaries/trade.dart';
 
-//TODO::implement row column main axis
 class StockCard extends StatelessWidget {
-  StockCard({Key? key, required this.asset, required this.listName})
+  const StockCard({Key? key, required this.asset, required this.listName})
       : super(key: key);
-  Asset asset;
-  String listName;
-
+  final Asset asset;
+  final String listName;
   @override
   Widget build(BuildContext context) =>
       StreamBuilder<StockTick>(
@@ -36,7 +33,7 @@ class StockCard extends StatelessWidget {
                 asset.ask = snapshot.data!.ask;
                 asset.bid = snapshot.data!.bid;
               } catch (e) {
-
+                //
               }
             }
             return buildCard(context, asset, listName, height, width);
@@ -48,6 +45,9 @@ class StockCard extends StatelessWidget {
         onTap: () {
           DetailsView.go(context, asset.symbol);
         },
+
+        onLongPress:() => _onLongPressed(context,height,width),
+
         child: Card(
           margin: const EdgeInsets.all(0.0),
           shape:
@@ -118,13 +118,74 @@ class StockCard extends StatelessWidget {
           ),
         ),
       );
+
+  _onLongPressed(BuildContext context, double height, double width)  async {
+    /*
+    if(!context.mounted){
+      return;
+    }
+
+     */
+    final RenderBox box;
+    try{
+      box = context.findRenderObject() as RenderBox;
+    }catch(e){
+      print("StockCard::_onnLongPress() $e");
+      return;
+    }
+      final Offset position = box.localToGlobal(Offset.zero);
+      final RelativeRect positionRelativeToScreen = RelativeRect.fromLTRB(
+        //position.dx,
+        height,
+        position.dy,
+        width - position.dx - box.size.width,
+        height - position.dy - box.size.height,
+      );
+      showMenu(
+        useRootNavigator: true,
+        context: context,
+        position: positionRelativeToScreen,
+        items: <PopupMenuItem>[
+          //PopupMenuItem(child: Text("listeden çıkar"),onTap: ()=> Provider.of<UserModel>(context, listen: false).deleteSymbolFromShareGroup(listName, asset.symbol)),
+          PopupMenuItem(child: Text("detaylara git"), onTap: ()=>_goToDetails(context, asset.symbol)),
+          PopupMenuItem(child: Text("alım-satım yap"), onTap: ()=>_goToTrade(context, asset.symbol),)
+        ],
+      );
+  }
+
+  _goToDetails(BuildContext context, String symbol) async {
+    //Navigator.of(context).pop();
+    await Future.delayed(const Duration(seconds: 0));
+    DetailsView.go(context, asset.symbol);
+  }
+
+  _goToTrade(BuildContext context, String symbol) async {
+    //Navigator.of(context).pop();
+    await Future.delayed(const Duration(seconds: 0));
+    TradeView.go(context, asset.symbol);
+  }
+
 }
+
+
 
 class FavStockCard extends StatelessWidget {
   const FavStockCard({Key? key, required this.asset, required this.listName})
       : super(key: key);
   final Asset asset;
   final String listName;
+
+  _goToDetails(BuildContext context, String symbol) async {
+    //Navigator.of(context).pop();
+    await Future.delayed(const Duration(seconds: 0));
+    DetailsView.go(context, asset.symbol);
+  }
+
+  _goToTrade(BuildContext context, String symbol) async {
+    //Navigator.of(context).pop();
+    await Future.delayed(const Duration(seconds: 0));
+    TradeView.go(context, asset.symbol);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +211,7 @@ class FavStockCard extends StatelessWidget {
   Widget buildFavCard(BuildContext context, Asset asset, String listName,
       double height, double width) =>
       GestureDetector(
+        onLongPress:() => _onLongPressed(context,height,width),
         onTap: () {
           DetailsView.go(context, asset.symbol);
         },
@@ -199,7 +261,7 @@ class FavStockCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Container(
-                    padding: EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 8.0),
+                    padding: const EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 8.0),
                     decoration: BoxDecoration(
                       color: asset.percChange > 0
                           ? Colors.green
@@ -228,6 +290,41 @@ class FavStockCard extends StatelessWidget {
           ),
         ),
       );
+
+  _onLongPressed(BuildContext context, double height, double width)  async {
+    /*
+    if(!context.mounted){
+      return;
+    }
+
+     */
+    final RenderBox box;
+    try{
+      box = context.findRenderObject() as RenderBox;
+    }catch(e){
+      print("StockCard::_onnLongPress() $e");
+      return;
+    }
+    final Offset position = box.localToGlobal(Offset.zero);
+    final RelativeRect positionRelativeToScreen = RelativeRect.fromLTRB(
+      //position.dx,
+      height,
+      position.dy,
+      width - position.dx - box.size.width,
+      height - position.dy - box.size.height,
+    );
+    showMenu(
+      useRootNavigator: true,
+      context: context,
+      position: positionRelativeToScreen,
+      items: <PopupMenuItem>[
+        PopupMenuItem(child: Text("listeden çıkar"),onTap: ()=> Provider.of<UserModel>(context, listen: false).deleteSymbolFromShareGroup(listName, asset.symbol)),
+        PopupMenuItem(child: Text("detaylara git"), onTap: ()=>_goToDetails(context, asset.symbol)),
+        PopupMenuItem(child: Text("alım-satım yap"), onTap: ()=>_goToTrade(context, asset.symbol),)
+      ],
+    );
+  }
+
 }
 
 class FavButton extends StatefulWidget {
